@@ -1,0 +1,26 @@
+.vercel
+# Credentials and secrets (do not commit)
+credentials.json
+credentials_base64.txt
+*client_secret*.json
+gbp_credentials_base64.txt
+gbp-service-account-key.json
+token.pickle
+.env
+.env.*
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+# IDE / OS
+.idea/
+.vscode/
+*.code-workspace
+.DS_Store
+Thumbs.db
+# Node
+node_modules/
+# Optional: uncomment to exclude downloaded/cache folders
+# vercel-deployment-download/

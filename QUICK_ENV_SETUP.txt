@@ -1,0 +1,54 @@
+# Quick Environment Variables Reference
+
+## Copy these values to Vercel:
+
+### 1. PROPERTY_ID
+```
+368035934
+```
+
+### 2. GOOGLE_APPLICATION_CREDENTIALS_B64
+```
+[See credentials_base64.txt - it's a single long line, copy the entire content]
+```
+
+## Steps to Add in Vercel Dashboard:
+
+1. Go to: https://vercel.com/dashboard
+2. Select your project (or create new one)
+3. Go to: **Settings** → **Environment Variables**
+4. Click **Add New**
+5. For each variable:
+   - **Key**: `PROPERTY_ID`
+   - **Value**: `368035934`
+   - **Environments**: ✅ Production ✅ Preview ✅ Development
+   - Click **Save**
+   
+   - **Key**: `GOOGLE_APPLICATION_CREDENTIALS_B64`
+   - **Value**: [Paste entire content from `credentials_base64.txt` - it's one long line]
+   - **Environments**: ✅ Production ✅ Preview ✅ Development
+   - Click **Save**
+
+6. **Important**: After adding variables, you need to redeploy for them to take effect!
+
+## Verify Setup:
+
+After deployment, test the health endpoint:
+```
+https://your-project.vercel.app/api/health
+```
+
+Should return:
+```json
+{"status": "healthy", "property_id": "368035934"}
+```
+
+
+
+
+
+
+
+
+
+

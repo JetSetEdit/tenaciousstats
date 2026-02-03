@@ -1,0 +1,183 @@
+{
+  "total_sessions": {
+    "label": "Total Sessions",
+    "description": "Total number of visits to the site in this period. One person can create multiple sessions if they return."
+  },
+  "total_users": {
+    "label": "Total Users",
+    "description": "Estimated number of unique people who visited the site in this period."
+  },
+  "page_views": {
+    "label": "Page Views",
+    "description": "Total times any page on the site was loaded or viewed, including repeat views."
+  },
+  "engagement_rate": {
+    "label": "Engagement Rate",
+    "description": "Percent of sessions where visitors did something meaningful, such as viewing multiple pages, staying for a while, or triggering key events."
+  },
+  "avg_session_duration": {
+    "label": "Avg. Session Duration",
+    "description": "Average time visitors actively spent on the site during a visit."
+  },
+  "bounce_rate": {
+    "label": "Bounce Rate",
+    "description": "Percent of sessions where visitors left after only one page with no meaningful interaction."
+  },
+
+  "sessions_by_source": {
+    "label": "Sessions by Source",
+    "description": "Shows how many visits came from each traffic source and medium combination, such as google / organic or BenchmarkEmail / email."
+  },
+  "source_medium": {
+    "label": "Source / Medium",
+    "description": "Source is the specific origin, like google.com or BenchmarkEmail. Medium is the traffic type, such as organic search, referral, email, or direct."
+  },
+
+  "direct_none": {
+    "label": "(direct) / (none)",
+    "description": "Visits where Analytics could not detect a referrer. Often people typing the URL, using bookmarks, or clicking untagged links in apps, PDFs, or emails."
+  },
+  "google_organic": {
+    "label": "google / organic",
+    "description": "Unpaid clicks from Google search results."
+  },
+  "bing_organic": {
+    "label": "bing / organic",
+    "description": "Unpaid clicks from Bing search results."
+  },
+  "duckduckgo_organic": {
+    "label": "duckduckgo / organic",
+    "description": "Unpaid clicks from DuckDuckGo search results."
+  },
+  "yahoo_referral": {
+    "label": "au.search.yahoo.com / referral",
+    "description": "Clicks from Yahoo search results or pages that send traffic as referral."
+  },
+  "benchmark_email_email": {
+    "label": "BenchmarkEmail / email",
+    "description": "Visits from links in Benchmark Email campaigns that have tracking tags."
+  },
+  "email_signature_email": {
+    "label": "email / email-signature",
+    "description": "Visits from links in email signatures or ad‑hoc emails that are tagged as email traffic."
+  },
+  "clickup_referral": {
+    "label": "app.clickup.com / referral",
+    "description": "Visitors coming from links inside ClickUp, such as shared tasks, docs, or dashboards."
+  },
+  "instagram_referral": {
+    "label": "l.instagram.com / referral",
+    "description": "Clicks on links from Instagram that open in its in‑app browser, counted as referral traffic."
+  },
+  "not_set_source": {
+    "label": "(not set)",
+    "description": "Sessions where the traffic source information is missing or could not be determined."
+  },
+
+  "top_pages_views": {
+    "label": "Views (Pages)",
+    "description": "How many times a specific page was viewed in the selected period."
+  },
+  "top_pages_users": {
+    "label": "Users (Pages)",
+    "description": "How many unique visitors viewed this page at least once in the selected period."
+  },
+
+  "top_products_views": {
+    "label": "Views (Products)",
+    "description": "How many times a specific product page was viewed in the selected period."
+  },
+  "top_products_users": {
+    "label": "Users (Products)",
+    "description": "How many unique visitors viewed this product page at least once."
+  },
+
+  "user_type_new": {
+    "label": "New Users",
+    "description": "People visiting the site for the first time on this device or browser."
+  },
+  "user_type_returning": {
+    "label": "Returning Users",
+    "description": "People who have visited before on this device or browser and came back in this period."
+  },
+  "user_type_percentage": {
+    "label": "User Type Percentage",
+    "description": "Share of total sessions that came from new vs returning visitors."
+  },
+
+  "sessions_by_country": {
+    "label": "Sessions by Country",
+    "description": "Where visits originated, based on IP location; some traffic may be ‘not set’ if location is unclear."
+  },
+  "top_cities": {
+    "label": "Top Cities",
+    "description": "Cities that generated the most sessions in the selected period."
+  },
+
+  "device_category": {
+    "label": "Device Category",
+    "description": "Type of device used for the visit, such as desktop, mobile, or tablet."
+  },
+  "desktop": {
+    "label": "desktop",
+    "description": "Sessions from laptop or desktop computers."
+  },
+  "mobile": {
+    "label": "mobile",
+    "description": "Sessions from smartphones."
+  },
+  "tablet": {
+    "label": "tablet",
+    "description": "Sessions from tablet devices."
+  },
+
+  "event_name": {
+    "label": "Event Name",
+    "description": "A specific action that was tracked on the site, such as viewing a page, scrolling, or submitting a form."
+  },
+  "event_count": {
+    "label": "Event Count",
+    "description": "Total number of times this event was recorded in the selected period."
+  },
+
+  "event_page_view": {
+    "label": "page_view",
+    "description": "Recorded whenever a page on the site loads or is viewed."
+  },
+  "event_user_engagement": {
+    "label": "user_engagement",
+    "description": "Recorded when a visitor has an engaged session, for example staying on a page long enough or interacting before leaving."
+  },
+  "event_session_start": {
+    "label": "session_start",
+    "description": "Recorded when a new visit to the site begins."
+  },
+  "event_first_visit": {
+    "label": "first_visit",
+    "description": "Recorded the first time a device or browser ever visits the site."
+  },
+  "event_scroll": {
+    "label": "scroll",
+    "description": "Recorded when a visitor scrolls far enough down a page to show they viewed more than just the top."
+  },
+  "event_form_start": {
+    "label": "form_start",
+    "description": "Recorded when someone begins filling out a tracked form."
+  },
+  "event_form_submit": {
+    "label": "form_submit",
+    "description": "Recorded when someone successfully submits a tracked form."
+  },
+  "event_click": {
+    "label": "click",
+    "description": "Recorded when a tracked button or link is clicked."
+  },
+  "event_file_download": {
+    "label": "file_download",
+    "description": "Recorded when a visitor downloads a tracked file, such as a PDF or brochure."
+  },
+  "event_click_buy_online": {
+    "label": "click_buy_online",
+    "description": "Recorded when a visitor clicks a tracked ‘buy online’ or similar outbound purchase link."
+  }
+}

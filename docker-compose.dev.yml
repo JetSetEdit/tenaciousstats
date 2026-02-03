@@ -1,0 +1,24 @@
+# Single service: dashboard at / and API at /api (same app as run_vercel_local.py)
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DOCKER=1
+      - PROPERTY_ID=${PROPERTY_ID:-368035934}
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+    volumes:
+      - ./api:/app/api
+      - ./public:/app/public
+      - ./utils:/app/utils
+      - ./credentials.json:/app/credentials.json:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
