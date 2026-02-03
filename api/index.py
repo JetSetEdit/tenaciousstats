@@ -15,12 +15,14 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import GA4 utilities
+ga4_error = None
 try:
     from utils.ga4_utils import get_client, fetch_analytics_data
     GA4_AVAILABLE = True
-except ImportError:
+except ImportError as e:
     GA4_AVAILABLE = False
-    print("Warning: GA4 utils not available")
+    ga4_error = str(e)
+    print(f"Warning: GA4 utils not available: {e}")
 
 # Import GBP module (from same directory)
 try:
@@ -77,6 +79,7 @@ def health_check():
         "status": "healthy",
         "property_id": PROPERTY_ID,
         "ga4_available": GA4_AVAILABLE,
+        "ga4_error": ga4_error,
         "gbp_available": GBP_AVAILABLE
     }
 
