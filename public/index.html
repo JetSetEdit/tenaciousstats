@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tenacious Stats Dashboard</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
     <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f8f9fa;
             color: #2c3e50;
         }
-        
+
         .header {
             background: rgb(0, 0, 0);
             color: white;
@@ -33,52 +35,52 @@
             align-items: center;
             gap: 1.5rem;
         }
-        
+
         .header-logo {
             height: 60px;
             width: auto;
         }
-        
+
         .header-content {
             flex: 1;
         }
-        
+
         .header h1 {
             font-size: 2.5rem;
             font-weight: 900;
             margin-bottom: 0.5rem;
         }
-        
+
         .container {
             max-width: 1400px;
             margin: 0 auto;
             padding: 0 2rem;
         }
-        
+
         .sidebar {
             background: white;
             padding: 1.5rem;
             border-radius: 8px;
             margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        
+
         .sidebar h3 {
             color: #2c3e50;
             margin-bottom: 1rem;
         }
-        
+
         .form-group {
             margin-bottom: 1rem;
         }
-        
+
         label {
             display: block;
             color: #2c3e50;
             font-weight: 500;
             margin-bottom: 0.5rem;
         }
-        
+
         input[type="date"] {
             width: 100%;
             padding: 0.5rem;
@@ -86,22 +88,22 @@
             border-radius: 6px;
             font-size: 1rem;
         }
-        
+
         .checkbox-group {
             margin-top: 1rem;
         }
-        
+
         .checkbox-group label {
             display: flex;
             align-items: center;
             margin-bottom: 0.5rem;
             font-weight: 400;
         }
-        
+
         .checkbox-group input[type="checkbox"] {
             margin-right: 0.5rem;
         }
-        
+
         button {
             background-color: #ff5800;
             color: white;
@@ -113,53 +115,53 @@
             width: 100%;
             margin-top: 1rem;
         }
-        
+
         button:hover {
             background-color: #d43d00;
         }
-        
+
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
             margin-bottom: 2rem;
         }
-        
+
         .metric-card {
             background: white;
             padding: 1.5rem;
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        
+
         .metric-label {
             color: #7f8c8d;
             font-size: 0.9rem;
             margin-bottom: 0.5rem;
         }
-        
+
         .metric-value {
             color: #ff5800;
             font-size: 2rem;
             font-weight: 700;
         }
-        
+
         .section {
             background: white;
             padding: 2rem;
             border-radius: 8px;
             margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
-        
+
         /* Tabbed Interface Styles */
         .tabs-container {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             margin-bottom: 2rem;
         }
-        
+
         .tabs-header {
             display: flex;
             border-bottom: 2px solid #e0e0e0;
@@ -167,7 +169,7 @@
             border-radius: 8px 8px 0 0;
             overflow-x: auto;
         }
-        
+
         .tab-button {
             background: transparent;
             border: none;
@@ -183,36 +185,36 @@
             border-radius: 0;
             width: auto;
         }
-        
+
         .tab-button:hover {
             background: #e9ecef;
             color: #2c3e50;
         }
-        
+
         .tab-button.active {
             color: #ff5800;
             border-bottom-color: #ff5800;
             background: white;
             font-weight: 700;
         }
-        
+
         .tab-content {
             display: none;
             padding: 2rem;
         }
-        
+
         .tab-content.active {
             display: block;
         }
-        
+
         .tab-panel {
             display: none;
         }
-        
+
         .tab-panel.active {
             display: block;
         }
-        
+
         /* Tooltip Styles */
         .tooltip-trigger {
             position: relative;
@@ -221,7 +223,7 @@
             align-items: center;
             gap: 0.25rem;
         }
-        
+
         .tooltip-icon {
             display: inline-block;
             width: 16px;
@@ -235,11 +237,11 @@
             font-weight: bold;
             flex-shrink: 0;
         }
-        
+
         .tooltip-trigger:hover .tooltip-icon {
             background: #ff5800;
         }
-        
+
         .tooltip {
             position: absolute;
             bottom: 100%;
@@ -258,9 +260,9 @@
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
-        
+
         .tooltip::after {
             content: '';
             position: absolute;
@@ -270,18 +272,18 @@
             border: 6px solid transparent;
             border-top-color: #2c3e50;
         }
-        
+
         .tooltip-trigger:hover .tooltip {
             opacity: 1;
             pointer-events: auto;
         }
-        
+
         .metric-label {
             display: inline-flex;
             align-items: center;
             gap: 0.25rem;
         }
-        
+
         /* Navigation Menu Styles */
         .nav-menu {
             background: white;
@@ -289,16 +291,16 @@
             padding: 0;
             margin-bottom: 2rem;
             margin-top: 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
             border-radius: 0;
         }
-        
+
         .nav-menu .container {
             display: flex;
             align-items: center;
             gap: 0;
         }
-        
+
         .nav-item {
             padding: 1rem 1.5rem;
             color: #2c3e50;
@@ -317,47 +319,49 @@
             flex: 1;
             text-align: center;
         }
-        
+
         .nav-item:hover {
             background: #f8f9fa;
             color: #ff5800;
         }
-        
+
         .nav-item.active {
             color: #ff5800;
             border-bottom-color: #ff5800;
             font-weight: 700;
         }
-        
+
         .nav-content-section {
             display: none;
         }
-        
+
         .nav-content-section.active {
             display: block;
         }
-        
+
         /* A4 Report Container Styling */
         #reportContainer {
-            width: 794px !important; /* A4 width: 210mm at 96 DPI */
+            width: 794px !important;
+            /* A4 width: 210mm at 96 DPI */
             max-width: 794px !important;
-            min-height: 1123px; /* A4 height: 297mm at 96 DPI */
+            min-height: 1123px;
+            /* A4 height: 297mm at 96 DPI */
             margin: 0 auto;
             background: white;
             padding: 20px;
             box-sizing: border-box;
         }
-        
+
         .section h2 {
             color: #2c3e50;
             margin-bottom: 1.5rem;
         }
-        
+
         /* Report section styling - ensure images don't get cut off */
         .report-section {
             overflow: visible !important;
         }
-        
+
         .report-section img {
             max-width: 100% !important;
             width: 100% !important;
@@ -366,13 +370,13 @@
             object-fit: contain !important;
             display: block !important;
         }
-        
+
         .loading {
             text-align: center;
             padding: 2rem;
             color: #7f8c8d;
         }
-        
+
         .error {
             background: #fee;
             color: #c33;
@@ -380,48 +384,51 @@
             border-radius: 6px;
             margin-bottom: 1rem;
         }
-        
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
-        
-        th, td {
+
+        th,
+        td {
             padding: 0.75rem;
             text-align: left;
             border-bottom: 1px solid #e0e0e0;
         }
-        
+
         th {
             background: #f8f9fa;
             font-weight: 700;
             color: #2c3e50;
         }
-        
+
         .footer {
             text-align: center;
             padding: 2rem;
             color: #7f8c8d;
             margin-top: 3rem;
         }
-        
+
         .footer-version {
             font-size: 0.75rem;
             color: #b0b0b0;
             margin-top: 1rem;
             opacity: 0.7;
         }
-        
+
         @media print {
+
             /* Page setup - A4 portrait (210mm x 297mm) */
             @page {
                 size: A4 portrait;
-                margin: 1cm 1cm 2.5cm 1cm; /* Extra bottom margin for footer */
+                margin: 1cm 1cm 2.5cm 1cm;
+                /* Extra bottom margin for footer */
                 /* Note: Browser print headers/footers (URL, page numbers) 
                    cannot be removed via CSS. Disable them in your browser's 
                    print dialog: "More settings" > Uncheck "Headers and footers" */
             }
-            
+
             /* Print footer that appears on every page */
             .print-footer {
                 display: block !important;
@@ -435,7 +442,7 @@
                 z-index: 1000;
                 page-break-inside: avoid;
             }
-            
+
             .print-footer-content {
                 display: flex;
                 justify-content: space-between;
@@ -444,120 +451,133 @@
                 font-size: 9pt;
                 color: #7f8c8d;
             }
-            
+
             .print-footer-text {
                 flex: 1;
             }
-            
+
             .print-page-number {
                 flex: 1;
                 text-align: right;
             }
-            
+
             /* Page numbering */
             .page-number {
                 /* Current page will be updated by browser's native page counter if supported */
                 display: inline;
             }
-            
+
             /* Preserve colors where needed */
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            
+
             /* Hide all interactive and non-essential elements */
-            .sidebar, .header, .footer, .loading, 
-            .checkbox-group, .form-group, input, label:not(.report-section-title),
-            .chart-container, .plotly, [id^="chart"], .footer-version,
-            .nav-menu, .nav-item, .tabs-container, .tabs-header, .tab-button {
+            .sidebar,
+            .header,
+            .footer,
+            .loading,
+            .checkbox-group,
+            .form-group,
+            input,
+            label:not(.report-section-title),
+            .chart-container,
+            .plotly,
+            [id^="chart"],
+            .footer-version,
+            .nav-menu,
+            .nav-item,
+            .tabs-container,
+            .tabs-header,
+            .tab-button {
                 display: none !important;
             }
-            
+
             /* Hide all buttons when printing (including print button) */
             button {
                 display: none !important;
             }
-            
+
             /* Hide configuration heading when printing */
             .config-heading {
                 display: none !important;
             }
-            
+
             /* Show glossary section when printing */
             #glossary-section {
                 display: block !important;
             }
-            
+
             /* Show print header when printing */
             .glossary-print-header {
                 display: block !important;
                 page-break-after: avoid;
                 margin-bottom: 1rem;
             }
-            
+
             /* Glossary print styles */
             #glossary-section .section {
                 page-break-inside: auto;
             }
-            
+
             #glossary-section h2 {
                 page-break-after: avoid;
                 margin-bottom: 1rem !important;
                 margin-top: 0 !important;
             }
-            
+
             #glossary-section h3 {
                 page-break-after: avoid;
                 page-break-before: auto;
                 margin-top: 1.5rem !important;
                 margin-bottom: 0.75rem !important;
             }
-            
+
             /* Table page break handling */
             #glossary-section table.report-table {
                 page-break-inside: auto;
                 margin-bottom: 1.5rem;
             }
-            
+
             #glossary-section table.report-table thead {
                 display: table-header-group;
             }
-            
+
             #glossary-section table.report-table tbody tr {
                 page-break-inside: avoid;
             }
-            
+
             /* Clean table styling for glossary */
             #glossary-section table {
                 width: 100%;
                 border-collapse: collapse;
                 margin: 1rem 0;
             }
-            
+
             #glossary-section table th,
             #glossary-section table td {
                 padding: 0.75rem;
                 text-align: left;
                 border-bottom: 1px solid #e0e0e0;
             }
-            
+
             #glossary-section table th {
                 background-color: #f8f9fa;
                 font-weight: 700;
                 color: #2c3e50;
                 border-bottom: 2px solid #ff5800;
             }
-            
+
             #glossary-section table tr:last-child td {
                 border-bottom: none;
             }
-            
+
             /* Ensure glossary content is visible */
             .nav-content-section {
                 display: block !important;
             }
-            
+
             /* Reset body for print */
             body {
                 background: white !important;
@@ -568,7 +588,7 @@
                 padding: 0 !important;
                 width: 100% !important;
             }
-            
+
             /* Main container - use physical units */
             .container {
                 max-width: 100% !important;
@@ -576,7 +596,7 @@
                 padding: 0 !important;
                 margin: 0 !important;
             }
-            
+
             /* Report section container */
             .section {
                 width: 100% !important;
@@ -589,20 +609,20 @@
                 box-sizing: border-box !important;
                 overflow: hidden !important;
             }
-            
+
             #reportContainer {
                 width: 100% !important;
                 max-width: 100% !important;
                 box-sizing: border-box !important;
                 overflow: hidden !important;
             }
-            
+
             /* Ensure all report content fits within margins */
-            .report-section > * {
+            .report-section>* {
                 max-width: 100% !important;
                 box-sizing: border-box !important;
             }
-            
+
             /* Report sections - prevent breaking and start each on new page */
             .report-section {
                 page-break-inside: avoid !important;
@@ -614,20 +634,20 @@
                 box-sizing: border-box !important;
                 overflow: visible !important;
             }
-            
+
             /* First section should not have page break before */
             .report-section:first-of-type,
             .report-section[data-is-first-section="true"] {
                 page-break-before: auto !important;
             }
-            
+
             /* Ensure charts stay with their section */
             .report-section img,
             .report-section [id^="report"] {
                 page-break-inside: avoid !important;
                 page-break-after: avoid !important;
             }
-            
+
             /* Headings */
             h1 {
                 font-size: 20pt !important;
@@ -636,8 +656,9 @@
                 page-break-after: avoid !important;
                 font-weight: bold !important;
             }
-            
-            h2, .report-section-title {
+
+            h2,
+            .report-section-title {
                 font-size: 14pt !important;
                 color: black !important;
                 margin: 0.8cm 0 0.4cm 0 !important;
@@ -647,7 +668,7 @@
                 page-break-inside: avoid !important;
                 font-weight: bold !important;
             }
-            
+
             h3 {
                 font-size: 12pt !important;
                 color: black !important;
@@ -655,7 +676,7 @@
                 page-break-after: avoid !important;
                 font-weight: bold !important;
             }
-            
+
             /* Paragraphs and text */
             p {
                 color: black !important;
@@ -663,9 +684,10 @@
                 margin: 0.3cm 0 !important;
                 line-height: 1.5 !important;
             }
-            
+
             /* Tables - print optimized */
-            table, .report-table {
+            table,
+            .report-table {
                 width: 100% !important;
                 max-width: 100% !important;
                 border-collapse: collapse !important;
@@ -676,24 +698,24 @@
                 box-sizing: border-box !important;
                 border: 1pt solid #666 !important;
             }
-            
+
             thead {
                 display: table-header-group !important;
             }
-            
+
             tbody {
                 display: table-row-group !important;
             }
-            
+
             tfoot {
                 display: table-footer-group !important;
             }
-            
+
             tr {
                 page-break-inside: avoid !important;
                 page-break-after: auto !important;
             }
-            
+
             th {
                 background: #f0f0f0 !important;
                 color: black !important;
@@ -705,7 +727,7 @@
                 box-sizing: border-box !important;
                 word-wrap: break-word !important;
             }
-            
+
             td {
                 border: 1pt solid #ccc !important;
                 padding: 0.25cm !important;
@@ -716,7 +738,7 @@
                 overflow-wrap: break-word !important;
                 max-width: 0 !important;
             }
-            
+
             /* Images */
             img {
                 max-width: 100% !important;
@@ -727,15 +749,17 @@
                 box-sizing: border-box !important;
                 object-fit: contain !important;
             }
-            
+
             /* Logo - maintain fixed size in print */
-            img[alt*="Logo"], img[alt*="logo"], .report-logo {
+            img[alt*="Logo"],
+            img[alt*="logo"],
+            .report-logo {
                 width: auto !important;
                 max-width: 200px !important;
                 height: 60px !important;
                 max-height: 60px !important;
             }
-            
+
             /* Report section images - ensure they fit */
             .report-section img {
                 max-width: 100% !important;
@@ -744,47 +768,48 @@
                 box-sizing: border-box !important;
                 object-fit: contain !important;
             }
-            
+
             /* Lists */
-            ul, ol {
+            ul,
+            ol {
                 margin: 0.3cm 0 0.3cm 1.5cm !important;
                 padding: 0 !important;
                 color: black !important;
             }
-            
+
             li {
                 color: black !important;
                 font-size: 11pt !important;
                 margin: 0.2cm 0 !important;
                 line-height: 1.5 !important;
             }
-            
+
             /* Grid layouts - convert to block for print */
             div[style*="display: grid"],
             div[style*="grid-template-columns"],
             .metrics-grid {
                 display: block !important;
             }
-            
-            div[style*="display: grid"] > *,
-            div[style*="grid-template-columns"] > * {
+
+            div[style*="display: grid"]>*,
+            div[style*="grid-template-columns"]>* {
                 display: block !important;
                 margin-bottom: 0.3cm !important;
                 width: 100% !important;
             }
-            
+
             /* Executive summary grid */
             div[style*="grid-template-columns: repeat(2, 1fr)"] {
                 display: block !important;
             }
-            
-            div[style*="grid-template-columns: repeat(2, 1fr)"] > div {
+
+            div[style*="grid-template-columns: repeat(2, 1fr)"]>div {
                 display: block !important;
                 margin-bottom: 0.3cm !important;
                 padding: 0.2cm 0 !important;
                 border-bottom: 0.5pt solid #eee !important;
             }
-            
+
             /* Background colors - preserve light backgrounds, remove dark */
             div[style*="background: #f8f9fa"],
             div[style*="background-color: #f8f9fa"],
@@ -794,25 +819,30 @@
                 padding: 0.5cm !important;
                 margin: 0.5cm 0 !important;
             }
-            
+
             /* Remove other background colors */
             div[style*="background:"]:not([style*="background: #f8f9fa"]):not([style*="background-color: #f8f9fa"]),
             div[style*="background-color:"]:not([style*="background: #f8f9fa"]):not([style*="background-color: #f8f9fa"]) {
                 background: white !important;
             }
-            
+
             /* Text colors - ensure black for print */
-            p, div, span, li, td, th {
+            p,
+            div,
+            span,
+            li,
+            td,
+            th {
                 color: black !important;
             }
-            
+
             /* Orange accents - keep for headers but ensure readability */
             h2[style*="color: #ff5800"],
             h2[style*="color: #FE5000"] {
                 color: black !important;
                 border-bottom-color: #ff5800 !important;
             }
-            
+
             /* Report header */
             div[style*="text-align: center"] {
                 text-align: center !important;
@@ -820,50 +850,51 @@
                 padding-bottom: 0.5cm !important;
                 border-bottom: 2pt solid #ff5800 !important;
             }
-            
+
             /* Monospace text */
             td[style*="font-family: monospace"],
             span[style*="font-family: monospace"] {
                 font-family: 'Courier New', monospace !important;
                 font-size: 9pt !important;
             }
-            
+
             /* Strong/bold text */
-            strong, b {
+            strong,
+            b {
                 font-weight: bold !important;
                 color: black !important;
             }
-            
+
             /* Remove borders and shadows */
             * {
                 box-shadow: none !important;
             }
-            
+
             div[style*="border-radius"] {
                 border-radius: 0 !important;
             }
-            
+
             /* Ensure no overflow */
             * {
                 overflow: visible !important;
             }
-            
+
             /* Page breaks */
             .report-section:first-of-type {
                 page-break-before: auto !important;
             }
-            
+
             /* Avoid breaking tables across pages when possible */
             table.report-table {
                 page-break-inside: avoid !important;
             }
-            
+
             /* If table is too large, allow breaking but keep header */
             table.report-table thead tr {
                 page-break-after: avoid !important;
             }
         }
-        
+
         /* Password Protection Modal Styles */
         #password-protection-overlay {
             position: fixed;
@@ -878,42 +909,42 @@
             z-index: 10000;
             font-family: 'Roboto', sans-serif;
         }
-        
+
         #password-protection-overlay.hidden {
             display: none;
         }
-        
+
         .password-modal {
             background: white;
             padding: 3rem;
             border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             max-width: 450px;
             width: 90%;
             text-align: center;
         }
-        
+
         .password-modal img {
             height: 60px;
             margin-bottom: 1.5rem;
         }
-        
+
         .password-modal h2 {
             color: #2c3e50;
             margin-bottom: 0.5rem;
             font-size: 1.8rem;
         }
-        
+
         .password-modal p {
             color: #7f8c8d;
             margin-bottom: 2rem;
             font-size: 0.95rem;
         }
-        
+
         .password-input-group {
             margin-bottom: 1.5rem;
         }
-        
+
         .password-input-group input {
             width: 100%;
             padding: 1rem;
@@ -923,12 +954,12 @@
             transition: border-color 0.3s;
             box-sizing: border-box;
         }
-        
+
         .password-input-group input:focus {
             outline: none;
             border-color: #ff5800;
         }
-        
+
         .password-submit-btn {
             width: 100%;
             padding: 1rem;
@@ -941,36 +972,38 @@
             cursor: pointer;
             transition: background-color 0.3s;
         }
-        
+
         .password-submit-btn:hover {
             background-color: #d43d00;
         }
-        
+
         .password-error {
             color: #e74c3c;
             margin-top: 1rem;
             font-size: 0.9rem;
             display: none;
         }
-        
+
         .password-error.show {
             display: block;
         }
-        
+
         .main-content {
             display: none;
         }
-        
+
         .main-content.authenticated {
             display: block;
         }
     </style>
 </head>
+
 <body>
     <!-- Password Protection Overlay -->
     <div id="password-protection-overlay">
         <div class="password-modal">
-            <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png" alt="Tenacious Tapes Logo" style="height: 60px; max-height: 60px; width: auto; max-width: 200px;">
+            <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png"
+                alt="Tenacious Tapes Logo" style="height: 60px; max-height: 60px; width: auto; max-width: 200px;">
             <h2>🔒 Protected Dashboard</h2>
             <p>Please enter the password to access the analytics dashboard</p>
             <form id="password-form" onsubmit="checkPassword(event)">
@@ -982,248 +1015,505 @@
             </form>
         </div>
     </div>
-    
+
     <!-- Main Content (hidden until authenticated) -->
     <div class="main-content" id="main-content">
-    <div class="header">
-        <div class="container" style="display: flex; align-items: center; gap: 1.5rem;">
-            <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/08/logo-1-scaled.png" alt="Tenacious Tapes Logo" class="header-logo">
-            <div class="header-content">
-                <h1>📊 Tenacious Stats Dashboard</h1>
-                <p>Analytics for Tenacious Tapes - Adhesive Tapes for every application</p>
+        <div class="header">
+            <div class="container" style="display: flex; align-items: center; gap: 1.5rem;">
+                <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/08/logo-1-scaled.png"
+                    alt="Tenacious Tapes Logo" class="header-logo">
+                <div class="header-content">
+                    <h1>📊 Tenacious Stats Dashboard</h1>
+                    <p>Analytics for Tenacious Tapes - Adhesive Tapes for every application</p>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Navigation Menu -->
-    <nav class="nav-menu">
+
+        <!-- Navigation Menu -->
+        <nav class="nav-menu">
+            <div class="container">
+                <button class="nav-item active"
+                    onclick="showNavSection('dashboard', event); return false;">Dashboard</button>
+                <button class="nav-item" onclick="showNavSection('glossary', event); return false;">Glossary</button>
+            </div>
+        </nav>
+
         <div class="container">
-            <button class="nav-item active" onclick="showNavSection('dashboard', event); return false;">Dashboard</button>
-            <button class="nav-item" onclick="showNavSection('glossary', event); return false;">Glossary</button>
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="nav-content-section active">
+                <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem;">
+                    <!-- Sidebar -->
+                    <div class="sidebar">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" id="startDate">
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="date" id="endDate">
+                        </div>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" value="Overview" checked> Overview</label>
+                            <label><input type="checkbox" value="Traffic Sources" checked> Traffic Sources</label>
+                            <label><input type="checkbox" value="Top Pages" checked> Top Pages</label>
+                            <label><input type="checkbox" value="User Retention"> User Retention</label>
+                            <label><input type="checkbox" value="Geographics"> Geographics</label>
+                            <label><input type="checkbox" value="Tech/Devices"> Tech/Devices</label>
+                            <label><input type="checkbox" value="Events"> Events</label>
+                            <label><input type="checkbox" value="Business Profile"> Business Profile</label>
+                        </div>
+                        <button onclick="loadData()">Refresh Data</button>
+                        <button onclick="generateReport()" style="margin-top: 0.5rem; background-color: #4a90e2;">📄
+                            Generate Monthly Report</button>
+                        <h3 class="config-heading">⚙️ Configuration</h3>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div id="content">
+                        <div class="loading">Configure dates and click "Refresh Data" to load analytics</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Glossary Section -->
+            <div id="glossary-section" class="nav-content-section">
+                <!-- Print Header (only visible when printing) -->
+                <div class="glossary-print-header" style="display: none;">
+                    <div
+                        style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid #ff5800;">
+                        <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png"
+                            alt="Tenacious Tapes Logo"
+                            style="height: 60px; max-height: 60px; width: auto; max-width: 200px; margin-bottom: 1rem;">
+                        <h1 style="color: #2c3e50; margin-bottom: 0.5rem; font-size: 2rem;">Analytics Glossary</h1>
+                        <p style="color: #7f8c8d; font-size: 1.1rem;">Tenacious Tapes - Adhesive Tapes for every
+                            application</p>
+                    </div>
+                </div>
+
+                <!-- Print Button (outside section) -->
+                <div style="margin-bottom: 1.5rem; text-align: right;">
+                    <button onclick="window.print()"
+                        style="background-color: #ff5800; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        🖨️ Print Glossary
+                    </button>
+                </div>
+
+                <div class="section">
+                    <h2 style="margin-top: 0;">Glossary</h2>
+                    <p style="margin-bottom: 2rem; color: #7f8c8d;">Comprehensive definitions of analytics terms and
+                        metrics used in this dashboard. Hover over terms in the interactive dashboard to see quick
+                        tooltips.</p>
+
+                    <h3
+                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        Executive Summary Metrics</h3>
+                    <table class="report-table"
+                        style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 70%;">
+                        </colgroup>
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Term</th>
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Total Sessions</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Total number of visits to the site in this period. One person can create multiple
+                                    sessions if they return.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Total Users</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Estimated number of unique people who visited the site in this period.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Page Views</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Total times any page on the site was loaded or viewed, including repeats.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Engagement Rate</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Percent of sessions where visitors did something meaningful, like viewing multiple
+                                    pages, staying a while, or triggering key events.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Avg. Session Duration</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Average time visitors actively spent on the site during a visit.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Bounce Rate</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Percent of sessions where visitors left after only one page with no meaningful
+                                    interaction.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3
+                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        Traffic Sources</h3>
+                    <table class="report-table"
+                        style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 70%;">
+                        </colgroup>
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Term</th>
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Source</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Where the visit came from, such as Google, email, social, or people typing the URL
+                                    directly.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    (direct) / (none)</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Visits with no clear referrer – usually people typing the URL, using bookmarks, or
+                                    coming from untagged links.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    / organic</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Free clicks from search engine results (not paid ads).</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    / referral</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Clicks from links on other websites that send traffic to this site.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    / email</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Visits from tracked links in marketing emails.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Percentage (in sources)</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Share of all sessions that came from this source in the selected period.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Sessions (in sources)</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Number of visits that came from this source.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3
+                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        Top Pages & Searched Products</h3>
+                    <table class="report-table"
+                        style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 70%;">
+                        </colgroup>
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Term</th>
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Views (pages/products)</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    How many times this page or product was viewed in the selected period.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Users (pages/products)</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    How many unique visitors viewed this page or product at least once.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3
+                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        User Retention</h3>
+                    <table class="report-table"
+                        style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 70%;">
+                        </colgroup>
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Term</th>
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    New Users</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    People visiting the site for the first time on this device/browser.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Returning Users</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    People who have visited before on this device/browser and came back in this period.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Percentage (retention)</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Share of total sessions that came from new vs returning visitors.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3
+                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        Geography & Devices</h3>
+                    <table class="report-table"
+                        style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 70%;">
+                        </colgroup>
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Term</th>
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Sessions by Country / Top Cities</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Where visits originated, based on IP location; some traffic may be "not set" if
+                                    location is unclear.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Device Category (desktop / mobile / tablet)</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Type of device used for the visit, helping you see whether people browse more on
+                                    computers or phones.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3
+                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        Events</h3>
+                    <table class="report-table"
+                        style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 70%;">
+                        </colgroup>
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Term</th>
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Event Name</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    A specific action that was tracked on the site, such as viewing a page, scrolling,
+                                    or submitting a form.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    page_view</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Recorded whenever a page loads or is viewed.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    user_engagement</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Recorded when a visitor stays on a page for long enough or interacts so the session
+                                    counts as engaged.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    session_start</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Recorded when a new visit begins.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    first_visit</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Recorded the first time a device/browser ever visits the site.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    scroll</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Recorded when a visitor scrolls down far enough on a page, showing they looked
+                                    beyond the top.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    form_start / form_submit</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    form_start: when someone begins filling out a form. form_submit: when they
+                                    successfully send it.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    click</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Recorded when a tracked link or button is clicked.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    file_download</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Recorded when a visitor downloads a tracked file, such as a PDF or brochure.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    click_buy_online</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Recorded when a visitor clicks a "buy online" or similar outbound purchase link.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </nav>
-    
-    <div class="container">
-        <!-- Dashboard Section -->
-        <div id="dashboard-section" class="nav-content-section active">
-            <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2rem;">
-                <!-- Sidebar -->
-                <div class="sidebar">
-                <div class="form-group">
-                    <label>Start Date</label>
-                    <input type="date" id="startDate">
-                </div>
-                <div class="form-group">
-                    <label>End Date</label>
-                    <input type="date" id="endDate">
-                </div>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" value="Overview" checked> Overview</label>
-                    <label><input type="checkbox" value="Traffic Sources" checked> Traffic Sources</label>
-                    <label><input type="checkbox" value="Top Pages" checked> Top Pages</label>
-                    <label><input type="checkbox" value="User Retention"> User Retention</label>
-                    <label><input type="checkbox" value="Geographics"> Geographics</label>
-                    <label><input type="checkbox" value="Tech/Devices"> Tech/Devices</label>
-                    <label><input type="checkbox" value="Events"> Events</label>
-                    <label><input type="checkbox" value="Business Profile"> Business Profile</label>
-                </div>
-                <button onclick="loadData()">Refresh Data</button>
-                <button onclick="generateReport()" style="margin-top: 0.5rem; background-color: #4a90e2;">📄 Generate Monthly Report</button>
-                <h3 class="config-heading">⚙️ Configuration</h3>
-            </div>
-            
-                <!-- Main Content -->
-                <div id="content">
-                    <div class="loading">Configure dates and click "Refresh Data" to load analytics</div>
-                </div>
-            </div>
+
+        <div class="footer">
+            <p><strong>Tenacious Tapes</strong> - Adhesive Tapes for every application</p>
+            <p>📞 +61 (0)3 9580 5573 | ✉️ customerservice@tenacioustapes.com.au</p>
+            <p class="footer-version" id="versionDisplay">Build v1.0.0</p>
         </div>
-        
-        <!-- Glossary Section -->
-        <div id="glossary-section" class="nav-content-section">
-            <!-- Print Header (only visible when printing) -->
-            <div class="glossary-print-header" style="display: none;">
-                <div style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid #ff5800;">
-                    <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png" alt="Tenacious Tapes Logo" style="height: 60px; max-height: 60px; width: auto; max-width: 200px; margin-bottom: 1rem;">
-                    <h1 style="color: #2c3e50; margin-bottom: 0.5rem; font-size: 2rem;">Analytics Glossary</h1>
-                    <p style="color: #7f8c8d; font-size: 1.1rem;">Tenacious Tapes - Adhesive Tapes for every application</p>
-                </div>
-            </div>
-            
-            <!-- Print Button (outside section) -->
-            <div style="margin-bottom: 1.5rem; text-align: right;">
-                <button onclick="window.print()" style="background-color: #ff5800; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                    🖨️ Print Glossary
-                </button>
-            </div>
-            
-            <div class="section">
-                <h2 style="margin-top: 0;">Glossary</h2>
-                <p style="margin-bottom: 2rem; color: #7f8c8d;">Comprehensive definitions of analytics terms and metrics used in this dashboard. Hover over terms in the interactive dashboard to see quick tooltips.</p>
-                
-                <h3 style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">Executive Summary Metrics</h3>
-                <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
-                    <colgroup>
-                        <col style="width: 30%;">
-                        <col style="width: 70%;">
-                    </colgroup>
-                    <thead>
-                        <tr style="background-color: #f8f9fa;">
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Term</th>
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Definition</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Total Sessions</td>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Total number of visits to the site in this period. One person can create multiple sessions if they return.</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Total Users</td>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Estimated number of unique people who visited the site in this period.</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Page Views</td>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Total times any page on the site was loaded or viewed, including repeats.</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Engagement Rate</td>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Percent of sessions where visitors did something meaningful, like viewing multiple pages, staying a while, or triggering key events.</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Avg. Session Duration</td>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Average time visitors actively spent on the site during a visit.</td>
-                        </tr>
-                        <tr>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Bounce Rate</td>
-                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Percent of sessions where visitors left after only one page with no meaningful interaction.</td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <h3 style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">Traffic Sources</h3>
-                <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
-                    <colgroup>
-                        <col style="width: 30%;">
-                        <col style="width: 70%;">
-                    </colgroup>
-                    <thead>
-                        <tr style="background-color: #f8f9fa;">
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Term</th>
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Definition</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Source</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Where the visit came from, such as Google, email, social, or people typing the URL directly.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">(direct) / (none)</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Visits with no clear referrer – usually people typing the URL, using bookmarks, or coming from untagged links.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">/ organic</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Free clicks from search engine results (not paid ads).</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">/ referral</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Clicks from links on other websites that send traffic to this site.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">/ email</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Visits from tracked links in marketing emails.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Percentage (in sources)</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Share of all sessions that came from this source in the selected period.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Sessions (in sources)</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Number of visits that came from this source.</td></tr>
-                    </tbody>
-                </table>
-                
-                <h3 style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">Top Pages & Searched Products</h3>
-                <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
-                    <colgroup>
-                        <col style="width: 30%;">
-                        <col style="width: 70%;">
-                    </colgroup>
-                    <thead>
-                        <tr style="background-color: #f8f9fa;">
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Term</th>
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Definition</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Views (pages/products)</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">How many times this page or product was viewed in the selected period.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Users (pages/products)</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">How many unique visitors viewed this page or product at least once.</td></tr>
-                    </tbody>
-                </table>
-                
-                <h3 style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">User Retention</h3>
-                <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
-                    <colgroup>
-                        <col style="width: 30%;">
-                        <col style="width: 70%;">
-                    </colgroup>
-                    <thead>
-                        <tr style="background-color: #f8f9fa;">
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Term</th>
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Definition</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">New Users</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">People visiting the site for the first time on this device/browser.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Returning Users</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">People who have visited before on this device/browser and came back in this period.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Percentage (retention)</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Share of total sessions that came from new vs returning visitors.</td></tr>
-                    </tbody>
-                </table>
-                
-                <h3 style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">Geography & Devices</h3>
-                <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
-                    <colgroup>
-                        <col style="width: 30%;">
-                        <col style="width: 70%;">
-                    </colgroup>
-                    <thead>
-                        <tr style="background-color: #f8f9fa;">
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Term</th>
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Definition</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Sessions by Country / Top Cities</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Where visits originated, based on IP location; some traffic may be "not set" if location is unclear.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Device Category (desktop / mobile / tablet)</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Type of device used for the visit, helping you see whether people browse more on computers or phones.</td></tr>
-                    </tbody>
-                </table>
-                
-                <h3 style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">Events</h3>
-                <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
-                    <colgroup>
-                        <col style="width: 30%;">
-                        <col style="width: 70%;">
-                    </colgroup>
-                    <thead>
-                        <tr style="background-color: #f8f9fa;">
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Term</th>
-                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Definition</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">Event Name</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">A specific action that was tracked on the site, such as viewing a page, scrolling, or submitting a form.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">page_view</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Recorded whenever a page loads or is viewed.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">user_engagement</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Recorded when a visitor stays on a page for long enough or interacts so the session counts as engaged.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">session_start</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Recorded when a new visit begins.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">first_visit</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Recorded the first time a device/browser ever visits the site.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">scroll</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Recorded when a visitor scrolls down far enough on a page, showing they looked beyond the top.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">form_start / form_submit</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">form_start: when someone begins filling out a form. form_submit: when they successfully send it.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">click</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Recorded when a tracked link or button is clicked.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">file_download</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Recorded when a visitor downloads a tracked file, such as a PDF or brochure.</td></tr>
-                        <tr><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">click_buy_online</td><td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">Recorded when a visitor clicks a "buy online" or similar outbound purchase link.</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-    
-    <div class="footer">
-        <p><strong>Tenacious Tapes</strong> - Adhesive Tapes for every application</p>
-        <p>📞 +61 (0)3 9580 5573 | ✉️ customerservice@tenacioustapes.com.au</p>
-        <p class="footer-version" id="versionDisplay">Build v1.0.0</p>
-    </div>
     </div> <!-- End main-content -->
-    
+
     <script>
         // Password Protection - FREE Solution
         // Password: Tenacious2025 (change this to your preferred password)
         const DASHBOARD_PASSWORD = 'Tenacious2025';
         const AUTH_KEY = 'dashboard_authenticated';
-        
+
         // Check if we're in local development (skip password protection)
         const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        
+
         // Check if already authenticated
         function checkAuth() {
             // Skip password protection in local development
@@ -1231,7 +1521,7 @@
                 showDashboard();
                 return;
             }
-            
+
             const authenticated = sessionStorage.getItem(AUTH_KEY);
             if (authenticated === 'true') {
                 showDashboard();
@@ -1239,28 +1529,28 @@
                 showPasswordScreen();
             }
         }
-        
+
         // Show password screen
         function showPasswordScreen() {
             document.getElementById('password-protection-overlay').classList.remove('hidden');
             document.getElementById('main-content').classList.remove('authenticated');
             document.getElementById('password-input').focus();
         }
-        
+
         // Show dashboard
         function showDashboard() {
             document.getElementById('password-protection-overlay').classList.add('hidden');
             document.getElementById('main-content').classList.add('authenticated');
             sessionStorage.setItem(AUTH_KEY, 'true');
         }
-        
+
         // Check password on form submit
         function checkPassword(event) {
             event.preventDefault();
             const input = document.getElementById('password-input');
             const errorDiv = document.getElementById('password-error');
             const enteredPassword = (input.value || '').trim();
-            
+
             if (enteredPassword === DASHBOARD_PASSWORD) {
                 errorDiv.classList.remove('show');
                 showDashboard();
@@ -1275,7 +1565,7 @@
                 }, 500);
             }
         }
-        
+
         // Add shake animation
         const style = document.createElement('style');
         style.textContent = `
@@ -1286,7 +1576,7 @@
             }
         `;
         document.head.appendChild(style);
-        
+
         // Run auth when DOM is ready (so overlay/main-content exist)
         function initAuth() {
             if (document.readyState === 'loading') {
@@ -1298,30 +1588,30 @@
         initAuth();
 
         // Allow Enter key to submit
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const passwordInput = document.getElementById('password-input');
             if (passwordInput) {
-                passwordInput.addEventListener('keypress', function(e) {
+                passwordInput.addEventListener('keypress', function (e) {
                     if (e.key === 'Enter') {
                         checkPassword(e);
                     }
                 });
             }
         });
-        
+
         // Original script continues...
         // Set default dates
         const today = new Date();
         const thirtyDaysAgo = new Date(today);
         thirtyDaysAgo.setDate(today.getDate() - 30);
-        
+
         document.getElementById('startDate').valueAsDate = thirtyDaysAgo;
         document.getElementById('endDate').valueAsDate = today;
-        
+
         // Get API base URL (use local backend in dev, Vercel in production)
         // isLocalDev is already defined above for password protection
         const API_BASE = isLocalDev ? 'http://localhost:8000/api' : (window.location.origin + '/api');
-        
+
         // Load and display version
         fetch('/version.txt')
             .then(response => response.text())
@@ -1334,13 +1624,13 @@
             .catch(() => {
                 // If version file doesn't exist, keep default
             });
-        
+
         // Protection bypass secret (if available)
         // Can be passed via URL parameter: ?x-vercel-protection-bypass=SECRET
         // Or set the default secret here (for convenience, but note: this exposes it in client-side code)
-        const BYPASS_SECRET = new URLSearchParams(window.location.search).get('x-vercel-protection-bypass') 
+        const BYPASS_SECRET = new URLSearchParams(window.location.search).get('x-vercel-protection-bypass')
             || '6962f381c54d41d6de8fb303645c938dd6b4ff6870f3854c9e972a214530f474';
-        
+
         // Helper function to add bypass to requests
         function getApiUrl(endpoint, params = {}) {
             const url = new URL(API_BASE + endpoint, window.location.origin);
@@ -1351,7 +1641,7 @@
             }
             return url.toString();
         }
-        
+
         // Helper function for fetch with bypass
         async function fetchWithBypass(url, options = {}) {
             const headers = new Headers(options.headers || {});
@@ -1366,28 +1656,28 @@
             }
             return fetch(urlObj.toString(), { ...options, headers });
         }
-        
+
         async function loadData() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
             const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
             const sections = Array.from(checkboxes).map(cb => cb.value);
-            
+
             if (!startDate || !endDate) {
                 alert('Please select both start and end dates');
                 return;
             }
-            
+
             const content = document.getElementById('content');
             content.innerHTML = '<div class="loading">Loading data...</div>';
-            
+
             // Store sections by name for tabbed interface
             const sectionsData = {};
             const chartRenderers = []; // Store chart rendering functions
-            
+
             // Add cache-busting timestamp to ensure fresh data
             const timestamp = new Date().getTime();
-            
+
             // Overview
             if (sections.includes('Overview')) {
                 try {
@@ -1431,7 +1721,7 @@
                     console.error('Overview error details:', error);
                 }
             }
-            
+
             // Traffic Sources
             if (sections.includes('Traffic Sources')) {
                 try {
@@ -1452,7 +1742,7 @@
                         `;
                         // Store chart renderer
                         chartRenderers.push(() => {
-                            const data = result.data.map(d => ({name: d.sessionSourceMedium, value: parseInt(d.sessions)}));
+                            const data = result.data.map(d => ({ name: d.sessionSourceMedium, value: parseInt(d.sessions) }));
                             // Sort by value to ensure largest slices get most distinct colors
                             const sortedData = [...data].sort((a, b) => b.value - a.value);
                             // Use very distinct colors - orange for brand, blue for second, then varied colors
@@ -1467,10 +1757,10 @@
                                 values: data.map(d => d.value),
                                 labels: data.map(d => d.name),
                                 type: 'pie',
-                                marker: {colors: colors}
+                                marker: { colors: colors }
                             }], {
                                 title: 'Sessions by Source',
-                                font: {family: 'Roboto'}
+                                font: { family: 'Roboto' }
                             });
                         });
                     }
@@ -1480,7 +1770,7 @@
                     console.error('Sources error details:', error);
                 }
             }
-            
+
             // Top Pages
             if (sections.includes('Top Pages')) {
                 try {
@@ -1525,7 +1815,7 @@
                     console.error('Pages error details:', error);
                 }
             }
-            
+
             // User Retention
             if (sections.includes('User Retention')) {
                 try {
@@ -1541,15 +1831,15 @@
                         `;
                         // Store chart renderer
                         chartRenderers.push(() => {
-                            const data = result.data.map(d => ({name: d.newVsReturning, value: parseInt(d.sessions)}));
+                            const data = result.data.map(d => ({ name: d.newVsReturning, value: parseInt(d.sessions) }));
                             Plotly.newPlot('retentionChart', [{
                                 values: data.map(d => d.value),
                                 labels: data.map(d => d.name),
                                 type: 'pie',
-                                marker: {colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12']}
+                                marker: { colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12'] }
                             }], {
                                 title: 'New vs Returning Users',
-                                font: {family: 'Roboto'}
+                                font: { family: 'Roboto' }
                             });
                         });
                     }
@@ -1557,7 +1847,7 @@
                     sectionsData['User Retention'] = `<div class="error">Error loading retention: ${error.message}</div>`;
                 }
             }
-            
+
             // Geographics (Cities and Countries)
             if (sections.includes('Geographics')) {
                 try {
@@ -1565,19 +1855,19 @@
                     const citiesUrl = getApiUrl('/analytics/cities', { start_date: startDate, end_date: endDate, limit: 10, _t: timestamp });
                     const citiesResponse = await fetchWithBypass(citiesUrl);
                     const citiesResult = await citiesResponse.json();
-                    
+
                     // Countries
                     const countriesUrl = getApiUrl('/analytics/countries', { start_date: startDate, end_date: endDate, _t: timestamp });
                     const countriesResponse = await fetchWithBypass(countriesUrl);
                     const countriesResult = await countriesResponse.json();
-                    
+
                     if ((citiesResult.success && citiesResult.data && citiesResult.data.length > 0) ||
                         (countriesResult.success && countriesResult.data && countriesResult.data.length > 0)) {
                         let geoHTML = `
                             <div class="section">
                                 <h2>Geographic Distribution</h2>
                         `;
-                        
+
                         if (citiesResult.success && citiesResult.data && citiesResult.data.length > 0) {
                             geoHTML += `
                                 <h3 style="margin-top: 1rem; margin-bottom: 1rem;">Top Cities</h3>
@@ -1599,7 +1889,7 @@
                                 </table>
                             `;
                         }
-                        
+
                         if (countriesResult.success && countriesResult.data && countriesResult.data.length > 0) {
                             geoHTML += `
                                 <h3 style="margin-top: 1rem; margin-bottom: 1rem;">Top Countries</h3>
@@ -1612,16 +1902,16 @@
                                     x: topCountries.map(c => c.country),
                                     y: topCountries.map(c => parseInt(c.sessions)),
                                     type: 'bar',
-                                    marker: {color: '#ff5800'}
+                                    marker: { color: '#ff5800' }
                                 }], {
                                     title: 'Sessions by Country (Top 10)',
-                                    xaxis: {title: 'Country'},
-                                    yaxis: {title: 'Sessions'},
-                                    font: {family: 'Roboto'}
+                                    xaxis: { title: 'Country' },
+                                    yaxis: { title: 'Sessions' },
+                                    font: { family: 'Roboto' }
                                 });
                             });
                         }
-                        
+
                         geoHTML += `</div>`;
                         sectionsData['Geographics'] = geoHTML;
                     }
@@ -1629,7 +1919,7 @@
                     sectionsData['Geographics'] = `<div class="error">Error loading geographics: ${error.message}</div>`;
                 }
             }
-            
+
             // Tech/Devices
             if (sections.includes('Tech/Devices')) {
                 try {
@@ -1645,15 +1935,15 @@
                         `;
                         // Store chart renderer
                         chartRenderers.push(() => {
-                            const data = result.data.map(d => ({name: d.deviceCategory, value: parseInt(d.sessions)}));
+                            const data = result.data.map(d => ({ name: d.deviceCategory, value: parseInt(d.sessions) }));
                             Plotly.newPlot('devicesChart', [{
                                 values: data.map(d => d.value),
                                 labels: data.map(d => d.name),
                                 type: 'pie',
-                                marker: {colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12']}
+                                marker: { colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12'] }
                             }], {
                                 title: 'Sessions by Device Category',
-                                font: {family: 'Roboto'}
+                                font: { family: 'Roboto' }
                             });
                         });
                     }
@@ -1661,7 +1951,7 @@
                     sectionsData['Tech/Devices'] = `<div class="error">Error loading devices: ${error.message}</div>`;
                 }
             }
-            
+
             // Events
             if (sections.includes('Events')) {
                 try {
@@ -1698,12 +1988,12 @@
                                 x: topEvents.map(e => e.eventName),
                                 y: topEvents.map(e => parseInt(e.eventCount)),
                                 type: 'bar',
-                                marker: {color: '#ff5800'}
+                                marker: { color: '#ff5800' }
                             }], {
                                 title: 'Top Events (Top 10)',
-                                xaxis: {title: 'Event Name', tickangle: -45},
-                                yaxis: {title: 'Event Count'},
-                                font: {family: 'Roboto'}
+                                xaxis: { title: 'Event Name', tickangle: -45 },
+                                yaxis: { title: 'Event Count' },
+                                font: { family: 'Roboto' }
                             });
                         });
                     }
@@ -1711,7 +2001,7 @@
                     sectionsData['Events'] = `<div class="error">Error loading events: ${error.message}</div>`;
                 }
             }
-            
+
             // Business Profile (API: /api/gbp/ratings, /api/gbp/reviews, /api/gbp/insights)
             if (sections.includes('Business Profile')) {
                 try {
@@ -1740,17 +2030,17 @@
                     } catch (e) { bpError = bpError || ('Insights: ' + (e.message || 'parse error')); }
 
                     const apiError = ratingsResult.error || reviewsResult.error || insightsResult.error || bpError || (ratingsResult.detail || reviewsResult.detail || insightsResult.detail);
-                    
+
                     let bpHTML = `
                         <div class="section">
                             <h2>Google Business Profile</h2>
                     `;
-                    
+
                     // Show API error if any request failed with a message
                     if (apiError) {
                         let errText = typeof apiError === 'string' ? apiError : (apiError.detail || apiError.message || JSON.stringify(apiError));
                         if (typeof errText === 'string' && errText.trim().startsWith('{')) {
-                            try { const o = JSON.parse(errText); errText = o.detail || o.error || o.message || errText; } catch (_) {}
+                            try { const o = JSON.parse(errText); errText = o.detail || o.error || o.message || errText; } catch (_) { }
                         }
                         bpHTML += `
                             <div style="padding: 1rem; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; margin-bottom: 2rem;">
@@ -1758,7 +2048,7 @@
                             </div>
                         `;
                     }
-                    
+
                     // Connected state: all three API calls succeeded (no apiError)
                     const gbpConnected = !apiError && ratingsResult.success && reviewsResult.success && insightsResult.success;
                     if (gbpConnected && !(ratingsResult.data && ratingsResult.data.totalReviews > 0)) {
@@ -1768,7 +2058,7 @@
                             </div>
                         `;
                     }
-                    
+
                     // Ratings Summary
                     if (ratingsResult.success && ratingsResult.data && ratingsResult.data.totalReviews > 0) {
                         const ratings = ratingsResult.data;
@@ -1788,7 +2078,7 @@
                                 <div id="ratingsChart" style="width: 100%; height: 300px; margin-bottom: 2rem;"></div>
                             </div>
                         `;
-                        
+
                         // Store chart renderer for ratings distribution
                         chartRenderers.push(() => {
                             const dist = ratings.ratingDistribution;
@@ -1796,12 +2086,12 @@
                                 x: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
                                 y: [dist['1'] || 0, dist['2'] || 0, dist['3'] || 0, dist['4'] || 0, dist['5'] || 0],
                                 type: 'bar',
-                                marker: {color: ['#e74c3c', '#f39c12', '#f1c40f', '#3498db', '#2ecc71']}
+                                marker: { color: ['#e74c3c', '#f39c12', '#f1c40f', '#3498db', '#2ecc71'] }
                             }], {
                                 title: 'Rating Distribution',
-                                xaxis: {title: 'Rating'},
-                                yaxis: {title: 'Number of Reviews'},
-                                font: {family: 'Roboto'}
+                                xaxis: { title: 'Rating' },
+                                yaxis: { title: 'Number of Reviews' },
+                                font: { family: 'Roboto' }
                             });
                         });
                     } else if (!apiError && !gbpConnected) {
@@ -1830,7 +2120,7 @@
                                     </thead>
                                     <tbody>
                         `;
-                        
+
                         reviews.slice(0, 10).forEach(review => {
                             const reviewDate = (review.createTime || review.updateTime) ? new Date(review.createTime || review.updateTime).toLocaleDateString() : '—';
                             const starRating = review.starRating ?? review.rating ?? 0;
@@ -1846,14 +2136,14 @@
                                 </tr>
                             `;
                         });
-                        
+
                         bpHTML += `
                                     </tbody>
                                 </table>
                             </div>
                         `;
                     }
-                    
+
                     // Insights (API returns .summary with views and customerActions) – show even when 0 if connected
                     const insightsSummary = insightsResult.summary || insightsResult.data || {};
                     if (insightsResult.success && insightsSummary.views) {
@@ -1884,33 +2174,33 @@
                             </div>
                         `;
                     }
-                    
+
                     bpHTML += `</div>`;
                     sectionsData['Business Profile'] = bpHTML;
                 } catch (error) {
                     sectionsData['Business Profile'] = `<div class="error">Error loading Business Profile data: ${error.message}</div>`;
                 }
             }
-            
+
             // Build tabbed interface if we have sections
             const sectionOrder = ['Overview', 'Traffic Sources', 'Top Pages', 'User Retention', 'Geographics', 'Tech/Devices', 'Events', 'Business Profile'];
             const availableSections = sectionOrder.filter(s => sections.includes(s) && sectionsData[s]);
-            
+
             let finalHTML = '';
-            
+
             if (availableSections.length > 0) {
                 // Build tabs HTML
                 finalHTML = '<div class="tabs-container">';
                 finalHTML += '<div class="tabs-header">';
-                
+
                 availableSections.forEach((section, index) => {
                     const tabId = `tab-${section.toLowerCase().replace(/\s+/g, '-').replace(/\//g, '-')}`;
                     const isActive = index === 0 ? 'active' : '';
                     finalHTML += `<button class="tab-button ${isActive}" onclick="switchTab('${tabId}')" data-tab="${tabId}">${section}</button>`;
                 });
-                
+
                 finalHTML += '</div>';
-                
+
                 // Add tab panels
                 availableSections.forEach((section, index) => {
                     const tabId = `tab-${section.toLowerCase().replace(/\s+/g, '-').replace(/\//g, '-')}`;
@@ -1918,15 +2208,15 @@
                     const sectionHTML = sectionsData[section] || '';
                     finalHTML += `<div class="tab-panel ${isActive}" id="${tabId}">${sectionHTML}</div>`;
                 });
-                
+
                 finalHTML += '</div>';
             } else {
                 finalHTML = '<div class="loading">No data available for selected sections</div>';
             }
-            
+
             // Set HTML first
             content.innerHTML = finalHTML;
-            
+
             // Then render all charts after DOM is ready
             setTimeout(() => {
                 chartRenderers.forEach(renderer => {
@@ -1938,68 +2228,68 @@
                 });
             }, 200);
         }
-        
+
         // Tab switching function
         function switchTab(tabId) {
             // Prevent any scrolling
             const scrollY = window.scrollY;
-            
+
             // Hide all tab panels
             document.querySelectorAll('.tab-panel').forEach(panel => {
                 panel.classList.remove('active');
             });
-            
+
             // Remove active class from all buttons
             document.querySelectorAll('.tab-button').forEach(button => {
                 button.classList.remove('active');
             });
-            
+
             // Show selected tab panel
             const selectedPanel = document.getElementById(tabId);
             if (selectedPanel) {
                 selectedPanel.classList.add('active');
             }
-            
+
             // Add active class to clicked button
             const clickedButton = document.querySelector(`[data-tab="${tabId}"]`);
             if (clickedButton) {
                 clickedButton.classList.add('active');
             }
-            
+
             // Restore scroll position
             window.scrollTo(0, scrollY);
         }
-        
+
         // Navigation menu switching function
         function showNavSection(sectionId, event) {
             // Prevent any scrolling
             const scrollY = window.scrollY;
-            
+
             // Hide all content sections
             document.querySelectorAll('.nav-content-section').forEach(section => {
                 section.classList.remove('active');
             });
-            
+
             // Remove active class from all nav items
             document.querySelectorAll('.nav-item').forEach(item => {
                 item.classList.remove('active');
             });
-            
+
             // Show selected section
             const selectedSection = document.getElementById(sectionId + '-section');
             if (selectedSection) {
                 selectedSection.classList.add('active');
             }
-            
+
             // Add active class to clicked nav item
             if (event && event.target) {
                 event.target.classList.add('active');
             }
-            
+
             // Restore scroll position
             window.scrollTo(0, scrollY);
         }
-        
+
         // Tooltip definitions - initialize with fallback, then load from keyterms.json
         const tooltips = {
             'Total Sessions': 'Total number of visits to the site in this period. One person can create multiple sessions if they return.',
@@ -2041,7 +2331,7 @@
             'file_download': 'Recorded when a visitor downloads a tracked file, such as a PDF or brochure.',
             'click_buy_online': 'Recorded when a visitor clicks a tracked "buy online" or similar outbound purchase link.'
         };
-        
+
         // Load additional tooltips from keyterms.json and merge
         fetch('/keyterms.json')
             .then(response => response.json())
@@ -2054,7 +2344,7 @@
             .catch(error => {
                 console.warn('Could not load keyterms.json, using fallback definitions:', error);
             });
-        
+
         // Helper function to create tooltip HTML
         function createTooltip(label, tooltipText) {
             if (!tooltipText) return label;
@@ -2066,18 +2356,18 @@
                 </span>
             `;
         }
-        
+
         function formatNumber(num) {
             const n = parseFloat(num) || 0;
             if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
             if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
             return n.toLocaleString();
         }
-        
+
         async function generateReport() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
-            
+
             // Read checkboxes fresh each time
             const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
             const sections = Array.from(checkboxes).map(cb => {
@@ -2085,33 +2375,33 @@
                 console.log('Found checked checkbox:', value, 'checked:', cb.checked);
                 return value;
             });
-            
+
             console.log('Checked sections array:', sections); // Debug log
             console.log('Number of checked boxes:', checkboxes.length); // Debug log
-            
+
             if (!startDate || !endDate) {
                 alert('Please select both start and end dates');
                 return;
             }
-            
+
             if (sections.length === 0) {
                 alert('Please select at least one section to include in the report');
                 return;
             }
-            
+
             const content = document.getElementById('content');
             content.innerHTML = '<div class="loading">Generating report...</div>';
-            
+
             try {
                 // Fetch data only for checked sections with cache-busting timestamp
                 const timestamp = new Date().getTime();
                 const fetchPromises = [];
                 const fetchKeys = [];
-                
+
                 // Always fetch overview for Executive Summary
                 fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/overview', { start_date: startDate, end_date: endDate, _t: timestamp })));
                 fetchKeys.push('overview');
-                
+
                 if (sections.includes('Traffic Sources')) {
                     fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/sources', { start_date: startDate, end_date: endDate, limit: 10, _t: timestamp })));
                     fetchKeys.push('sources');
@@ -2119,7 +2409,7 @@
                     fetchPromises.push(Promise.resolve(null));
                     fetchKeys.push('sources');
                 }
-                
+
                 if (sections.includes('Top Pages')) {
                     fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/pages', { start_date: startDate, end_date: endDate, limit: 20, _t: timestamp })));
                     fetchKeys.push('pages');
@@ -2127,7 +2417,7 @@
                     fetchPromises.push(Promise.resolve(null));
                     fetchKeys.push('pages');
                 }
-                
+
                 if (sections.includes('User Retention')) {
                     fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/retention', { start_date: startDate, end_date: endDate, _t: timestamp })));
                     fetchKeys.push('retention');
@@ -2135,7 +2425,7 @@
                     fetchPromises.push(Promise.resolve(null));
                     fetchKeys.push('retention');
                 }
-                
+
                 if (sections.includes('Geographics')) {
                     fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/cities', { start_date: startDate, end_date: endDate, limit: 10, _t: timestamp })));
                     fetchKeys.push('cities');
@@ -2147,7 +2437,7 @@
                     fetchPromises.push(Promise.resolve(null));
                     fetchKeys.push('countries');
                 }
-                
+
                 if (sections.includes('Tech/Devices')) {
                     fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/devices', { start_date: startDate, end_date: endDate, _t: timestamp })));
                     fetchKeys.push('devices');
@@ -2155,7 +2445,7 @@
                     fetchPromises.push(Promise.resolve(null));
                     fetchKeys.push('devices');
                 }
-                
+
                 if (sections.includes('Events')) {
                     fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/events', { start_date: startDate, end_date: endDate, limit: 20, _t: timestamp })));
                     fetchKeys.push('events');
@@ -2163,27 +2453,37 @@
                     fetchPromises.push(Promise.resolve(null));
                     fetchKeys.push('events');
                 }
-                
+
+                if (sections.includes('Business Profile')) {
+                    fetchPromises.push(fetchWithBypass(getApiUrl('/gbp/insights', { start_date: startDate, end_date: endDate, _t: timestamp })));
+                    fetchKeys.push('gbpInsights');
+                } else {
+                    fetchPromises.push(Promise.resolve(null));
+                    fetchKeys.push('gbpInsights');
+                }
+
                 const responses = await Promise.all(fetchPromises);
-                
+
                 // Capture timestamp when data was collected from API
                 const dataCollectionTime = new Date();
-                
+
                 // Parse responses - handle null responses for unchecked sections
-                const overview = responses[0] && responses[0] !== null && responses[0].ok ? await responses[0].json() : {success: false, data: {}};
-                const sources = responses[1] && responses[1] !== null && responses[1].ok ? await responses[1].json() : {success: false, data: []};
-                const pages = responses[2] && responses[2] !== null && responses[2].ok ? await responses[2].json() : {success: false, data: []};
-                const retention = responses[3] && responses[3] !== null && responses[3].ok ? await responses[3].json() : {success: false, data: []};
-                const cities = responses[4] && responses[4] !== null && responses[4].ok ? await responses[4].json() : {success: false, data: []};
-                const countries = responses[5] && responses[5] !== null && responses[5].ok ? await responses[5].json() : {success: false, data: []};
-                const devices = responses[6] && responses[6] !== null && responses[6].ok ? await responses[6].json() : {success: false, data: []};
-                const events = responses[7] && responses[7] !== null && responses[7].ok ? await responses[7].json() : {success: false, data: []};
-                
+                const overview = responses[0] && responses[0] !== null && responses[0].ok ? await responses[0].json() : { success: false, data: {} };
+                const sources = responses[1] && responses[1] !== null && responses[1].ok ? await responses[1].json() : { success: false, data: [] };
+                const pages = responses[2] && responses[2] !== null && responses[2].ok ? await responses[2].json() : { success: false, data: [] };
+                const retention = responses[3] && responses[3] !== null && responses[3].ok ? await responses[3].json() : { success: false, data: [] };
+                const cities = responses[4] && responses[4] !== null && responses[4].ok ? await responses[4].json() : { success: false, data: [] };
+                const countries = responses[5] && responses[5] !== null && responses[5].ok ? await responses[5].json() : { success: false, data: [] };
+                const devices = responses[6] && responses[6] !== null && responses[6].ok ? await responses[6].json() : { success: false, data: [] };
+                const events = responses[7] && responses[7] !== null && responses[7].ok ? await responses[7].json() : { success: false, data: [] };
+                const gbpInsights = responses[8] && responses[8] !== null && responses[8].ok ? await responses[8].json() : { success: false, summary: {} };
+
+
                 // Format dates
                 const start = new Date(startDate);
                 const end = new Date(endDate);
                 const monthName = start.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                
+
                 // Format date to DD/MM/YYYY
                 function formatDateDDMMYYYY(dateString) {
                     const date = new Date(dateString);
@@ -2192,7 +2492,7 @@
                     const year = date.getFullYear();
                     return `${day}/${month}/${year}`;
                 }
-                
+
                 // Format date and time to DD/MM/YYYY HH:MM
                 function formatDateTimeDDMMYYYYHHMM(date) {
                     const day = String(date.getDate()).padStart(2, '0');
@@ -2202,25 +2502,25 @@
                     const minutes = String(date.getMinutes()).padStart(2, '0');
                     return `${day}/${month}/${year} ${hours}:${minutes}`;
                 }
-                
+
                 const formattedStartDate = formatDateDDMMYYYY(startDate);
                 const formattedEndDate = formatDateDDMMYYYY(endDate);
                 const formattedCollectionTime = formatDateTimeDDMMYYYYHHMM(dataCollectionTime);
-                
+
                 // Calculate percentages
                 const totalSessions = parseFloat(overview.data.sessions || 0);
                 const totalSourceSessions = sources.data.reduce((sum, s) => sum + parseFloat(s.sessions || 0), 0);
-                
+
                 // Find search events
-                const searchEvents = events.data.filter(e => 
+                const searchEvents = events.data.filter(e =>
                     e.eventName && (e.eventName.toLowerCase().includes('search') || e.eventName.toLowerCase().includes('query'))
                 );
-                
+
                 // Filter product pages
-                const productPages = pages.data.filter(p => 
+                const productPages = pages.data.filter(p =>
                     p.pagePath && (p.pagePath.includes('/product/') || p.pagePath.includes('/product-category/'))
                 );
-                
+
                 // Generate report HTML - A4 size: 210mm x 297mm (8.27" x 11.69")
                 // For web display, we'll use ~794px width (A4 width at 96 DPI)
                 let reportHtml = `
@@ -2263,10 +2563,10 @@
                             </table>
                         </div>
                 `;
-                
+
                 // Section counter for numbering
                 let sectionNum = 1;
-                
+
                 // 1. Traffic Sources (only if checked)
                 if (sections.includes('Traffic Sources')) {
                     reportHtml += `
@@ -2288,29 +2588,29 @@
                                 </thead>
                                 <tbody>
                 `;
-                
-                if (sources.data && sources.data.length > 0) {
-                    sources.data.forEach(source => {
-                        const pct = totalSourceSessions > 0 ? ((parseFloat(source.sessions) / totalSourceSessions) * 100).toFixed(1) : 0;
-                        reportHtml += `
+
+                    if (sources.data && sources.data.length > 0) {
+                        sources.data.forEach(source => {
+                            const pct = totalSourceSessions > 0 ? ((parseFloat(source.sessions) / totalSourceSessions) * 100).toFixed(1) : 0;
+                            reportHtml += `
                             <tr>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; word-wrap: break-word;">${source.sessionSourceMedium || 'N/A'}</td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;"><strong>${pct}%</strong></td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(source.sessions || 0)}</td>
                             </tr>
                         `;
-                    });
-                } else {
-                    reportHtml += '<tr><td colspan="3">No source data available</td></tr>';
-                }
-                
+                        });
+                    } else {
+                        reportHtml += '<tr><td colspan="3">No source data available</td></tr>';
+                    }
+
                     reportHtml += `
                                 </tbody>
                             </table>
                         </div>
                     `;
                 }
-                
+
                 // 2. Most Visited Areas (only if Top Pages is checked)
                 if (sections.includes('Top Pages')) {
                     reportHtml += `
@@ -2333,10 +2633,10 @@
                                 </thead>
                                 <tbody>
                 `;
-                
-                if (pages.data && pages.data.length > 0) {
-                    pages.data.slice(0, 15).forEach(page => {
-                        reportHtml += `
+
+                    if (pages.data && pages.data.length > 0) {
+                        pages.data.slice(0, 15).forEach(page => {
+                            reportHtml += `
                             <tr>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; word-wrap: break-word;"><strong>${page.pageTitle || 'N/A'}</strong></td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; font-family: monospace; font-size: 0.9rem; color: #7f8c8d; box-sizing: border-box; word-wrap: break-word; overflow-wrap: break-word;">${page.pagePath || 'N/A'}</td>
@@ -2344,27 +2644,27 @@
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(page.activeUsers || 0)}</td>
                             </tr>
                         `;
-                    });
-                } else {
-                    reportHtml += '<tr><td colspan="4">No page data available</td></tr>';
-                }
-                
+                        });
+                    } else {
+                        reportHtml += '<tr><td colspan="4">No page data available</td></tr>';
+                    }
+
                     reportHtml += `
                                 </tbody>
                             </table>
                         </div>
                     `;
                 }
-                
+
                 // 3. Most Searched Products (only if Top Pages is checked and we have product pages)
                 if (sections.includes('Top Pages') && productPages.length > 0) {
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
                             <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Most Searched Products</h2>
                     `;
-                    
+
                     if (productPages.length > 0) {
-                    reportHtml += `
+                        reportHtml += `
                         <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                             <colgroup>
                                 <col style="width: 60%;">
@@ -2380,25 +2680,25 @@
                             </thead>
                             <tbody>
                     `;
-                    productPages.slice(0, 10).forEach(product => {
-                        reportHtml += `
+                        productPages.slice(0, 10).forEach(product => {
+                            reportHtml += `
                             <tr>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; word-wrap: break-word;"><strong>${product.pageTitle || 'N/A'}</strong></td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(product.screenPageViews || 0)}</td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(product.activeUsers || 0)}</td>
                             </tr>
                         `;
-                    });
-                    reportHtml += `</tbody></table>`;
-                } else {
-                    reportHtml += '<p style="color: #7f8c8d;">No product page data available for this period.</p>';
-                }
-                
+                        });
+                        reportHtml += `</tbody></table>`;
+                    } else {
+                        reportHtml += '<p style="color: #7f8c8d;">No product page data available for this period.</p>';
+                    }
+
                     reportHtml += `
                         </div>
                     `;
                 }
-                
+
                 // 4. User Retention (only if checked)
                 if (sections.includes('User Retention') && retention.data && retention.data.length > 0) {
                     const newUsers = retention.data.find(r => r.newVsReturning === 'new');
@@ -2440,14 +2740,14 @@
                         </div>
                     `;
                 }
-                
+
                 // 5. Geographic Distribution (only if checked)
                 if (sections.includes('Geographics') && (cities.data && cities.data.length > 0 || countries.data && countries.data.length > 0)) {
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
                             <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Geographic Distribution</h2>
                     `;
-                    
+
                     // Countries Chart (Top 10)
                     if (countries.data && countries.data.length > 0) {
                         reportHtml += `
@@ -2455,7 +2755,7 @@
                             <div id="reportCountriesChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box;"></div>
                         `;
                     }
-                    
+
                     // Cities Table
                     if (cities.data && cities.data.length > 0) {
                         reportHtml += `
@@ -2490,12 +2790,12 @@
                             </table>
                         `;
                     }
-                    
+
                     reportHtml += `
                         </div>
                     `;
                 }
-                
+
                 // 6. Device Categories (only if checked)
                 if (sections.includes('Tech/Devices') && devices.data && devices.data.length > 0) {
                     reportHtml += `
@@ -2533,7 +2833,7 @@
                         </div>
                     `;
                 }
-                
+
                 // 7. Top Events (only if checked)
                 if (sections.includes('Events') && events.data && events.data.length > 0) {
                     reportHtml += `
@@ -2567,9 +2867,51 @@
                         </div>
                     `;
                 }
-                
+
+                // 8. Business Profile (only if checked)
+                if (sections.includes('Business Profile')) {
+                    // Check if we have insights data
+                    const insights = gbpInsights.summary || gbpInsights.data || {};
+                    const hasInsights = insights.views && (insights.views.search || insights.views.maps || insights.customerActions?.websiteClicks || insights.customerActions?.directionRequests);
+
+                    if (hasInsights) {
+                        reportHtml += `
+                            <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
+                                <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Google Business Profile</h2>
+                        `;
+
+                        if (hasInsights) {
+                            reportHtml += `
+                                <h3 style="color: #2c3e50; margin-top: 1.5rem; margin-bottom: 1rem; font-size: 1.2rem; font-weight: 600;">Performance Insights</h3>
+                                <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed; margin-bottom: 2rem;">
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;"><strong>Search Views:</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;">${formatNumber(insights.views.search || 0)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;"><strong>Maps Views:</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;">${formatNumber(insights.views.maps || 0)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;"><strong>Website Clicks:</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;">${formatNumber(insights.customerActions?.websiteClicks || 0)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;"><strong>Direction Requests:</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;">${formatNumber(insights.customerActions?.directionRequests || 0)}</td>
+                                    </tr>
+                                </table>
+                            `;
+                        }
+
+
+
+                        reportHtml += `</div>`;
+                    }
+                }
+
                 const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-                
+
                 reportHtml += `
                         <div style="text-align: center; margin-top: 2rem;">
                             <button onclick="window.print()" style="background-color: #7f8c8d; color: white; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem;">
@@ -2586,35 +2928,35 @@
                         </div>
                     </div>
                 `;
-                
+
                 content.innerHTML = reportHtml;
-                
+
                 // Update page numbers function
                 function updatePageNumbers() {
                     const reportContainer = document.getElementById('reportContainer');
                     if (!reportContainer) return;
-                    
+
                     // Calculate approximate total pages based on content height
                     // A4 page height at 96 DPI: ~1123px, minus margins (1cm top + 2.5cm bottom): ~900px usable
                     const pageHeight = 900; // Approximate usable height per page
                     const contentHeight = reportContainer.scrollHeight;
                     const totalPages = Math.max(1, Math.ceil(contentHeight / pageHeight));
-                    
+
                     // Update total pages in all footer instances
                     const totalPagesEls = document.querySelectorAll('.total-pages');
                     totalPagesEls.forEach(el => {
                         el.textContent = totalPages;
                     });
-                    
+
                     // Note: CSS @page margin boxes have limited browser support
                     // The footer will show total pages, and browsers may add their own page numbers
                 }
-                
+
                 // Update page numbers after content is loaded and charts are rendered
                 setTimeout(updatePageNumbers, 2000);
-                
+
                 // Also update when print dialog opens
-                window.addEventListener('beforeprint', function() {
+                window.addEventListener('beforeprint', function () {
                     updatePageNumbers();
                     // Show footer
                     const footer = document.querySelector('.print-footer');
@@ -2622,15 +2964,15 @@
                         footer.style.display = 'block';
                     }
                 });
-                
-                window.addEventListener('afterprint', function() {
+
+                window.addEventListener('afterprint', function () {
                     // Hide footer after printing
                     const footer = document.querySelector('.print-footer');
                     if (footer) {
                         footer.style.display = 'none';
                     }
                 });
-                
+
                 // Render charts and convert to static images after HTML is inserted
                 setTimeout(async () => {
                     // Helper function to convert Plotly chart to image
@@ -2640,14 +2982,14 @@
                             console.warn(`Chart div not found: ${chartId}`);
                             return null;
                         }
-                        
+
                         try {
                             // Render the chart
                             await Plotly.newPlot(chartId, chartData, layout, config);
-                            
+
                             // Wait a bit for chart to fully render
                             await new Promise(resolve => setTimeout(resolve, 500));
-                            
+
                             // Ensure chart div has valid dimensions
                             if (chartDiv.offsetWidth === 0 || chartDiv.offsetHeight === 0) {
                                 console.warn(`Chart ${chartId} has zero dimensions, using defaults`);
@@ -2655,32 +2997,32 @@
                                 chartDiv.style.height = chartDiv.style.height || '400px';
                                 await new Promise(resolve => setTimeout(resolve, 200));
                             }
-                            
+
                             // Convert to image
                             const imgData = await Plotly.toImage(chartDiv, {
                                 format: 'png',
                                 width: chartDiv.offsetWidth || 800,
                                 height: chartDiv.offsetHeight || 400
                             });
-                            
+
                             // Validate base64 data
                             if (!imgData || typeof imgData !== 'string') {
                                 console.error(`Invalid image data for chart ${chartId}:`, typeof imgData);
                                 throw new Error('No image data returned from Plotly');
                             }
-                            
+
                             if (!imgData.startsWith('data:image/png;base64,')) {
                                 console.error(`Invalid image data format for chart ${chartId}. Expected base64 PNG, got:`, imgData.substring(0, 50));
                                 throw new Error('Invalid image data format returned from Plotly');
                             }
-                            
+
                             // Check if base64 data is too short (likely truncated)
                             const base64Part = imgData.split(',')[1];
                             if (!base64Part || base64Part.length < 100) {
                                 console.error(`Base64 data appears truncated for chart ${chartId}. Length:`, base64Part?.length || 0);
                                 throw new Error('Image data appears to be truncated');
                             }
-                            
+
                             // Create image element and wait for it to load
                             return new Promise((resolve, reject) => {
                                 const img = document.createElement('img');
@@ -2693,7 +3035,7 @@
                                 img.style.boxSizing = 'border-box';
                                 img.style.display = 'block';
                                 img.style.objectFit = 'contain';
-                                
+
                                 // Wait for image to load before replacing
                                 img.onload = () => {
                                     try {
@@ -2710,7 +3052,7 @@
                                         reject(replaceError);
                                     }
                                 };
-                                
+
                                 // Handle image load errors
                                 img.onerror = (error) => {
                                     console.error(`Image failed to load for chart ${chartId}:`, error);
@@ -2724,10 +3066,10 @@
                                     chartDiv.parentNode.replaceChild(errorMsg, chartDiv);
                                     reject(new Error(`Image load failed for ${chartId}`));
                                 };
-                                
+
                                 // Set src after attaching event handlers
                                 img.src = imgData;
-                                
+
                                 // Timeout fallback in case onload never fires
                                 setTimeout(() => {
                                     if (img.parentNode === null && chartDiv.parentNode) {
@@ -2759,10 +3101,10 @@
                             return null;
                         }
                     }
-                    
+
                     // Traffic Sources Chart
                     if (sections.includes('Traffic Sources') && sources.data && sources.data.length > 0) {
-                        const chartData = sources.data.map(d => ({name: d.sessionSourceMedium, value: parseInt(d.sessions)}));
+                        const chartData = sources.data.map(d => ({ name: d.sessionSourceMedium, value: parseInt(d.sessions) }));
                         const sortedData = [...chartData].sort((a, b) => b.value - a.value);
                         const colorPalette = ['#ff5800', '#4a90e2', '#50c878', '#f39c12', '#9b59b6', '#e74c3c', '#1abc9c', '#34495e', '#e67e22', '#16a085'];
                         const colorMap = new Map();
@@ -2774,39 +3116,39 @@
                             values: chartData.map(d => d.value),
                             labels: chartData.map(d => d.name),
                             type: 'pie',
-                            marker: {colors: colors},
+                            marker: { colors: colors },
                             textinfo: 'label+percent',
                             textposition: 'outside',
-                            domain: {x: [0.1, 0.9], y: [0.1, 0.9]}
+                            domain: { x: [0.1, 0.9], y: [0.1, 0.9] }
                         }], {
-                            font: {family: 'Roboto', size: 12},
+                            font: { family: 'Roboto', size: 12 },
                             showlegend: false,
-                            margin: {l: 50, r: 50, t: 50, b: 50},
+                            margin: { l: 50, r: 50, t: 50, b: 50 },
                             paper_bgcolor: 'rgba(0,0,0,0)',
                             plot_bgcolor: 'rgba(0,0,0,0)'
-                        }, {staticPlot: true, displayModeBar: false});
+                        }, { staticPlot: true, displayModeBar: false });
                     }
-                    
+
                     // User Retention Chart
                     if (sections.includes('User Retention') && retention.data && retention.data.length > 0) {
-                        const retentionData = retention.data.map(d => ({name: d.newVsReturning, value: parseInt(d.sessions)}));
+                        const retentionData = retention.data.map(d => ({ name: d.newVsReturning, value: parseInt(d.sessions) }));
                         await convertChartToImage('reportRetentionChart', [{
                             values: retentionData.map(d => d.value),
                             labels: retentionData.map(d => d.name),
                             type: 'pie',
-                            marker: {colors: ['#ff5800', '#4a90e2']},
+                            marker: { colors: ['#ff5800', '#4a90e2'] },
                             textinfo: 'label+percent',
                             textposition: 'outside',
-                            domain: {x: [0.1, 0.9], y: [0.1, 0.9]}
+                            domain: { x: [0.1, 0.9], y: [0.1, 0.9] }
                         }], {
-                            font: {family: 'Roboto', size: 12},
+                            font: { family: 'Roboto', size: 12 },
                             showlegend: false,
-                            margin: {l: 50, r: 50, t: 50, b: 50},
+                            margin: { l: 50, r: 50, t: 50, b: 50 },
                             paper_bgcolor: 'rgba(0,0,0,0)',
                             plot_bgcolor: 'rgba(0,0,0,0)'
-                        }, {staticPlot: true, displayModeBar: false});
+                        }, { staticPlot: true, displayModeBar: false });
                     }
-                    
+
                     // Countries Chart (Top 10)
                     if (sections.includes('Geographics') && countries.data && countries.data.length > 0) {
                         const topCountries = countries.data.slice(0, 10);
@@ -2814,35 +3156,35 @@
                             x: topCountries.map(c => c.country || 'N/A'),
                             y: topCountries.map(c => parseInt(c.sessions || 0)),
                             type: 'bar',
-                            marker: {color: '#ff5800'}
+                            marker: { color: '#ff5800' }
                         }], {
-                            font: {family: 'Roboto', size: 12},
+                            font: { family: 'Roboto', size: 12 },
                             title: 'Sessions by Country (Top 10)',
-                            xaxis: {title: 'Country', tickangle: -45},
-                            yaxis: {title: 'Sessions'},
+                            xaxis: { title: 'Country', tickangle: -45 },
+                            yaxis: { title: 'Sessions' },
                             paper_bgcolor: 'rgba(0,0,0,0)',
                             plot_bgcolor: 'rgba(0,0,0,0)'
-                        }, {staticPlot: true, displayModeBar: false});
+                        }, { staticPlot: true, displayModeBar: false });
                     }
-                    
+
                     // Device Categories Chart
                     if (sections.includes('Tech/Devices') && devices.data && devices.data.length > 0) {
-                        const deviceData = devices.data.map(d => ({name: d.deviceCategory, value: parseInt(d.sessions)}));
+                        const deviceData = devices.data.map(d => ({ name: d.deviceCategory, value: parseInt(d.sessions) }));
                         await convertChartToImage('reportDevicesChart', [{
                             values: deviceData.map(d => d.value),
                             labels: deviceData.map(d => d.name),
                             type: 'pie',
-                            marker: {colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12']},
+                            marker: { colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12'] },
                             textinfo: 'label+percent',
                             textposition: 'outside'
                         }], {
-                            font: {family: 'Roboto', size: 12},
+                            font: { family: 'Roboto', size: 12 },
                             showlegend: true,
                             paper_bgcolor: 'rgba(0,0,0,0)',
                             plot_bgcolor: 'rgba(0,0,0,0)'
-                        }, {staticPlot: true, displayModeBar: false});
+                        }, { staticPlot: true, displayModeBar: false });
                     }
-                    
+
                     // Top Events Chart
                     if (sections.includes('Events') && events.data && events.data.length > 0) {
                         const topEvents = events.data.slice(0, 10);
@@ -2850,22 +3192,22 @@
                             x: topEvents.map(e => e.eventName),
                             y: topEvents.map(e => parseInt(e.eventCount)),
                             type: 'bar',
-                            marker: {color: '#ff5800'}
+                            marker: { color: '#ff5800' }
                         }], {
-                            font: {family: 'Roboto', size: 12},
-                            xaxis: {title: 'Event Name', tickangle: -45},
-                            yaxis: {title: 'Event Count'},
+                            font: { family: 'Roboto', size: 12 },
+                            xaxis: { title: 'Event Name', tickangle: -45 },
+                            yaxis: { title: 'Event Count' },
                             paper_bgcolor: 'rgba(0,0,0,0)',
                             plot_bgcolor: 'rgba(0,0,0,0)'
-                        }, {staticPlot: true, displayModeBar: false});
+                        }, { staticPlot: true, displayModeBar: false });
                     }
                 }, 500);
-                
+
             } catch (error) {
                 content.innerHTML = `<div class="error">Error generating report: ${error.message}</div>`;
             }
         }
-        
+
         // Generate PDF using html2pdf.js library
         function generatePDF() {
             const button = document.getElementById('pdfButton');
@@ -2873,7 +3215,7 @@
                 button.disabled = true;
                 button.textContent = '⏳ Generating PDF...';
             }
-            
+
             // Get the report container (A4 sized)
             const reportContainer = document.getElementById('reportContainer') || document.querySelector('.section[style*="max-width: 794px"]') || document.querySelector('.section[style*="max-width: 900px"]');
             if (!reportContainer) {
@@ -2884,13 +3226,13 @@
                 }
                 return;
             }
-            
+
             // Configure PDF options for A4 paper (210mm x 297mm = 8.27" x 11.69")
             const opt = {
                 margin: [0.4, 0.4, 0.4, 0.4], // Smaller margins for more content
                 filename: `Tenacious_Stats_Report_${new Date().toISOString().split('T')[0]}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { 
+                html2canvas: {
                     scale: 2,
                     useCORS: true,
                     allowTaint: true,
@@ -2900,19 +3242,19 @@
                     windowWidth: 794, // A4 width in pixels at 96 DPI
                     windowHeight: reportContainer.scrollHeight
                 },
-                jsPDF: { 
+                jsPDF: {
                     unit: 'mm', // Use millimeters for A4 precision
                     format: 'a4', // 210mm x 297mm
                     orientation: 'portrait',
                     compress: true
                 },
-                pagebreak: { 
+                pagebreak: {
                     mode: ['avoid-all', 'css', 'legacy'],
                     before: '.report-section',
                     after: '.report-section'
                 }
             };
-            
+
             // Generate PDF and open in new tab for review
             html2pdf()
                 .set(opt)
@@ -2921,10 +3263,10 @@
                 .then((pdfBlob) => {
                     // Create blob URL
                     const pdfBlobUrl = URL.createObjectURL(pdfBlob);
-                    
+
                     // Open PDF in new tab for review
                     const newWindow = window.open(pdfBlobUrl, '_blank');
-                    
+
                     if (newWindow) {
                         // Clean up blob URL after a delay
                         setTimeout(() => {
@@ -2942,7 +3284,7 @@
                             URL.revokeObjectURL(pdfBlobUrl);
                         }, 100);
                     }
-                    
+
                     if (button) {
                         button.disabled = false;
                         button.textContent = '📄 Generate PDF Report';
@@ -2957,7 +3299,7 @@
                     }
                 });
         }
-        
+
         // Preview report as image so we can see the output
         async function previewReport() {
             const button = document.getElementById('previewButton');
@@ -2965,7 +3307,7 @@
                 button.disabled = true;
                 button.textContent = '⏳ Generating preview...';
             }
-            
+
             // Get the report container (A4 sized)
             const reportContainer = document.getElementById('reportContainer') || document.querySelector('.section[style*="max-width: 794px"]') || document.querySelector('.section[style*="max-width: 900px"]');
             if (!reportContainer) {
@@ -2976,7 +3318,7 @@
                 }
                 return;
             }
-            
+
             try {
                 // Use html2canvas to create A4-sized image for preview
                 const a4Width = 794; // A4 width in pixels at 96 DPI
@@ -2990,13 +3332,13 @@
                     windowWidth: a4Width,
                     windowHeight: reportContainer.scrollHeight
                 });
-                
+
                 // Convert canvas to image
                 const imgData = canvas.toDataURL('image/png');
-                
+
                 // Open image directly in new tab - simplest approach
                 window.open(imgData, '_blank');
-                
+
                 if (button) {
                     button.disabled = false;
                     button.textContent = '👁️ Preview Report';
@@ -3010,7 +3352,7 @@
                 }
             }
         }
-        
+
         // Download report as single high-quality image file
         async function downloadReportImage() {
             const button = document.getElementById('imageButton');
@@ -3018,7 +3360,7 @@
                 button.disabled = true;
                 button.textContent = '⏳ Generating image...';
             }
-            
+
             // Get the report container (A4 sized)
             const reportContainer = document.getElementById('reportContainer') || document.querySelector('.section[style*="max-width: 794px"]') || document.querySelector('.section[style*="max-width: 900px"]');
             if (!reportContainer) {
@@ -3029,7 +3371,7 @@
                 }
                 return;
             }
-            
+
             try {
                 // Use html2canvas to create A4-sized high-quality image
                 // A4: 210mm x 297mm = 794px x 1123px at 96 DPI
@@ -3037,7 +3379,7 @@
                 const a4Width = 794; // A4 width in pixels at 96 DPI
                 const a4Height = 1123; // A4 height in pixels at 96 DPI
                 const scale = 3; // High quality scale
-                
+
                 const canvas = await html2canvas(reportContainer, {
                     scale: scale,
                     useCORS: true,
@@ -3050,21 +3392,21 @@
                     windowHeight: reportContainer.scrollHeight,
                     removeContainer: false
                 });
-                
+
                 // Convert canvas to image with maximum quality
                 const imgData = canvas.toDataURL('image/png', 1.0);
-                
+
                 // Create download link
                 const dateStr = new Date().toISOString().split('T')[0];
                 const link = document.createElement('a');
                 link.download = `Tenacious_Stats_Report_${dateStr}.png`;
                 link.href = imgData;
-                
+
                 // Trigger download
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
+
                 if (button) {
                     button.disabled = false;
                     button.textContent = '💾 Download as Image';
@@ -3080,4 +3422,5 @@
         }
     </script>
 </body>
+
 </html>

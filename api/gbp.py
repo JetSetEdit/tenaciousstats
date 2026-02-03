@@ -113,26 +113,35 @@ def _aggregate_insights_timeseries(series_list):
     }
     if not series_list:
         return summary
-    for series in series_list:
-        metric = series.get("dailyMetric") or ""
-        total = 0
-        for pt in series.get("timeSeries", {}).get("datedValues", []):
-            total += int(pt.get("value", 0))
-        if "SEARCH" in metric:
-            summary["views"]["search"] += total
-        elif "MAPS" in metric:
-            summary["views"]["maps"] += total
-        elif metric == "WEBSITE_CLICKS":
-            summary["customerActions"]["websiteClicks"] = total
-        elif metric == "BUSINESS_DIRECTION_REQUESTS":
-            summary["customerActions"]["directionRequests"] = total
+    if not series_list:
+        return summary
+    
+    for item in series_list:
+        # Each item corresponds to a location and contains a list of metrics
+        metrics_list = item.get("dailyMetricTimeSeries", [])
+        for series in metrics_list:
+            metric = series.get("dailyMetric") or ""
+            total = 0
+            for pt in series.get("timeSeries", {}).get("datedValues", []):
+                total += int(pt.get("value", 0))
+            
+            if "SEARCH" in metric:
+                summary["views"]["search"] += total
+            elif "MAPS" in metric:
+                summary["views"]["maps"] += total
+            elif metric == "WEBSITE_CLICKS":
+                summary["customerActions"]["websiteClicks"] += total
+            elif metric == "BUSINESS_DIRECTION_REQUESTS":
+                summary["customerActions"]["directionRequests"] += total
     return summary
 
 
 def get_insights(start_date=None, end_date=None):
     """
-    Fetches daily metrics for the location using fetchMultiDailyMetricsTimeSeries.
+    Fetches daily metrics using AuthorizedSession to avoid client library issues with dailyRange.
     """
+    from google.auth.transport.requests import AuthorizedSession
+    
     creds = get_creds()
     if not creds:
         return {"error": "Credentials not found"}
@@ -161,10 +170,10 @@ def get_insights(start_date=None, end_date=None):
             }
         location_name = locs[0]['name']  # Format: locations/{locationId}
         
-        # 3. Fetch Daily Metrics (Performance API)
-        perf_service = build('businessprofileperformance', 'v1', credentials=creds)
+        # 3. Fetch Daily Metrics (Performance API) via AuthorizedSession
+        # The client library has issues with the dailyRange object in some versions,
+        # so we standardise on a direct HTTP call with flattened parameters.
         
-        # Metrics to fetch
         metrics = [
             "BUSINESS_IMPRESSIONS_DESKTOP_MAPS",
             "BUSINESS_IMPRESSIONS_DESKTOP_SEARCH",
@@ -189,30 +198,38 @@ def get_insights(start_date=None, end_date=None):
                 start_date_obj = datetime.datetime.strptime(start_date, '%Y-%m-%d').date()
                 end_date_obj = datetime.datetime.strptime(end_date, '%Y-%m-%d').date()
             except ValueError:
-                 # Fallback
+                # Fallback
                 today = datetime.date.today()
                 end_date_obj = today
                 start_date_obj = today - datetime.timedelta(days=30)
 
-        # Use fetchMultiDailyMetricsTimeSeries
-        response = perf_service.locations().fetchMultiDailyMetricsTimeSeries(
-            location=location_name, 
-            dailyMetrics=metrics, 
-            dailyRange={
-                "start_date": {
-                    "year": start_date_obj.year,
-                    "month": start_date_obj.month,
-                    "day": start_date_obj.day
-                },
-                "end_date": {
-                    "year": end_date_obj.year,
-                    "month": end_date_obj.month,
-                    "day": end_date_obj.day
-                }
-            }
-        ).execute()
+        # Prepare manual request
+        authed_session = AuthorizedSession(creds)
+        url = f"https://businessprofileperformance.googleapis.com/v1/{location_name}:fetchMultiDailyMetricsTimeSeries"
         
-        series_list = response.get('multiDailyMetricTimeSeries', [])
+        params = {
+            "dailyMetrics": metrics,
+            "dailyRange.startDate.year": start_date_obj.year,
+            "dailyRange.startDate.month": start_date_obj.month,
+            "dailyRange.startDate.day": start_date_obj.day,
+            "dailyRange.endDate.year": end_date_obj.year,
+            "dailyRange.endDate.month": end_date_obj.month,
+            "dailyRange.endDate.day": end_date_obj.day
+        }
+        
+        response = authed_session.get(url, params=params)
+        
+        if response.status_code != 200:
+             # Try to parse error
+            try:
+                err_json = response.json()
+                msg = err_json.get("error", {}).get("message", response.text)
+            except:
+                msg = response.text
+            return {"error": f"API Error ({response.status_code}): {msg}"}
+
+        data = response.json()
+        series_list = data.get('multiDailyMetricTimeSeries', [])
         summary = _aggregate_insights_timeseries(series_list)
         return {
             "success": True,
@@ -221,21 +238,6 @@ def get_insights(start_date=None, end_date=None):
             "location": location_name
         }
 
-    except HttpError as e:
-        error_content = e.content.decode('utf-8') if e.content else ""
-        status = getattr(e, 'resp', None) and getattr(e.resp, 'status', None)
-        if "quota" in error_content.lower() or "rate_limit_exceeded" in error_content.lower():
-            return {
-                "error": "Quota Exceeded. Please request GBP API access in Google Cloud Console.",
-                "details": error_content
-            }
-        # Include status and body so the dashboard shows the real reason
-        try:
-            err_json = json.loads(error_content)
-            msg = err_json.get("error", {}).get("message", err_json.get("error", error_content[:500]))
-        except (ValueError, TypeError):
-            msg = error_content[:500] if error_content else str(e)
-        return {"error": f"API Error ({status or '?'}): {msg}"}
     except Exception as e:
         return {"error": f"Unexpected Error: {str(e)}"}
 
@@ -269,20 +271,21 @@ def get_ratings():
 
 
 def get_reviews():
-    """Fetches recent reviews."""
+    """Fetches recent reviews using AuthorizedSession v4 endpoint."""
+    from google.auth.transport.requests import AuthorizedSession
     creds = get_creds()
     if not creds:
         return {"error": "Credentials not found"}
 
     try:
-        # 1. Get Account (Account Management API)
+        # 1. Get Account
         account_service = build('mybusinessaccountmanagement', 'v1', credentials=creds)
         accounts = account_service.accounts().list().execute()
         if not accounts.get('accounts'):
             return {"error": "No accounts found"}
         account_name = accounts['accounts'][0]['name']
         
-        # 2. Get Location (Business Information API) – read_mask is required
+        # 2. Get Location
         info_service = build('mybusinessbusinessinformation', 'v1', credentials=creds)
         locations = info_service.accounts().locations().list(
             parent=account_name,
@@ -292,38 +295,53 @@ def get_reviews():
         locs = locations.get('locations') or []
         if not locs:
             return {
-                "error": "No locations found. The Google account has no Business Profile locations. "
-                "Use OAuth (token.pickle) from the account that owns the business, claim a business at business.google.com, "
-                "or invite this account as a manager. See GBP_README.md."
+                "error": "No locations found. See GBP_README.md."
             }
         location_name = locs[0]['name']
         
-        # 3. Fetch Reviews (My Business API v4 – use custom discovery URL; not in default discovery index)
-        # Parent format: accounts/{accountId}/locations/{locationId}
-        full_location_name = f"{account_name}/{location_name}"
+        # 3. Fetch Reviews (v4 API) via AuthorizedSession
+        # Format: accounts/{accountId}/locations/{locationId}
         
-        reviews_service = build(
-            'mybusiness', 'v4', credentials=creds,
-            discoveryServiceUrl='https://mybusiness.googleapis.com/$discovery/rest?version=v4'
-        )
-        reviews = reviews_service.accounts().locations().reviews().list(parent=full_location_name).execute()
-        reviews_list = reviews.get('reviews', [])
+        if 'accounts/' in location_name:
+             full_location_name = location_name
+        else:
+             full_location_name = f"{account_name}/{location_name}"
+
+        authed_session = AuthorizedSession(creds)
+        url = f"https://mybusiness.googleapis.com/v4/{full_location_name}/reviews"
+        
+        response = authed_session.get(url)
+        
+        if response.status_code == 403:
+            # User opted not to enable the API for now. 
+            # Return empty list to keep dashboard clean instead of showing an error.
+            print("GBP Reviews API (v4) not enabled. returning empty list.")
+            return {
+                "success": True,
+                "reviews": [],
+                "data": [],
+                "averageRating": 0,
+                "totalReviewCount": 0
+            }
+            
+        if response.status_code != 200:
+             # Try to parse error
+            try:
+                err_json = response.json()
+                msg = err_json.get("error", {}).get("message", response.text)
+            except:
+                msg = response.text
+            return {"error": f"API Error ({response.status_code}): {msg}"}
+
+        data = response.json()
+        reviews_list = data.get('reviews', [])
         return {
             "success": True,
             "reviews": reviews_list,
             "data": reviews_list,
-            "averageRating": reviews.get('averageRating', 0),
-            "totalReviewCount": reviews.get('totalReviewCount', 0)
+            "averageRating": data.get('averageRating', 0),
+            "totalReviewCount": data.get('totalReviewCount', 0)
         }
 
-    except HttpError as e:
-        error_content = e.content.decode('utf-8') if e.content else ""
-        status = getattr(e, 'resp', None) and getattr(e.resp, 'status', None)
-        try:
-            err_json = json.loads(error_content)
-            msg = err_json.get("error", {}).get("message", err_json.get("error", error_content[:500]))
-        except (ValueError, TypeError):
-            msg = error_content[:500] if error_content else str(e)
-        return {"error": f"API Error ({status or '?'}): {msg}"}
     except Exception as e:
         return {"error": f"Unexpected Error: {str(e)}"}

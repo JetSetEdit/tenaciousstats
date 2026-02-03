@@ -58,8 +58,9 @@ class AnalyticsRequest(BaseModel):
     metrics: List[str]
     limit: int = 10000
 
-# Root endpoint
-@app.get("/")
+
+
+# Root endpoint (API only)
 @app.get("/api")
 def root():
     return {
@@ -262,4 +263,23 @@ else:
 # For local development
 if __name__ == "__main__":
     import uvicorn
+    from fastapi.staticfiles import StaticFiles
+    
+    # Mount public directory for static files (only for local dev)
+    # This allows localhost:8000/ to serve public/index.html
+    if os.path.exists("public"):
+        app.mount("/", StaticFiles(directory="public", html=True), name="public")
+        print("Serving static files from 'public' directory")
+    
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# Mount static files if public directory exists (Local Development)
+# We mount this LAST so it doesn't shadow the API routes defined above.
+try:
+    if os.path.exists('public'):
+        from fastapi.staticfiles import StaticFiles
+        app.mount('/', StaticFiles(directory='public', html=True), name='public')
+        print('Mounted public directory at / (after API routes)')
+except ImportError:
+    print('Could not import StaticFiles - static serving unavailable')
+
