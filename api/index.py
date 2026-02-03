@@ -15,14 +15,12 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import GA4 utilities
-ga4_error = None
 try:
     from utils.ga4_utils import get_client, fetch_analytics_data
     GA4_AVAILABLE = True
-except ImportError as e:
+except ImportError:
     GA4_AVAILABLE = False
-    ga4_error = str(e)
-    print(f"Warning: GA4 utils not available: {e}")
+    print("Warning: GA4 utils not available")
 
 # Import GBP module (from same directory)
 try:
@@ -60,9 +58,8 @@ class AnalyticsRequest(BaseModel):
     metrics: List[str]
     limit: int = 10000
 
-
-
-# Root endpoint (API only)
+# Root endpoint
+@app.get("/")
 @app.get("/api")
 def root():
     return {
@@ -79,7 +76,6 @@ def health_check():
         "status": "healthy",
         "property_id": PROPERTY_ID,
         "ga4_available": GA4_AVAILABLE,
-        "ga4_error": ga4_error,
         "gbp_available": GBP_AVAILABLE
     }
 
@@ -235,19 +231,6 @@ if GBP_AVAILABLE:
             raise
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"GBP Error: {str(e)}")
-
-    @app.get("/api/gbp/ratings")
-    def get_gbp_ratings():
-        """Get Google Business Profile ratings summary (for dashboard)."""
-        try:
-            result = gbp.get_ratings()
-            if "error" in result:
-                raise HTTPException(status_code=500, detail=result["error"])
-            return result
-        except HTTPException:
-            raise
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"GBP Error: {str(e)}")
 else:
     @app.get("/api/gbp/insights")
     def get_gbp_insights_unavailable():
@@ -257,32 +240,9 @@ else:
     def get_gbp_reviews_unavailable():
         raise HTTPException(status_code=503, detail="GBP module not available")
 
-    @app.get("/api/gbp/ratings")
-    def get_gbp_ratings_unavailable():
-        raise HTTPException(status_code=503, detail="GBP module not available")
-
 # Vercel serverless function handler
 # Vercel will automatically detect the FastAPI app
 # For local development
 if __name__ == "__main__":
     import uvicorn
-    from fastapi.staticfiles import StaticFiles
-    
-    # Mount public directory for static files (only for local dev)
-    # This allows localhost:8000/ to serve public/index.html
-    if os.path.exists("public"):
-        app.mount("/", StaticFiles(directory="public", html=True), name="public")
-        print("Serving static files from 'public' directory")
-    
     uvicorn.run(app, host="0.0.0.0", port=8000)
-
-# Mount static files if public directory exists (Local Development)
-# We mount this LAST so it doesn't shadow the API routes defined above.
-try:
-    if os.path.exists('public'):
-        from fastapi.staticfiles import StaticFiles
-        app.mount('/', StaticFiles(directory='public', html=True), name='public')
-        print('Mounted public directory at / (after API routes)')
-except ImportError:
-    print('Could not import StaticFiles - static serving unavailable')
-

@@ -4,7 +4,6 @@ Save this as utils/ga4_utils.py
 """
 
 import os
-import pandas as pd
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
     DateRange,
@@ -14,7 +13,7 @@ from google.analytics.data_v1beta.types import (
 )
 
 # Configuration
-PROPERTY_ID = '368035934'
+PROPERTY_ID = os.environ.get('PROPERTY_ID', '368035934')
 _CREDENTIALS_NAME = 'credentials.json'
 # Resolve path from project root (parent of utils/) so it works from api/ or CWD
 _utils_dir = os.path.dirname(os.path.abspath(__file__))
@@ -23,7 +22,7 @@ CREDENTIALS_FILE = os.path.join(os.path.dirname(_utils_dir), _CREDENTIALS_NAME)
 
 def setup_credentials():
     """Sets up GA4 authentication."""
-    # 1. Check for Base64 Env Var (Vercel)
+    # 1. Check for Base64 Env Var (Vercel Production)
     b64_creds = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_B64')
     if b64_creds:
         try:
@@ -50,14 +49,16 @@ def setup_credentials():
         
     return "gcloud Application Default Credentials"
 
+
 def get_ga4_client():
     """Returns authenticated GA4 client."""
     # Ensure credentials are set up (File or Env Var)
     setup_credentials()
     return BetaAnalyticsDataClient()
 
+
 def fetch_ga4_data(start_date: str, end_date: str, dimensions: list, metrics: list, limit: int = 10000):
-    """Fetches data from GA4 API and returns a Pandas DataFrame."""
+    """Fetches data from GA4 API and returns a list of dicts (no pandas needed)."""
     client = get_ga4_client()
     
     request = RunReportRequest(
@@ -79,7 +80,8 @@ def fetch_ga4_data(start_date: str, end_date: str, dimensions: list, metrics: li
             item[met] = row.metric_values[i].value
         data.append(item)
     
-    return pd.DataFrame(data)
+    return data
+
 
 def format_metric(value):
     """Formats large numbers for display."""
@@ -100,15 +102,4 @@ get_client = get_ga4_client
 
 def fetch_analytics_data(start_date: str, end_date: str, dimensions: list, metrics: list, limit: int = 10000):
     """Returns list of dicts for API (same signature as fetch_ga4_data)."""
-    df = fetch_ga4_data(start_date, end_date, dimensions, metrics, limit)
-    return df.to_dict("records") if not df.empty else []
-
-
-
-
-
-
-
-
-
-
+    return fetch_ga4_data(start_date, end_date, dimensions, metrics, limit)
