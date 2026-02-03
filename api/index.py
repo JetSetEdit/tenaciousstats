@@ -58,8 +58,7 @@ class AnalyticsRequest(BaseModel):
     metrics: List[str]
     limit: int = 10000
 
-# Root endpoint
-@app.get("/")
+# Root endpoint (API info only - dashboard served by StaticFiles)
 @app.get("/api")
 def root():
     return {
@@ -246,3 +245,13 @@ else:
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# Mount static files for local development (works with uvicorn --reload)
+# This must be AFTER all API routes so they don't get shadowed
+import os
+_api_dir = os.path.dirname(os.path.abspath(__file__))
+_public_dir = os.path.join(os.path.dirname(_api_dir), 'public')
+if os.path.exists(_public_dir):
+    from fastapi.staticfiles import StaticFiles
+    app.mount('/', StaticFiles(directory=_public_dir, html=True), name='public')
+
