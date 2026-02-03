@@ -23,15 +23,37 @@ CREDENTIALS_FILE = os.path.join(os.path.dirname(_utils_dir), _CREDENTIALS_NAME)
 
 def setup_credentials():
     """Sets up GA4 authentication."""
+    # 1. Check for Base64 Env Var (Vercel)
+    b64_creds = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_B64')
+    if b64_creds:
+        try:
+            import base64
+            import tempfile
+            
+            # Decode to JSON
+            creds_json = base64.b64decode(b64_creds).decode('utf-8')
+            
+            # Write to temp file because Python GA4 library expects a file path env var
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+                f.write(creds_json)
+                temp_path = f.name
+                
+            os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = temp_path
+            return "Service Account (Env Var)"
+        except Exception as e:
+            print(f"Error decoding GA4 credentials from env: {e}")
+
+    # 2. Check for local file
     if os.path.exists(CREDENTIALS_FILE):
         os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = CREDENTIALS_FILE
         return "Service Account (credentials.json)"
+        
     return "gcloud Application Default Credentials"
 
 def get_ga4_client():
     """Returns authenticated GA4 client."""
-    if os.path.exists(CREDENTIALS_FILE):
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.path.abspath(CREDENTIALS_FILE)
+    # Ensure credentials are set up (File or Env Var)
+    setup_credentials()
     return BetaAnalyticsDataClient()
 
 def fetch_ga4_data(start_date: str, end_date: str, dimensions: list, metrics: list, limit: int = 10000):
