@@ -7,7 +7,6 @@
     "dev": "http-server public -p 8080 -o",
     "dev:local": "python run_vercel_local.py",
     "dev:vercel": "vercel dev",
-    "dev:backend": "cd api && python -m uvicorn backend:app --reload --port 8000",
     "docker:up": "docker-compose -f docker-compose.dev.yml up",
     "docker:down": "docker-compose -f docker-compose.dev.yml down",
     "docker:build": "docker-compose -f docker-compose.dev.yml up --build",
