@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tenacious Stats Dashboard</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
@@ -1258,7 +1259,7 @@
             event.preventDefault();
             const input = document.getElementById('password-input');
             const errorDiv = document.getElementById('password-error');
-            const enteredPassword = input.value;
+            const enteredPassword = (input.value || '').trim();
             
             if (enteredPassword === DASHBOARD_PASSWORD) {
                 errorDiv.classList.remove('show');
@@ -1286,9 +1287,16 @@
         `;
         document.head.appendChild(style);
         
-        // Check authentication on page load
-        checkAuth();
-        
+        // Run auth when DOM is ready (so overlay/main-content exist)
+        function initAuth() {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', checkAuth);
+            } else {
+                checkAuth();
+            }
+        }
+        initAuth();
+
         // Allow Enter key to submit
         document.addEventListener('DOMContentLoaded', function() {
             const passwordInput = document.getElementById('password-input');
@@ -1704,38 +1712,62 @@
                 }
             }
             
-            // Business Profile
+            // Business Profile (API: /api/gbp/ratings, /api/gbp/reviews, /api/gbp/insights)
             if (sections.includes('Business Profile')) {
                 try {
-                    // Fetch ratings summary
-                    const ratingsUrl = getApiUrl('/business-profile/ratings', { _t: timestamp });
+                    const ratingsUrl = getApiUrl('/gbp/ratings', { _t: timestamp });
                     const ratingsResponse = await fetchWithBypass(ratingsUrl);
-                    
-                    // Fetch reviews
-                    const reviewsUrl = getApiUrl('/business-profile/reviews', { 
-                        start_date: startDate, 
-                        end_date: endDate, 
-                        limit: 20,
-                        _t: timestamp 
-                    });
+                    const reviewsUrl = getApiUrl('/gbp/reviews', { _t: timestamp });
                     const reviewsResponse = await fetchWithBypass(reviewsUrl);
-                    
-                    // Fetch insights
-                    const insightsUrl = getApiUrl('/business-profile/insights', { 
-                        start_date: startDate, 
-                        end_date: endDate,
-                        _t: timestamp 
-                    });
+                    const insightsUrl = getApiUrl('/gbp/insights', { start_date: startDate, end_date: endDate, _t: timestamp });
                     const insightsResponse = await fetchWithBypass(insightsUrl);
-                    
-                    const ratingsResult = ratingsResponse.ok ? await ratingsResponse.json() : {success: false, data: {}};
-                    const reviewsResult = reviewsResponse.ok ? await reviewsResponse.json() : {success: false, data: []};
-                    const insightsResult = insightsResponse.ok ? await insightsResponse.json() : {success: false, data: {}};
+
+                    let ratingsResult = { success: false, data: {} };
+                    let reviewsResult = { success: false, data: [], reviews: [] };
+                    let insightsResult = { success: false, summary: {} };
+                    let bpError = '';
+                    try {
+                        ratingsResult = ratingsResponse.ok ? await ratingsResponse.json() : { success: false, data: {}, error: (await ratingsResponse.text()) || 'Request failed ' + ratingsResponse.status };
+                        if (!ratingsResponse.ok && typeof ratingsResult === 'string') ratingsResult = { success: false, error: ratingsResult };
+                    } catch (e) { bpError = bpError || ('Ratings: ' + (e.message || 'parse error')); }
+                    try {
+                        reviewsResult = reviewsResponse.ok ? await reviewsResponse.json() : { success: false, data: [], reviews: [], error: (await reviewsResponse.text()) || 'Request failed ' + reviewsResponse.status };
+                        if (!reviewsResponse.ok && typeof reviewsResult === 'string') reviewsResult = { success: false, error: reviewsResult };
+                    } catch (e) { bpError = bpError || ('Reviews: ' + (e.message || 'parse error')); }
+                    try {
+                        insightsResult = insightsResponse.ok ? await insightsResponse.json() : { success: false, summary: {}, error: (await insightsResponse.text()) || 'Request failed ' + insightsResponse.status };
+                        if (!insightsResponse.ok && typeof insightsResult === 'string') insightsResult = { success: false, error: insightsResult };
+                    } catch (e) { bpError = bpError || ('Insights: ' + (e.message || 'parse error')); }
+
+                    const apiError = ratingsResult.error || reviewsResult.error || insightsResult.error || bpError || (ratingsResult.detail || reviewsResult.detail || insightsResult.detail);
                     
                     let bpHTML = `
                         <div class="section">
                             <h2>Google Business Profile</h2>
                     `;
+                    
+                    // Show API error if any request failed with a message
+                    if (apiError) {
+                        let errText = typeof apiError === 'string' ? apiError : (apiError.detail || apiError.message || JSON.stringify(apiError));
+                        if (typeof errText === 'string' && errText.trim().startsWith('{')) {
+                            try { const o = JSON.parse(errText); errText = o.detail || o.error || o.message || errText; } catch (_) {}
+                        }
+                        bpHTML += `
+                            <div style="padding: 1rem; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; margin-bottom: 2rem;">
+                                <p style="color: #721c24; margin: 0;"><strong>Business Profile API:</strong> ${errText}</p>
+                            </div>
+                        `;
+                    }
+                    
+                    // Connected state: all three API calls succeeded (no apiError)
+                    const gbpConnected = !apiError && ratingsResult.success && reviewsResult.success && insightsResult.success;
+                    if (gbpConnected && !(ratingsResult.data && ratingsResult.data.totalReviews > 0)) {
+                        bpHTML += `
+                            <div style="padding: 1rem; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; margin-bottom: 1rem;">
+                                <p style="color: #155724; margin: 0;">✓ Business Profile is connected. No reviews or insights data for this location yet (or none in the selected date range).</p>
+                            </div>
+                        `;
+                    }
                     
                     // Ratings Summary
                     if (ratingsResult.success && ratingsResult.data && ratingsResult.data.totalReviews > 0) {
@@ -1772,17 +1804,18 @@
                                 font: {family: 'Roboto'}
                             });
                         });
-                    } else {
+                    } else if (!apiError && !gbpConnected) {
                         bpHTML += `
                             <div style="padding: 1rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; margin-bottom: 2rem;">
-                                <p style="color: #856404; margin: 0;">⚠️ Business Profile API not configured. See setup instructions in GOOGLE_BUSINESS_PROFILE_PLAN.md</p>
+                                <p style="color: #856404; margin: 0;">⚠️ Business Profile not configured or no reviews yet. Add credentials (see GBP_README.md).</p>
                             </div>
                         `;
                     }
-                    
-                    // Recent Reviews
-                    if (reviewsResult.success && reviewsResult.data && reviewsResult.data.length > 0) {
-                        const reviews = reviewsResult.data;
+
+                    // Recent Reviews (API returns .data or .reviews)
+                    const reviewsList = reviewsResult.data || reviewsResult.reviews || [];
+                    if (reviewsResult.success && reviewsList.length > 0) {
+                        const reviews = reviewsList;
                         bpHTML += `
                             <div style="margin-bottom: 2rem;">
                                 <h3 style="color: #2c3e50; margin-bottom: 1rem;">Recent Reviews</h3>
@@ -1799,15 +1832,16 @@
                         `;
                         
                         reviews.slice(0, 10).forEach(review => {
-                            const reviewDate = new Date(review.createTime).toLocaleDateString();
-                            const stars = '⭐'.repeat(review.starRating || 0);
+                            const reviewDate = (review.createTime || review.updateTime) ? new Date(review.createTime || review.updateTime).toLocaleDateString() : '—';
+                            const starRating = review.starRating ?? review.rating ?? 0;
+                            const stars = '⭐'.repeat(starRating);
                             const comment = (review.comment || '').substring(0, 100) + (review.comment && review.comment.length > 100 ? '...' : '');
-                            
+                            const reviewerName = (review.reviewer && review.reviewer.displayName) || review.reviewer || 'Anonymous';
                             bpHTML += `
                                 <tr>
                                     <td>${reviewDate}</td>
-                                    <td>${stars} (${review.starRating})</td>
-                                    <td>${review.reviewer || 'Anonymous'}</td>
+                                    <td>${stars} (${starRating})</td>
+                                    <td>${reviewerName}</td>
                                     <td>${comment || 'No comment'}</td>
                                 </tr>
                             `;
@@ -1820,34 +1854,35 @@
                         `;
                     }
                     
-                    // Insights (if available)
-                    if (insightsResult.success && insightsResult.data && !insightsResult.data.note) {
-                        const insights = insightsResult.data;
-                        if (insights.views && (insights.views.search > 0 || insights.views.maps > 0)) {
-                            bpHTML += `
-                                <div style="margin-bottom: 2rem;">
-                                    <h3 style="color: #2c3e50; margin-bottom: 1rem;">Business Insights</h3>
-                                    <div class="metrics-grid">
-                                        <div class="metric-card">
-                                            <div class="metric-label">Search Views</div>
-                                            <div class="metric-value">${formatNumber(insights.views.search || 0)}</div>
-                                        </div>
-                                        <div class="metric-card">
-                                            <div class="metric-label">Maps Views</div>
-                                            <div class="metric-value">${formatNumber(insights.views.maps || 0)}</div>
-                                        </div>
-                                        <div class="metric-card">
-                                            <div class="metric-label">Website Clicks</div>
-                                            <div class="metric-value">${formatNumber(insights.customerActions?.websiteClicks || 0)}</div>
-                                        </div>
-                                        <div class="metric-card">
-                                            <div class="metric-label">Direction Requests</div>
-                                            <div class="metric-value">${formatNumber(insights.customerActions?.directionRequests || 0)}</div>
-                                        </div>
+                    // Insights (API returns .summary with views and customerActions) – show even when 0 if connected
+                    const insightsSummary = insightsResult.summary || insightsResult.data || {};
+                    if (insightsResult.success && insightsSummary.views) {
+                        const insights = insightsSummary;
+                        const hasAnyInsight = (insights.views.search || 0) + (insights.views.maps || 0) + (insights.customerActions?.websiteClicks || 0) + (insights.customerActions?.directionRequests || 0) > 0;
+                        bpHTML += `
+                            <div style="margin-bottom: 2rem;">
+                                <h3 style="color: #2c3e50; margin-bottom: 1rem;">Business Insights</h3>
+                                <div class="metrics-grid">
+                                    <div class="metric-card">
+                                        <div class="metric-label">Search Views</div>
+                                        <div class="metric-value">${formatNumber(insights.views.search || 0)}</div>
+                                    </div>
+                                    <div class="metric-card">
+                                        <div class="metric-label">Maps Views</div>
+                                        <div class="metric-value">${formatNumber(insights.views.maps || 0)}</div>
+                                    </div>
+                                    <div class="metric-card">
+                                        <div class="metric-label">Website Clicks</div>
+                                        <div class="metric-value">${formatNumber(insights.customerActions?.websiteClicks || 0)}</div>
+                                    </div>
+                                    <div class="metric-card">
+                                        <div class="metric-label">Direction Requests</div>
+                                        <div class="metric-value">${formatNumber(insights.customerActions?.directionRequests || 0)}</div>
                                     </div>
                                 </div>
-                            `;
-                        }
+                                ${!hasAnyInsight ? '<p style="color: #7f8c8d; font-size: 0.9rem; margin-top: 0.5rem;">No activity in the selected date range.</p>' : ''}
+                            </div>
+                        `;
                     }
                     
                     bpHTML += `</div>`;

@@ -41,6 +41,16 @@ python run_vercel_local.py
 - **Property ID:** set in code (`api/index.py`, `utils/ga4_utils.py`) or via env `PROPERTY_ID` (default: 368035934)
 - **Credentials path:** `credentials.json` in project root (or `GOOGLE_APPLICATION_CREDENTIALS`)
 
+## Check Google auth (GA4 + GBP)
+
+From project root:
+
+```bash
+python check_google_auth.py
+```
+
+Uses the same credential resolution as the app: `credentials.json` and gcloud ADC for GA4; `token.pickle`, `gbp-service-account-key.json`, or env vars for GBP. Reports whether each is OK or what’s missing.
+
 ## Troubleshooting
 
 - **GA4 not available:** Ensure `credentials.json` is in the project root and the service account has access to the GA4 property.
