@@ -1035,6 +1035,7 @@
                 <button class="nav-item active"
                     onclick="showNavSection('dashboard', event); return false;">Dashboard</button>
                 <button class="nav-item" onclick="showNavSection('glossary', event); return false;">Glossary</button>
+                <button class="nav-item" onclick="showNavSection('compare', event); return false;">Compare</button>
             </div>
         </nav>
 
@@ -1549,6 +1550,85 @@
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- Compare Section -->
+            <div id="compare-section" class="nav-content-section">
+                <div
+                    style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                    <h2 style="color: #2c3e50; margin-bottom: 1.5rem;">📊 Period Comparison</h2>
+                    <p style="color: #7f8c8d; margin-bottom: 1.5rem;">Compare metrics between two time periods to see
+                        growth or decline.</p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem;">
+                        <!-- Period A -->
+                        <div
+                            style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ff5800;">
+                            <h3 style="color: #ff5800; margin-bottom: 1rem;">📅 Current Period</h3>
+                            <div style="margin-bottom: 1rem;">
+                                <select id="monthSelectA" onchange="handleMonthSelect('A')"
+                                    style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white;">
+                                    <option value="custom">Custom Date Range...</option>
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+                            <div id="customDateA" style="display: none; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label
+                                        style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; color: #666;">Start</label>
+                                    <input type="date" id="compareStartA"
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
+                                <div>
+                                    <label
+                                        style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; color: #666;">End</label>
+                                    <input type="date" id="compareEndA"
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Period B -->
+                        <div
+                            style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4a90e2;">
+                            <h3 style="color: #4a90e2; margin-bottom: 1rem;">📆 Compare To (Baseline)</h3>
+                            <div style="margin-bottom: 1rem;">
+                                <select id="monthSelectB" onchange="handleMonthSelect('B')"
+                                    style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white;">
+                                    <option value="custom">Custom Date Range...</option>
+                                    <!-- Populated by JS -->
+                                </select>
+                            </div>
+                            <div id="customDateB" style="display: none; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div>
+                                    <label
+                                        style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; color: #666;">Start</label>
+                                    <input type="date" id="compareStartB"
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
+                                <div>
+                                    <label
+                                        style="display: block; margin-bottom: 0.5rem; font-size: 0.8rem; color: #666;">End</label>
+                                    <input type="date" id="compareEndB"
+                                        style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button onclick="loadComparisonData()"
+                        style="background: #ff5800; color: white; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer;">
+                        🔄 Compare Periods
+                    </button>
+                </div>
+
+                <!-- Comparison Results -->
+                <!-- Comparison Results -->
+                <div id="compare-results">
+                    <div style="text-align: center; padding: 3rem; color: #7f8c8d;">
+                        Select two periods and click "Compare Periods" to see the comparison.
+                    </div>
                 </div>
             </div>
         </div>
@@ -3468,6 +3548,217 @@
                 }
             }
         }
+
+        // ==================== PERIOD COMPARISON FUNCTIONS ====================
+
+        // Populate month selectors with last 18 months
+        function initMonthSelectors() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth(); // 0-indexed
+
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+
+            const options = [];
+
+            // Generate last 18 months options
+            for (let i = 0; i < 18; i++) {
+                let d = new Date(year, month - i, 1);
+                // Last day of this month
+                let endDate = new Date(year, month - i + 1, 0);
+
+                let y = d.getFullYear();
+                let m = d.getMonth();
+
+                // Format: YYYY-MM-DD
+                let startStr = `${y}-${String(m + 1).padStart(2, '0')}-01`;
+                let endStr = endDate.toISOString().split('T')[0];
+                let value = `${startStr}|${endStr}`;
+                let label = `${monthNames[m]} ${y}`;
+
+                options.push({ value, label });
+            }
+
+            // Populate Dropdowns
+            const selectA = document.getElementById('monthSelectA');
+            const selectB = document.getElementById('monthSelectB');
+
+            // Clear existing except custom
+            selectA.innerHTML = '<option value="custom">Custom Date Range...</option>';
+            selectB.innerHTML = '<option value="custom">Custom Date Range...</option>';
+
+            options.forEach(opt => {
+                selectA.add(new Option(opt.label, opt.value));
+                selectB.add(new Option(opt.label, opt.value));
+            });
+
+            // Initialize Defaults:
+            // A: Current Month (index 1 because index 0 is 'custom')
+            // B: Previous Month (index 2)
+            if (options.length > 0) {
+                selectA.selectedIndex = 1;
+                if (options.length > 1) {
+                    selectB.selectedIndex = 2;
+                }
+            }
+
+            // Trigger change to set hidden date inputs
+            handleMonthSelect('A');
+            handleMonthSelect('B');
+        }
+
+        // Handle dropdown changes
+        function handleMonthSelect(period) {
+            const select = document.getElementById(`monthSelect${period}`);
+            const customDiv = document.getElementById(`customDate${period}`);
+            const startInput = document.getElementById(`compareStart${period}`);
+            const endInput = document.getElementById(`compareEnd${period}`);
+
+            if (select.value === 'custom') {
+                customDiv.style.display = 'grid';
+            } else {
+                customDiv.style.display = 'none';
+                const [start, end] = select.value.split('|');
+                startInput.value = start;
+                endInput.value = end;
+            }
+        }
+
+        // Calculate percentage change
+        function calcPercentChange(current, previous) {
+            if (previous === 0) return current > 0 ? 100 : 0;
+            return ((current - previous) / previous) * 100;
+        }
+
+        // Format change indicator with arrow and color
+        function formatChange(current, previous, inverted = false) {
+            const change = calcPercentChange(current, previous);
+            const absChange = Math.abs(change).toFixed(1);
+
+            if (Math.abs(change) < 0.5) {
+                return '<span style="color: #7f8c8d;">— No change</span>';
+            }
+
+            const isUp = change > 0;
+            // For inverted metrics (like bounce rate), up is bad
+            const isGood = inverted ? !isUp : isUp;
+            const color = isGood ? '#27ae60' : '#e74c3c';
+            const arrow = isUp ? '▲' : '▼';
+            const word = isUp ? 'increase' : 'decrease';
+
+            return `<span style="color: ${color}; font-weight: 600;">${arrow} ${absChange}% ${word}</span>`;
+        }
+
+        // Load and compare data for both periods
+        async function loadComparisonData() {
+            const startA = document.getElementById('compareStartA').value;
+            const endA = document.getElementById('compareEndA').value;
+            const startB = document.getElementById('compareStartB').value;
+            const endB = document.getElementById('compareEndB').value;
+
+            if (!startA || !endA || !startB || !endB) {
+                alert('Please select dates for both periods');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('compare-results');
+            resultsDiv.innerHTML = '<div style="text-align: center; padding: 3rem;"><div class="loading">Loading comparison data...</div></div>';
+
+            try {
+                // Fetch data for both periods in parallel
+                console.log('Fetching comparison data:', { startA, endA, startB, endB });
+
+                const [overviewA, overviewB, gbpA, gbpB] = await Promise.all([
+                    fetchWithBypass(getApiUrl('/analytics/overview', { start_date: startA, end_date: endA })).then(r => r.json()),
+                    fetchWithBypass(getApiUrl('/analytics/overview', { start_date: startB, end_date: endB })).then(r => r.json()),
+                    fetchWithBypass(getApiUrl('/gbp/insights', { start_date: startA, end_date: endA })).then(r => r.json()).catch(() => ({ success: false })),
+                    fetchWithBypass(getApiUrl('/gbp/insights', { start_date: startB, end_date: endB })).then(r => r.json()).catch(() => ({ success: false }))
+                ]);
+
+                console.log('Overview A:', overviewA);
+                console.log('Overview B:', overviewB);
+                console.log('GBP A:', gbpA);
+                console.log('GBP B:', gbpB);
+
+                let html = '';
+
+                // Overview Comparison
+                if (overviewA.success && overviewB.success) {
+                    const a = overviewA.data;
+                    const b = overviewB.data;
+
+                    html += `
+                        <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                            <h3 style="color: #2c3e50; margin-bottom: 1.5rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">Traffic Overview</h3>
+                            <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+                                ${createCompareCard('Total Sessions', a.sessions || 0, b.sessions || 0)}
+                                ${createCompareCard('Total Users', a.totalUsers || 0, b.totalUsers || 0)}
+                                ${createCompareCard('Page Views', a.screenPageViews || 0, b.screenPageViews || 0)}
+                                ${createCompareCard('Engagement Rate', ((a.engagementRate || 0) * 100).toFixed(1), ((b.engagementRate || 0) * 100).toFixed(1), false, '%')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // GBP Comparison
+                const gbpDataA = gbpA.summary || gbpA.data || {};
+                const gbpDataB = gbpB.summary || gbpB.data || {};
+                if (gbpA.success && gbpB.success && gbpDataA.views) {
+                    html += `
+                        <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+                            <h3 style="color: #2c3e50; margin-bottom: 1.5rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">Google Business Profile</h3>
+                            <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+                                ${createCompareCard('Search Views', gbpDataA.views?.search || 0, gbpDataB.views?.search || 0)}
+                                ${createCompareCard('Maps Views', gbpDataA.views?.maps || 0, gbpDataB.views?.maps || 0)}
+                                ${createCompareCard('Website Clicks', gbpDataA.customerActions?.websiteClicks || 0, gbpDataB.customerActions?.websiteClicks || 0)}
+                                ${createCompareCard('Direction Requests', gbpDataA.customerActions?.directionRequests || 0, gbpDataB.customerActions?.directionRequests || 0)}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (!html) {
+                    html = '<div style="text-align: center; padding: 3rem; color: #e74c3c;">No data available for the selected periods.</div>';
+                }
+
+                resultsDiv.innerHTML = html;
+
+            } catch (error) {
+                console.error('Comparison error:', error);
+                resultsDiv.innerHTML = `<div style="text-align: center; padding: 3rem; color: #e74c3c;">Error loading comparison: ${error.message}</div>`;
+            }
+        }
+
+        // Create a comparison card for a metric
+        function createCompareCard(label, valueA, valueB, inverted = false, suffix = '') {
+            const numA = parseFloat(valueA) || 0;
+            const numB = parseFloat(valueB) || 0;
+            const change = formatChange(numA, numB, inverted);
+
+            return `
+                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; text-align: center;">
+                    <div style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 0.5rem;">${label}</div>
+                    <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 0.75rem;">
+                        <div>
+                            <div style="font-size: 0.75rem; color: #ff5800;">Current</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #2c3e50;">${formatNumber(numA)}${suffix}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.75rem; color: #4a90e2;">Baseline</div>
+                            <div style="font-size: 1.5rem; font-weight: 700; color: #2c3e50;">${formatNumber(numB)}${suffix}</div>
+                        </div>
+                    </div>
+                    <div>${change}</div>
+                </div>
+            `;
+        }
+
+        // Initialize compare dates on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize month selectors
+            initMonthSelectors();
+        });
     </script>
 </body>
 
