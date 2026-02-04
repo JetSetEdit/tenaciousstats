@@ -180,4 +180,4 @@
     "label": "click_buy_online",
     "description": "Recorded when a visitor clicks a tracked ‘buy online’ or similar outbound purchase link."
   }
-}
+," gbp_search_views\:{\label\:\Search Views\,\description\:\Number of times your business appeared in Google Search results.\},\gbp_maps_views\:{\label\:\Maps Views\,\description\:\Number of times your business appeared on Google Maps.\},\gbp_website_clicks\:{\label\:\Website Clicks\,\description\:\Number of clicks to your website from your Google Business Profile.\},\gbp_direction_requests\:{\label\:\Direction Requests\,\description\:\Number of requests for driving directions to your business location.\}}

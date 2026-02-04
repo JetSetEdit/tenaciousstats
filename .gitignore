@@ -24,3 +24,5 @@ Thumbs.db
 node_modules/
 # Optional: uncomment to exclude downloaded/cache folders
 # vercel-deployment-download/
+
+.vercel

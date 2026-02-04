@@ -1494,6 +1494,61 @@
                             </tr>
                         </tbody>
                     </table>
+
+                    <h3
+                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        Google Business Profile</h3>
+                    <table class="report-table"
+                        style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
+                        <colgroup>
+                            <col style="width: 30%;">
+                            <col style="width: 70%;">
+                        </colgroup>
+                        <thead>
+                            <tr style="background-color: #f8f9fa;">
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Term</th>
+                                <th
+                                    style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
+                                    Definition</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Search Views</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Number of times your business appeared in Google Search results.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Maps Views</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Number of times your business appeared on Google Maps.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Website Clicks</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Number of clicks to your website from your Google Business Profile listing.</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    Direction Requests</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Number of requests for driving directions to your business location.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -2036,18 +2091,7 @@
                             <h2>Google Business Profile</h2>
                     `;
 
-                    // Show API error if any request failed with a message
-                    if (apiError) {
-                        let errText = typeof apiError === 'string' ? apiError : (apiError.detail || apiError.message || JSON.stringify(apiError));
-                        if (typeof errText === 'string' && errText.trim().startsWith('{')) {
-                            try { const o = JSON.parse(errText); errText = o.detail || o.error || o.message || errText; } catch (_) { }
-                        }
-                        bpHTML += `
-                            <div style="padding: 1rem; background: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; margin-bottom: 2rem;">
-                                <p style="color: #721c24; margin: 0;"><strong>Business Profile API:</strong> ${errText}</p>
-                            </div>
-                        `;
-                    }
+                    // API error display removed - reviews are disabled, only insights shown
 
                     // Connected state: all three API calls succeeded (no apiError)
                     const gbpConnected = !apiError && ratingsResult.success && reviewsResult.success && insightsResult.success;
@@ -2154,19 +2198,19 @@
                                 <h3 style="color: #2c3e50; margin-bottom: 1rem;">Business Insights</h3>
                                 <div class="metrics-grid">
                                     <div class="metric-card">
-                                        <div class="metric-label">Search Views</div>
+                                        <div class="metric-label">${createTooltip('Search Views', tooltips['Search Views'])}</div>
                                         <div class="metric-value">${formatNumber(insights.views.search || 0)}</div>
                                     </div>
                                     <div class="metric-card">
-                                        <div class="metric-label">Maps Views</div>
+                                        <div class="metric-label">${createTooltip('Maps Views', tooltips['Maps Views'])}</div>
                                         <div class="metric-value">${formatNumber(insights.views.maps || 0)}</div>
                                     </div>
                                     <div class="metric-card">
-                                        <div class="metric-label">Website Clicks</div>
+                                        <div class="metric-label">${createTooltip('Website Clicks', tooltips['Website Clicks'])}</div>
                                         <div class="metric-value">${formatNumber(insights.customerActions?.websiteClicks || 0)}</div>
                                     </div>
                                     <div class="metric-card">
-                                        <div class="metric-label">Direction Requests</div>
+                                        <div class="metric-label">${createTooltip('Direction Requests', tooltips['Direction Requests'])}</div>
                                         <div class="metric-value">${formatNumber(insights.customerActions?.directionRequests || 0)}</div>
                                     </div>
                                 </div>
@@ -2329,7 +2373,11 @@
             'form_submit': 'Recorded when someone successfully submits a tracked form.',
             'click': 'Recorded when a tracked button or link is clicked.',
             'file_download': 'Recorded when a visitor downloads a tracked file, such as a PDF or brochure.',
-            'click_buy_online': 'Recorded when a visitor clicks a tracked "buy online" or similar outbound purchase link.'
+            'click_buy_online': 'Recorded when a visitor clicks a tracked "buy online" or similar outbound purchase link.',
+            'Search Views': 'Number of times your business appeared in Google Search results.',
+            'Maps Views': 'Number of times your business appeared on Google Maps.',
+            'Website Clicks': 'Number of clicks to your website from your Google Business Profile.',
+            'Direction Requests': 'Number of requests for driving directions to your business location.'
         };
 
         // Load additional tooltips from keyterms.json and merge
