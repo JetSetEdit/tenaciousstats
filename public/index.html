@@ -7,11 +7,14 @@
     <title>Tenacious Stats Dashboard</title>
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
-    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.31.1/plotly.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
         * {
             margin: 0;
@@ -34,6 +37,167 @@
             display: flex;
             align-items: center;
             gap: 1.5rem;
+        }
+
+        /* Custom Utilities to replace Tailwind */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .grid-4 {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flex-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .items-baseline {
+            align-items: baseline;
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .p-4 {
+            padding: 1rem;
+        }
+
+        .p-6 {
+            padding: 1.5rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .mt-2 {
+            margin-top: 0.5rem;
+        }
+
+        .mt-4 {
+            margin-top: 1rem;
+        }
+
+        .ml-2 {
+            margin-left: 0.5rem;
+        }
+
+        .mr-3 {
+            margin-right: 0.75rem;
+        }
+
+        .text-2xl {
+            font-size: 1.5rem;
+            line-height: 2rem;
+        }
+
+        .text-4xl {
+            font-size: 2.25rem;
+            line-height: 2.5rem;
+        }
+
+        .text-lg {
+            font-size: 1.125rem;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .font-extrabold {
+            font-weight: 800;
+        }
+
+        .uppercase {
+            text-transform: uppercase;
+        }
+
+        .tracking-wide {
+            letter-spacing: 0.025em;
+        }
+
+        .bg-gray-50 {
+            background-color: #f9fafb;
+        }
+
+        .bg-green-100 {
+            background-color: #dcfce7;
+        }
+
+        .rounded-full {
+            border-radius: 9999px;
+        }
+
+        .rounded {
+            border-radius: 0.375rem;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+
+        /* Table Styles */
+        .w-full-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-header {
+            background-color: #f3f4f6;
+            color: #6b7280;
+            font-size: 0.875rem;
+            text-align: left;
+        }
+
+        .table-cell {
+            padding: 0.75rem 0.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        /* Compare Grid Layout */
+        .compare-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .compare-layout {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         .header-logo {
@@ -287,11 +451,11 @@
         /* Navigation Menu Styles */
         .nav-menu {
             background: white;
-            border-bottom: 2px solid #e0e0e0;
-            padding: 0;
-            margin-bottom: 2rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 0.5rem 0;
+            margin-bottom: 3rem;
             margin-top: 0;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             border-radius: 0;
         }
 
@@ -995,6 +1159,70 @@
         .main-content.authenticated {
             display: block;
         }
+
+        /* Modern Card & Pill Styles inspired by React Mock */
+        .shiny-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            /* shadow-sm */
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .shiny-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            /* shadow-md on hover */
+        }
+
+        /* Typography Polish */
+        .text-slate-900 {
+            color: #0f172a;
+        }
+
+        .text-slate-500 {
+            color: #64748b;
+        }
+
+        .text-slate-400 {
+            color: #94a3b8;
+        }
+
+        .text-emerald-700 {
+            color: #047857;
+        }
+
+        .bg-emerald-50 {
+            background-color: #ecfdf5;
+        }
+
+        .border-emerald-100 {
+            border-color: #d1fae5;
+        }
+
+        .text-rose-700 {
+            color: #be123c;
+        }
+
+        .bg-rose-50 {
+            background-color: #fff1f2;
+        }
+
+        .border-rose-100 {
+            border-color: #ffe4e6;
+        }
+
+        .pill-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-width: 1px;
+            border-style: solid;
+        }
     </style>
 </head>
 
@@ -1592,7 +1820,7 @@
                         <!-- Period B -->
                         <div
                             style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #4a90e2;">
-                            <h3 style="color: #4a90e2; margin-bottom: 1rem;">📆 Compare To (Baseline)</h3>
+                            <h3 style="color: #4a90e2; margin-bottom: 1rem;">📆 Baseline Period</h3>
                             <div style="margin-bottom: 1rem;">
                                 <select id="monthSelectB" onchange="handleMonthSelect('B')"
                                     style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white;">
@@ -1633,10 +1861,15 @@
             </div>
         </div>
 
+        <!-- Floating Download Button -->
+        <button id="download-btn" onclick="downloadReportImage()" class="download-fab" style="display: none;">
+            <i class="fas fa-download"></i> Download Report
+        </button>
+
         <div class="footer">
             <p><strong>Tenacious Tapes</strong> - Adhesive Tapes for every application</p>
             <p>📞 +61 (0)3 9580 5573 | ✉️ customerservice@tenacioustapes.com.au</p>
-            <p class="footer-version" id="versionDisplay">Build v1.0.0</p>
+            <p class="footer-version" id="versionDisplay">Data Updated with Smart Logic • Build v1.1.0</p>
         </div>
     </div> <!-- End main-content -->
 
@@ -1646,8 +1879,10 @@
         const DASHBOARD_PASSWORD = 'Tenacious2025';
         const AUTH_KEY = 'dashboard_authenticated';
 
-        // Check if we're in local development (skip password protection)
-        const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        // Check if we're in local development (skip password protection and use local API)
+        const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            || !window.location.hostname
+            || window.location.protocol === 'file:';
 
         // Check if already authenticated
         function checkAuth() {
@@ -1744,11 +1979,11 @@
         document.getElementById('endDate').valueAsDate = today;
 
         // Get API base URL (use local backend in dev, Vercel in production)
-        // isLocalDev is already defined above for password protection
+        // In local dev the backend MUST be running: python run_vercel_local.py (serves on port 8000)
         const API_BASE = isLocalDev ? 'http://localhost:8000/api' : (window.location.origin + '/api');
 
-        // Load and display version
-        fetch('/version.txt')
+        // Load and display version (use full URL in local dev so file:// or other ports work)
+        fetch(isLocalDev ? 'http://localhost:8000/version.txt' : '/version.txt')
             .then(response => response.text())
             .then(version => {
                 const versionDisplay = document.getElementById('versionDisplay');
@@ -2461,7 +2696,7 @@
         };
 
         // Load additional tooltips from keyterms.json and merge
-        fetch('/keyterms.json')
+        fetch(isLocalDev ? 'http://localhost:8000/keyterms.json' : '/keyterms.json')
             .then(response => response.json())
             .then(data => {
                 // Convert keyterms.json format to tooltips object and merge
@@ -3336,6 +3571,30 @@
             }
         }
 
+        // --- NAVIGATION FUNCTION ---
+        function showNavSection(sectionId, event) {
+            // Update Nav Buttons
+            document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // Determine active button based on sectionId if event is missing
+                const buttons = document.querySelectorAll('.nav-item');
+                buttons.forEach(btn => {
+                    if (btn.getAttribute('onclick').includes(sectionId)) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            // Update Content Sections
+            document.querySelectorAll('.nav-content-section').forEach(sec => sec.classList.remove('active'));
+            const target = document.getElementById(sectionId + '-section');
+            if (target) {
+                target.classList.add('active');
+            }
+        }
+
         // Generate PDF using html2pdf.js library
         function generatePDF() {
             const button = document.getElementById('pdfButton');
@@ -3615,13 +3874,56 @@
             const startInput = document.getElementById(`compareStart${period}`);
             const endInput = document.getElementById(`compareEnd${period}`);
 
+            // Auto-update Baseline (B) when Current (A) changes
+            if (period === 'A' && select.value !== 'custom') {
+                const selectB = document.getElementById('monthSelectB');
+                if (selectB && select.selectedIndex > 0 && select.selectedIndex < select.options.length - 1) {
+                    selectB.selectedIndex = select.selectedIndex + 1;
+                    setTimeout(() => handleMonthSelect('B'), 0);
+                }
+            }
+
             if (select.value === 'custom') {
                 customDiv.style.display = 'grid';
+                // Don't interfere with custom dates
+                return;
             } else {
                 customDiv.style.display = 'none';
-                const [start, end] = select.value.split('|');
-                startInput.value = start;
-                endInput.value = end;
+                let [startVal, endVal] = select.value.split('|');
+
+                // --- SMART MTD LOGIC ---
+                const today = new Date();
+                const todayStr = today.toISOString().split('T')[0];
+                // First day of current actual month
+                const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0];
+
+                // 1. Clamp Current Period (A or B) if it is the current incomplete month
+                if (startVal === currentMonthStart && endVal > todayStr) {
+                    endVal = todayStr;
+                }
+
+                // 2. If processing B, check if A is using MTD logic, and if so, match the duration
+                if (period === 'B') {
+                    const startA = document.getElementById('compareStartA').value;
+                    const endA = document.getElementById('compareEndA').value;
+
+                    // Check if A is exactly the Current Month MTD range
+                    if (startA === currentMonthStart && endA === todayStr) {
+                        // Calculate duration of A in milliseconds
+                        const dur = new Date(endA).getTime() - new Date(startA).getTime();
+                        // Calculate max possible duration for B (end of its month) to avoid overshoot
+                        const maxEndB = new Date(select.value.split('|')[1]).getTime();
+                        const newEndBTime = new Date(startVal).getTime() + dur;
+
+                        // Set B's end to the same duration, but don't go past its own month end
+                        if (newEndBTime <= maxEndB) {
+                            endVal = new Date(newEndBTime).toISOString().split('T')[0];
+                        }
+                    }
+                }
+
+                startInput.value = startVal;
+                endInput.value = endVal;
             }
         }
 
@@ -3647,7 +3949,8 @@
             const arrow = isUp ? '▲' : '▼';
             const word = isUp ? 'increase' : 'decrease';
 
-            return `<span style="color: ${color}; font-weight: 600;">${arrow} ${absChange}% ${word}</span>`;
+            // User Request: Color the arrows only, keep text neutral (dark gray)
+            return `<span style="color: ${color}; font-weight: bold;">${arrow}</span> <span style="color: #4b5563; font-weight: 600;">${absChange}%</span>`;
         }
 
         // Load and compare data for both periods
@@ -3663,63 +3966,115 @@
             }
 
             const resultsDiv = document.getElementById('compare-results');
-            resultsDiv.innerHTML = '<div style="text-align: center; padding: 3rem;"><div class="loading">Loading comparison data...</div></div>';
+            const downloadBtn = document.getElementById('download-btn');
+
+            // Hide download button while loading
+            downloadBtn.style.display = 'none';
+            resultsDiv.innerHTML = '<div style="text-align: center; padding: 3rem;"><div class="loading">Loading detailed comparison...</div></div>';
 
             try {
-                // Fetch data for both periods in parallel
-                console.log('Fetching comparison data:', { startA, endA, startB, endB });
-
-                const [overviewA, overviewB, gbpA, gbpB] = await Promise.all([
+                // Fetch ALL data points in parallel
+                const [overviewA, overviewB, gbpA, gbpB, pagesA, pagesB, devicesA, devicesB] = await Promise.all([
                     fetchWithBypass(getApiUrl('/analytics/overview', { start_date: startA, end_date: endA })).then(r => r.json()),
                     fetchWithBypass(getApiUrl('/analytics/overview', { start_date: startB, end_date: endB })).then(r => r.json()),
                     fetchWithBypass(getApiUrl('/gbp/insights', { start_date: startA, end_date: endA })).then(r => r.json()).catch(() => ({ success: false })),
-                    fetchWithBypass(getApiUrl('/gbp/insights', { start_date: startB, end_date: endB })).then(r => r.json()).catch(() => ({ success: false }))
+                    fetchWithBypass(getApiUrl('/gbp/insights', { start_date: startB, end_date: endB })).then(r => r.json()).catch(() => ({ success: false })),
+                    fetchWithBypass(getApiUrl('/analytics/pages', { start_date: startA, end_date: endA, limit: 5 })).then(r => r.json()).catch(() => ({ success: false })),
+                    fetchWithBypass(getApiUrl('/analytics/pages', { start_date: startB, end_date: endB, limit: 5 })).then(r => r.json()).catch(() => ({ success: false })),
+                    fetchWithBypass(getApiUrl('/analytics/devices', { start_date: startA, end_date: endA })).then(r => r.json()).catch(() => ({ success: false })),
+                    fetchWithBypass(getApiUrl('/analytics/devices', { start_date: startB, end_date: endB })).then(r => r.json()).catch(() => ({ success: false }))
                 ]);
 
-                console.log('Overview A:', overviewA);
-                console.log('Overview B:', overviewB);
-                console.log('GBP A:', gbpA);
-                console.log('GBP B:', gbpB);
+                let html = '<div id="report-content" style="background: transparent;">'; // Wrapper for screenshot
 
-                let html = '';
-
-                // Overview Comparison
+                // 1. THE BIG STORY (Highlight largest gain)
                 if (overviewA.success && overviewB.success) {
-                    const a = overviewA.data;
-                    const b = overviewB.data;
+                    html += createBigStoryCard(overviewA.data, overviewB.data);
+                }
 
+                // Get selected labels for clarity
+                const labelA = document.getElementById('monthSelectA').selectedOptions[0].text.split(' ')[0]; // e.g. "January"
+                const labelB = document.getElementById('monthSelectB').selectedOptions[0].text.split(' ')[0]; // e.g. "December"
+
+                // Helper to shorten year if needed, or just use month
+                const shortLabelA = labelA === 'Custom' ? 'Period A' : labelA;
+                const shortLabelB = labelB === 'Custom' ? 'Period B' : labelB;
+
+                html += '<div class="compare-layout">';
+
+                // 2. LEFT COLUMN
+                html += '<div>';
+
+                // Traffic Overview
+                if (overviewA.success && overviewB.success) {
                     html += `
-                        <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                            <h3 style="color: #2c3e50; margin-bottom: 1.5rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">Traffic Overview</h3>
-                            <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
-                                ${createCompareCard('Total Sessions', a.sessions || 0, b.sessions || 0)}
-                                ${createCompareCard('Total Users', a.totalUsers || 0, b.totalUsers || 0)}
-                                ${createCompareCard('Page Views', a.screenPageViews || 0, b.screenPageViews || 0)}
-                                ${createCompareCard('Engagement Rate', ((a.engagementRate || 0) * 100).toFixed(1), ((b.engagementRate || 0) * 100).toFixed(1), false, '%')}
+                        <div class="shiny-card p-6 mb-4">
+                            <h3 class="section-header">Traffic Overview</h3>
+                            <div class="grid-2">
+                                ${createStatTile('Sessions', overviewA.data.sessions, overviewB.data.sessions, false, '', shortLabelA, shortLabelB, 'fa-chart-line')}
+                                ${createStatTile('Users', overviewA.data.totalUsers, overviewB.data.totalUsers, false, '', shortLabelA, shortLabelB, 'fa-user')}
+                                ${createStatTile('Page Views', overviewA.data.screenPageViews, overviewB.data.screenPageViews, false, '', shortLabelA, shortLabelB, 'fa-eye')}
+                                ${createStatTile('Engagement', (overviewA.data.engagementRate * 100).toFixed(1), (overviewB.data.engagementRate * 100).toFixed(1), false, '%', shortLabelA, shortLabelB, 'fa-stopwatch', 'Engaged sessions rate')}
                             </div>
                         </div>
                     `;
                 }
 
-                // GBP Comparison
-                const gbpDataA = gbpA.summary || gbpA.data || {};
-                const gbpDataB = gbpB.summary || gbpB.data || {};
-                if (gbpA.success && gbpB.success && gbpDataA.views) {
+                if (gbpA.success && gbpA.summary && gbpB.success && gbpB.summary) {
+                    const sumA = gbpA.summary;
+                    const sumB = gbpB.summary;
+
                     html += `
-                        <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
-                            <h3 style="color: #2c3e50; margin-bottom: 1.5rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">Google Business Profile</h3>
-                            <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
-                                ${createCompareCard('Search Views', gbpDataA.views?.search || 0, gbpDataB.views?.search || 0)}
-                                ${createCompareCard('Maps Views', gbpDataA.views?.maps || 0, gbpDataB.views?.maps || 0)}
-                                ${createCompareCard('Website Clicks', gbpDataA.customerActions?.websiteClicks || 0, gbpDataB.customerActions?.websiteClicks || 0)}
-                                ${createCompareCard('Direction Requests', gbpDataA.customerActions?.directionRequests || 0, gbpDataB.customerActions?.directionRequests || 0)}
+                        <div class="shiny-card p-6 mb-4">
+                            <h3 class="section-header mb-4">Google Business Profile</h3>
+                            
+                            <!-- Visibility -->
+                            <div class="mb-4">
+                                <h4 class="text-xs uppercase font-bold text-slate-400 mb-2 pb-1">Visibility</h4>
+                                <div class="grid-2">
+                                    ${createStatTile('Search Views', sumA.views?.search || 0, sumB.views?.search || 0, false, '', shortLabelA, shortLabelB, 'fa-search')}
+                                    ${createStatTile('Maps Views', sumA.views?.maps || 0, sumB.views?.maps || 0, false, '', shortLabelA, shortLabelB, 'fa-map-marker-alt')}
+                                </div>
+                            </div>
+                            
+                            <!-- Actions (High Intent) -->
+                            <div>
+                                <h4 class="text-xs uppercase font-bold text-slate-400 mb-2 pb-1">Actions (High Intent)</h4>
+                                <div class="grid-2">
+                                    ${createStatTile('Website Clicks', sumA.customerActions?.websiteClicks || 0, sumB.customerActions?.websiteClicks || 0, false, '', shortLabelA, shortLabelB, 'fa-mouse-pointer')}
+                                    ${createStatTile('Direction Requests', sumA.customerActions?.directionRequests || 0, sumB.customerActions?.directionRequests || 0, false, '', shortLabelA, shortLabelB, 'fa-directions')}
+                                </div>
                             </div>
                         </div>
                     `;
                 }
 
-                if (!html) {
+                html += '</div>'; // End Left Column
+
+                // 3. RIGHT COLUMN
+                html += '<div>';
+
+                // Top Pages
+                if (pagesA.success && pagesA.data && pagesB.success && pagesB.data) {
+                    html += createTopPagesTable(pagesA.data, pagesB.data, shortLabelA, shortLabelB);
+                } else if (pagesA.success && pagesA.data) {
+                    html += createTopPagesTable(pagesA.data, [], shortLabelA, shortLabelB);
+                }
+
+                // Device Split
+                if (devicesA.success && devicesA.data) {
+                    html += createDeviceSplitCard(devicesA.data, devicesB.success ? devicesB.data : null, shortLabelA, shortLabelB);
+                }
+
+                html += '</div>'; // End Right Column
+                html += '</div>'; // End Grid
+                html += '</div>'; // End Wrapper
+
+                if (!html.includes('shiny-card')) {
                     html = '<div style="text-align: center; padding: 3rem; color: #e74c3c;">No data available for the selected periods.</div>';
+                } else {
+                    // Show download button if data loaded
+                    downloadBtn.style.display = 'flex';
                 }
 
                 resultsDiv.innerHTML = html;
@@ -3730,28 +4085,248 @@
             }
         }
 
-        // Create a comparison card for a metric
-        function createCompareCard(label, valueA, valueB, inverted = false, suffix = '') {
-            const numA = parseFloat(valueA) || 0;
-            const numB = parseFloat(valueB) || 0;
-            const change = formatChange(numA, numB, inverted);
+        // --- HELPER UI FUNCTIONS ---
+
+        function createBigStoryCard(a, b) {
+            // Calculate % changes
+            const metrics = [
+                { name: 'Sessions', val: calcPercentChange(a.sessions, b.sessions), current: a.sessions, previous: b.sessions },
+                { name: 'Users', val: calcPercentChange(a.totalUsers, b.totalUsers), current: a.totalUsers, previous: b.totalUsers },
+                { name: 'Page Views', val: calcPercentChange(a.screenPageViews, b.screenPageViews), current: a.screenPageViews, previous: b.screenPageViews }
+            ];
+
+            // Find biggest winner
+            const winner = metrics.reduce((prev, current) => (prev.val > current.val) ? prev : current);
+
+            if (winner.val < 5) return ''; // Don't show if growth is small
 
             return `
-                <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; text-align: center;">
-                    <div style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 0.5rem;">${label}</div>
-                    <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 0.75rem;">
-                        <div>
-                            <div style="font-size: 0.75rem; color: #ff5800;">Current</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: #2c3e50;">${formatNumber(numA)}${suffix}</div>
+                <div class="shiny-card mb-6 p-6 border-l-4 border-brand-orange" style="border-left-color: #ff5800;">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div class="max-w-2xl">
+                          <div class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white mb-3" style="background-color: #0f172a; color: white; width: fit-content;">
+                            <span class="inline-block h-1.5 w-1.5 rounded-full bg-white/90" style="background: rgba(255,255,255,0.9);"></span>
+                            Monthly Snapshot
+                          </div>
+                          <h2 class="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                            The Big Story: ${winner.name} Explosion 🚀
+                          </h2>
+                          <p class="mt-2 text-sm text-slate-500">
+                             ${winner.name} delivered <span class="font-semibold text-slate-900">${formatNumber(winner.current)}</span> this month, a massive ${winner.val.toFixed(0)}% jump vs previous period.
+                          </p>
                         </div>
-                        <div>
-                            <div style="font-size: 0.75rem; color: #4a90e2;">Baseline</div>
-                            <div style="font-size: 1.5rem; font-weight: 700; color: #2c3e50;">${formatNumber(numB)}${suffix}</div>
+
+                        <div class="flex flex-col items-start gap-2 sm:items-end">
+                             <span class="pill-trend ${winner.val > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100'}" style="white-space: nowrap;">
+                                ${winner.val > 0 ? '<i class="fas fa-arrow-trend-up"></i>' : '<i class="fas fa-arrow-trend-down"></i>'}
+                                ${Math.abs(winner.val).toFixed(1)}%
+                             </span>
+                             <p class="text-xs text-slate-500">vs previous month</p>
                         </div>
                     </div>
-                    <div>${change}</div>
                 </div>
             `;
+        }
+
+        // New Helper for Trend Pill
+        function getTrendPillHtml(change, inverted = false) {
+            const isUp = change > 0;
+            const isGood = inverted ? !isUp : isUp;
+            const tone = isGood ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100';
+            const icon = isUp ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
+
+            return `
+                <span class="pill-trend ${tone}" style="white-space: nowrap;">
+                    <i class="fas ${icon}"></i>
+                    ${Math.abs(change).toFixed(1)}%
+                </span>
+             `;
+        }
+
+        function createStatTile(label, rawCurr, rawPrev, inverted = false, suffix = '', labelA = 'Current', labelB = 'Baseline', icon = '', subtitle = '') {
+            const curr = parseFloat(rawCurr);
+            const prev = parseFloat(rawPrev);
+            const change = calcPercentChange(curr, prev);
+            const pillHtml = getTrendPillHtml(change, inverted);
+
+            return `
+                <div class="shiny-card p-5 relative overflow-hidden">
+                    <div class="flex items-start justify-between gap-3">
+                      <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">${label}</p>
+                        ${subtitle ? `<p class="mt-1 text-xs text-slate-400">${subtitle}</p>` : ''}
+                        <p class="mt-2 text-3xl font-bold text-slate-900">${formatNumber(curr)}${suffix}</p>
+                        <p class="mt-1 text-xs text-slate-500">vs ${formatNumber(prev)} in ${labelB}</p>
+                      </div>
+                      <div class="flex flex-col items-end gap-2">
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gray-50 text-gray-600">
+                          ${icon ? `<i class="fas ${icon} text-lg"></i>` : ''}
+                        </span>
+                        ${pillHtml}
+                      </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createTopPagesTable(pagesA, pagesB, labelA, labelB) {
+            // Merge pages by path
+            const merged = {};
+
+            pagesA.forEach(p => {
+                merged[p.pagePath] = {
+                    title: p.pageTitle || p.pagePath,
+                    viewsA: parseInt(p.screenPageViews),
+                    viewsB: 0
+                };
+            });
+
+            if (pagesB && Array.isArray(pagesB)) {
+                pagesB.forEach(p => {
+                    if (merged[p.pagePath]) {
+                        merged[p.pagePath].viewsB = parseInt(p.screenPageViews);
+                    }
+                });
+            }
+
+            // Convert back to array
+            const sortedPages = Object.values(merged).sort((a, b) => b.viewsA - a.viewsA).slice(0, 10);
+
+            let rows = sortedPages.map(p => {
+                const change = calcPercentChange(p.viewsA, p.viewsB);
+                const isNew = p.viewsB === 0;
+
+                // Use Pill style for Change if not New
+                const changeDisplay = isNew ? '<span class="text-slate-400">—</span>' :
+                    `<span class="pill-trend ${change > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100'}">${change > 0 ? '+' : ''}${Math.abs(change).toFixed(0)}%</span>`;
+
+                // Status Badge (Emoji)
+                let statusBadge = '';
+                if (isNew) statusBadge = '🆕';
+                else if (change > 50) statusBadge = '🔥';
+
+                return `
+                <tr class="hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
+                    <td class="table-cell font-medium text-slate-900 text-sm" style="padding: 1rem 0.5rem; max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${p.title}">${p.title}</td>
+                    <td class="table-cell text-right text-slate-700">${formatNumber(p.viewsA)}</td>
+                    <td class="table-cell text-right text-slate-500">${formatNumber(p.viewsB)}</td>
+                    <td class="table-cell text-right text-xs" style="vertical-align: middle;">${changeDisplay}</td>
+                    <td class="table-cell text-center text-lg" style="vertical-align: middle;">${statusBadge}</td>
+                </tr>
+            `}).join('');
+
+            return `
+                <div class="shiny-card p-0 mb-4 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-start">
+                        <div>
+                             <h3 class="font-semibold text-slate-900 text-sm">Top Pages Comparison</h3>
+                             <div class="text-xs text-slate-500 mt-1">Sorted by most views in ${labelA}</div>
+                        </div>
+                        <div class="text-xs text-slate-400">${labelA} vs ${labelB}</div>
+                    </div>
+                    <table class="w-full-table text-sm">
+                        <thead class="bg-gray-50 text-xs font-semibold text-slate-600">
+                            <tr>
+                                <th class="px-4 py-3 text-left">Page</th>
+                                <th class="px-4 py-3 text-right">${labelA}</th>
+                                <th class="px-4 py-3 text-right">${labelB}</th>
+                                <th class="px-4 py-3 text-right">Change</th>
+                                <th class="px-4 py-3 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">${rows}</tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        function createDeviceSplitCard(devicesA, devicesB, labelA, labelB) {
+            function getStats(devices) {
+                if (!devices) return { d: 0, m: 0, t: 0 };
+                let total = 0;
+                const desktop = parseInt(devices.find(d => d.deviceCategory === 'desktop')?.sessions || 0);
+                const mobile = parseInt(devices.find(d => d.deviceCategory === 'mobile')?.sessions || 0);
+                const tablet = parseInt(devices.find(d => d.deviceCategory === 'tablet')?.sessions || 0);
+                total = desktop + mobile + tablet;
+
+                // Avoid divide by zero
+                const deskPct = total ? ((desktop / total) * 100).toFixed(1) : 0;
+                const mobPct = total ? ((mobile / total) * 100).toFixed(1) : 0;
+                const tabPct = total ? ((tablet / total) * 100).toFixed(1) : 0;
+
+                return { d: deskPct, m: mobPct, t: tabPct };
+            }
+
+            const statsA = getStats(devicesA);
+            const statsB = getStats(devicesB);
+
+            // Helper to render a stacked bar row
+            const renderRow = (label, stats) => {
+                // If Tablet is tiny (< 2%), hide it
+                const showTablet = parseFloat(stats.t) > 2.0;
+
+                return `
+                <div class="mb-6 last:mb-0">
+                    <div class="flex-between mb-2 text-sm">
+                        <span class="font-bold text-slate-900">${label}</span>
+                        <div class="text-xs font-bold" style="display: flex; gap: 1rem;">
+                            <span style="color: #ff5800;"><i class="fas fa-desktop"></i> Desktop ${stats.d}%</span>
+                            <span style="color: #4a90e2;"><i class="fas fa-mobile-alt"></i> Mobile ${stats.m}%</span>
+                            ${showTablet ? `<span style="color: #9cb0c4;">Tablet ${stats.t}%</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden flex shadow-inner" style="background-color: #e5e7eb;">
+                        <div class="h-full flex-center text-xs text-white" style="width: ${stats.d}%; background-color: #ff5800;" title="Desktop: ${stats.d}%"></div>
+                        <div class="h-full flex-center text-xs text-white" style="width: ${stats.m}%; background-color: #4a90e2;" title="Mobile: ${stats.m}%"></div>
+                        ${showTablet ? `<div class="h-full flex-center text-xs text-white" style="width: ${stats.t}%; background-color: #9cb0c4;" title="Tablet: ${stats.t}%"></div>` : ''}
+                    </div>
+                </div>
+            `};
+
+            return `
+                <div class="shiny-card p-5 mb-4">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                             <h3 class="font-semibold text-slate-900 text-sm">Device Usage Split</h3>
+                             <p class="text-xs text-slate-500 mt-1">${labelA} vs ${labelB}</p>
+                        </div>
+                        <i class="fas fa-chart-pie text-slate-300"></i>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        ${renderRow(labelA, statsA)}
+                        ${devicesB ? `<div class="my-4 border-t border-gray-100"></div>` + renderRow(labelB, statsB) : ''}
+                    </div>
+
+                    <div class="mt-4 rounded-xl bg-gray-50 p-3 text-sm border border-gray-100">
+                        <p class="font-semibold text-slate-900 text-xs uppercase mb-1">Quick Read</p>
+                        <p class="text-slate-600 text-xs">Device mix is stable; desktop continues to dominate sessions.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function downloadReportImage() {
+            const element = document.getElementById('report-content');
+            const button = document.getElementById('download-btn');
+
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+
+            html2canvas(element, {
+                scale: 2,
+                backgroundColor: '#f3f4f6', // Match page bg
+                useCORS: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Tenacious-Stats-Comparison.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                button.innerHTML = '<i class="fas fa-download"></i> Download Report';
+            }).catch(err => {
+                console.error(err);
+                alert('Error creating image');
+                button.innerHTML = '<i class="fas fa-download"></i> Download Report';
+            });
         }
 
         // Initialize compare dates on page load

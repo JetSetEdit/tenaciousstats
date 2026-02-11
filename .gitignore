@@ -6,6 +6,7 @@ credentials_base64.txt
 gbp_credentials_base64.txt
 gbp-service-account-key.json
 token.pickle
+token_base64.txt
 .env
 .env.*
 # Python

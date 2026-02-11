@@ -21,24 +21,7 @@ TOKEN_PICKLE_PATH = os.path.join(_project_root, TOKEN_PICKLE)
 
 def get_creds():
     """Gets credentials from pickle (OAuth) or service account file."""
-    # 1. Try OAuth 2.0 Token (Preferred)
-    # A. Check environment variable (for Vercel)
-    oauth_token_b64 = os.environ.get('GOOGLE_OAUTH_TOKEN_B64')
-    if oauth_token_b64:
-        try:
-            token_bytes = base64.b64decode(oauth_token_b64)
-            creds = pickle.loads(token_bytes)
-            if creds and creds.valid:
-                return creds
-            if creds and creds.expired and creds.refresh_token:
-                from google.auth.transport.requests import Request
-                creds.refresh(Request())
-                # Note: We can't save back to env var in Vercel, but we have a valid access token now
-                return creds
-        except Exception as e:
-            print(f"Error loading OAuth token from env var: {e}")
-
-    # B. Check local file (for localhost) - try project root first
+    # 1. OAuth: prefer local token.pickle when it exists (so local dev always uses fresh token)
     for pickle_path in [TOKEN_PICKLE_PATH, TOKEN_PICKLE]:
         if os.path.exists(pickle_path):
             try:
@@ -55,7 +38,22 @@ def get_creds():
             except Exception as e:
                 print(f"Error loading pickle token from {pickle_path}: {e}")
 
-    # 2. Try environment variable (Service Account)
+    # 2. OAuth from env (for Vercel)
+    oauth_token_b64 = os.environ.get('GOOGLE_OAUTH_TOKEN_B64')
+    if oauth_token_b64:
+        try:
+            token_bytes = base64.b64decode(oauth_token_b64)
+            creds = pickle.loads(token_bytes)
+            if creds and creds.valid:
+                return creds
+            if creds and creds.expired and creds.refresh_token:
+                from google.auth.transport.requests import Request
+                creds.refresh(Request())
+                return creds
+        except Exception as e:
+            print(f"Error loading OAuth token from env var: {e}")
+
+    # 3. Try environment variable (Service Account)
     gbp_creds_b64 = os.environ.get('GOOGLE_BUSINESS_PROFILE_CREDENTIALS_B64')
     if gbp_creds_b64:
         try:
@@ -67,7 +65,7 @@ def get_creds():
         except Exception as e:
             print(f"Error loading credentials from env var: {e}")
     
-    # 3. Fall back to file-based credentials (Service Account)
+    # 4. Fall back to file-based credentials (Service Account)
     final_creds_file = CREDENTIALS_FILE
     if not os.path.exists(final_creds_file):
          root_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), CREDENTIALS_FILE)

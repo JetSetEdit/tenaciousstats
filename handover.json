@@ -1,0 +1,105 @@
+{
+  "project": "Tenacious Stats",
+  "description": "GA4 analytics dashboard + optional Google Business Profile. Single-page HTML + FastAPI backend; runs locally or on Vercel/Docker.",
+  "last_updated": "2026-02-10",
+  "handover_doc_md": "HANDOVER.md",
+  "production_url": "https://tenacious-stats-dashboard.vercel.app/",
+  "working": {
+    "ga4_analytics": true,
+    "sections": {
+      "overview": true,
+      "traffic_sources": true,
+      "top_pages": true,
+      "user_retention": true,
+      "geographics": true,
+      "tech_devices": true,
+      "events": true
+    },
+    "period_comparison_tab": true,
+    "monthly_report_pdf": true,
+    "local_dev": true,
+    "vercel_production": true,
+    "health_check": true,
+    "check_scripts": ["check_google_auth.py", "check_all_sections.py"]
+  },
+  "not_working_or_conditional": [
+    {
+      "id": "gbp_no_locations",
+      "component": "Business Profile",
+      "condition": "OAuth token expired or Google account has no Business Profile location in API",
+      "symptom": "No locations found / Business Profile section empty or 500",
+      "fix_doc": "FIX_BUSINESS_PROFILE.md",
+      "mitigation": "Run gbp_oauth_login.py with account that owns profile at business.google.com; restart server"
+    },
+    {
+      "id": "gbp_ratings_404",
+      "component": "GET /api/gbp/ratings",
+      "condition": "Server started before /api/gbp/ratings route was added",
+      "symptom": "404 Not Found for /api/gbp/ratings",
+      "mitigation": "Restart run_vercel_local.py (or redeploy on Vercel)"
+    }
+  ],
+  "environment_variables": {
+    "PROPERTY_ID": {
+      "required": false,
+      "default": "368035934",
+      "purpose": "GA4 property ID"
+    },
+    "GOOGLE_APPLICATION_CREDENTIALS_B64": {
+      "required": true,
+      "when": "GA4 on Vercel",
+      "purpose": "Base64-encoded GA4 service account JSON"
+    },
+    "GOOGLE_OAUTH_TOKEN_B64": {
+      "required": false,
+      "when": "GBP on Vercel",
+      "purpose": "Base64-encoded OAuth token pickle for Business Profile"
+    },
+    "GOOGLE_BUSINESS_PROFILE_CREDENTIALS_B64": {
+      "required": false,
+      "when": "GBP via service account",
+      "purpose": "Base64-encoded GBP service account JSON"
+    }
+  },
+  "local_credentials": {
+    "ga4": "credentials.json in project root, or gcloud ADC",
+    "gbp": "token.pickle (from gbp_oauth_login.py) or gbp-service-account-key.json"
+  },
+  "api_endpoints": [
+    { "method": "GET", "path": "/api", "query": [], "purpose": "API info" },
+    { "method": "GET", "path": "/api/health", "query": [], "purpose": "Health; GA4/GBP availability" },
+    { "method": "GET", "path": "/api/analytics/overview", "query": ["start_date", "end_date"], "purpose": "Executive metrics" },
+    { "method": "GET", "path": "/api/analytics/sources", "query": ["start_date", "end_date", "limit"], "purpose": "Traffic sources" },
+    { "method": "GET", "path": "/api/analytics/pages", "query": ["start_date", "end_date", "limit"], "purpose": "Top pages" },
+    { "method": "GET", "path": "/api/analytics/retention", "query": ["start_date", "end_date"], "purpose": "New vs returning" },
+    { "method": "GET", "path": "/api/analytics/cities", "query": ["start_date", "end_date", "limit"], "purpose": "Top cities" },
+    { "method": "GET", "path": "/api/analytics/countries", "query": ["start_date", "end_date"], "purpose": "Sessions by country" },
+    { "method": "GET", "path": "/api/analytics/devices", "query": ["start_date", "end_date"], "purpose": "Device categories" },
+    { "method": "GET", "path": "/api/analytics/events", "query": ["start_date", "end_date", "limit"], "purpose": "Top events" },
+    { "method": "GET", "path": "/api/gbp/ratings", "query": [], "purpose": "GBP ratings summary" },
+    { "method": "GET", "path": "/api/gbp/reviews", "query": [], "purpose": "GBP reviews" },
+    { "method": "GET", "path": "/api/gbp/insights", "query": ["start_date", "end_date"], "purpose": "GBP insights" }
+  ],
+  "commands": {
+    "run_local": "python run_vercel_local.py",
+    "verify_auth": "python check_google_auth.py",
+    "verify_sections": "python check_all_sections.py",
+    "fix_gbp_oauth": "python gbp_oauth_login.py"
+  },
+  "key_files": {
+    "dashboard": "public/index.html",
+    "api_app": "api/index.py",
+    "gbp_module": "api/gbp.py",
+    "ga4_utils": "utils/ga4_utils.py",
+    "local_server": "run_vercel_local.py",
+    "gbp_oauth_script": "gbp_oauth_login.py",
+    "fix_gbp_doc": "FIX_BUSINESS_PROFILE.md"
+  },
+  "handover_checklist": [
+    "GA4: credentials.json in project root (or B64 on Vercel)",
+    "GBP: Run gbp_oauth_login.py with business owner account; restart server",
+    "Confirm at business.google.com which account owns the profile",
+    "Restart server after API route changes",
+    "Plotly script present in index.html for report charts"
+  ]
+}

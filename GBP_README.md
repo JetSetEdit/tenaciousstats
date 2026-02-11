@@ -69,8 +69,10 @@ The dashboard uses these paths and response shapes. If GBP credentials are missi
 2. **Google Cloud**  
    - Enable: My Business Account Management, My Business Business Information, Business Profile Performance, My Business Reviews (exact names may vary in the console).
 
-3. **"No locations found"**  
-   This means the Google account you're using has **no Business Profile locations** under it. Fix by: (a) Use OAuth `token.pickle` from the **same Google account** that owns/manages the business at business.google.com; (b) If using a service account, the Business Profile owner must **invite that account as a manager** (business.google.com → Users and access), or use OAuth instead; (c) Claim a business at business.google.com with that account.
+3. **"No locations found" / Business Profile used to work but stopped**  
+   **→ See [FIX_BUSINESS_PROFILE.md](FIX_BUSINESS_PROFILE.md) for step-by-step fix.**  
+   Usually the **OAuth token expired** (token.pickle or GOOGLE_OAUTH_TOKEN_B64). The app then falls back to a service account that has account access but **no locations** under that account. Fix: run `python gbp_oauth_login.py` and sign in with the Google account that **owns** the Business Profile (e.g. tenacioustapesmedia@gmail.com). That refreshes `token.pickle` locally; for Vercel, re-encode the new token and update `GOOGLE_OAUTH_TOKEN_B64`.  
+   In general: the account in use has no Business Profile locations. (a) Use OAuth from the **same Google account** that owns/manages the business at business.google.com; (b) If using a service account, the Business Profile owner must **invite that account as a manager** (business.google.com → Users and access), or use OAuth instead; (c) Claim a business at business.google.com with that account.
 
 4. **Creating `token.pickle` (OAuth for Business Profile)**  
    - Use the Google account that **owns** your Business Profile (e.g. **tenacioustapesmedia@gmail.com**).  

@@ -230,6 +230,19 @@ if GBP_AVAILABLE:
             raise
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"GBP Error: {str(e)}")
+
+    @app.get("/api/gbp/ratings")
+    def get_gbp_ratings():
+        """Get Google Business Profile ratings summary (from reviews)."""
+        try:
+            result = gbp.get_ratings()
+            if "error" in result:
+                raise HTTPException(status_code=500, detail=result["error"])
+            return result
+        except HTTPException:
+            raise
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"GBP Error: {str(e)}")
 else:
     @app.get("/api/gbp/insights")
     def get_gbp_insights_unavailable():
@@ -237,6 +250,10 @@ else:
 
     @app.get("/api/gbp/reviews")
     def get_gbp_reviews_unavailable():
+        raise HTTPException(status_code=503, detail="GBP module not available")
+
+    @app.get("/api/gbp/ratings")
+    def get_gbp_ratings_unavailable():
         raise HTTPException(status_code=503, detail="GBP module not available")
 
 # Vercel serverless function handler

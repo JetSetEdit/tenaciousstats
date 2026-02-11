@@ -86,7 +86,7 @@ def check_ga4():
 
 
 def check_gbp():
-    """Check GBP using same logic as api/gbp (token.pickle, gbp key, or env)."""
+    """Check GBP using same logic as api/gbp; also verify locations (dashboard needs at least one)."""
     try:
         import api.gbp as gbp
     except ImportError:
@@ -98,10 +98,21 @@ def check_gbp():
         from googleapiclient.discovery import build
         account_service = build("mybusinessaccountmanagement", "v1", credentials=creds)
         accounts = account_service.accounts().list().execute()
-        if accounts.get("accounts"):
-            names = [a.get("accountName", a.get("name", "")) for a in accounts["accounts"][:3]]
-            return True, f"GBP OK ({len(accounts['accounts'])} account(s), e.g. {names[0][:50]}...)"
-        return False, "GBP: credentials valid but no accounts returned (check API access / quota)"
+        if not accounts.get("accounts"):
+            return False, "GBP: credentials valid but no accounts returned (check API access / quota)"
+        account_name = accounts["accounts"][0]["name"]
+        # Same as get_insights/get_reviews: need at least one location for Business Profile to work
+        info_service = build("mybusinessbusinessinformation", "v1", credentials=creds)
+        locations = info_service.accounts().locations().list(
+            parent=account_name, readMask="name", pageSize=10
+        ).execute()
+        locs = locations.get("locations") or []
+        if not locs:
+            return False, (
+                "GBP: 1 account but no Business Profile locations. "
+                "Use OAuth from the account that OWNS the business: python gbp_oauth_login.py (see GBP_README.md)"
+            )
+        return True, f"GBP OK ({len(accounts['accounts'])} account(s), {len(locs)} location(s))"
     except Exception as e:
         msg = str(e).split("\n")[0]
         return False, f"GBP: {msg}"
