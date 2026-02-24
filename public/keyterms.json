@@ -23,7 +23,6 @@
     "label": "Bounce Rate",
     "description": "Percent of sessions where visitors left after only one page with no meaningful interaction."
   },
-
   "sessions_by_source": {
     "label": "Sessions by Source",
     "description": "Shows how many visits came from each traffic source and medium combination, such as google / organic or BenchmarkEmail / email."
@@ -32,7 +31,6 @@
     "label": "Source / Medium",
     "description": "Source is the specific origin, like google.com or BenchmarkEmail. Medium is the traffic type, such as organic search, referral, email, or direct."
   },
-
   "direct_none": {
     "label": "(direct) / (none)",
     "description": "Visits where Analytics could not detect a referrer. Often people typing the URL, using bookmarks, or clicking untagged links in apps, PDFs, or emails."
@@ -73,7 +71,6 @@
     "label": "(not set)",
     "description": "Sessions where the traffic source information is missing or could not be determined."
   },
-
   "top_pages_views": {
     "label": "Views (Pages)",
     "description": "How many times a specific page was viewed in the selected period."
@@ -82,7 +79,6 @@
     "label": "Users (Pages)",
     "description": "How many unique visitors viewed this page at least once in the selected period."
   },
-
   "top_products_views": {
     "label": "Views (Products)",
     "description": "How many times a specific product page was viewed in the selected period."
@@ -91,7 +87,6 @@
     "label": "Users (Products)",
     "description": "How many unique visitors viewed this product page at least once."
   },
-
   "user_type_new": {
     "label": "New Users",
     "description": "People visiting the site for the first time on this device or browser."
@@ -104,7 +99,6 @@
     "label": "User Type Percentage",
     "description": "Share of total sessions that came from new vs returning visitors."
   },
-
   "sessions_by_country": {
     "label": "Sessions by Country",
     "description": "Where visits originated, based on IP location; some traffic may be ‘not set’ if location is unclear."
@@ -113,7 +107,6 @@
     "label": "Top Cities",
     "description": "Cities that generated the most sessions in the selected period."
   },
-
   "device_category": {
     "label": "Device Category",
     "description": "Type of device used for the visit, such as desktop, mobile, or tablet."
@@ -130,7 +123,6 @@
     "label": "tablet",
     "description": "Sessions from tablet devices."
   },
-
   "event_name": {
     "label": "Event Name",
     "description": "A specific action that was tracked on the site, such as viewing a page, scrolling, or submitting a form."
@@ -139,7 +131,6 @@
     "label": "Event Count",
     "description": "Total number of times this event was recorded in the selected period."
   },
-
   "event_page_view": {
     "label": "page_view",
     "description": "Recorded whenever a page on the site loads or is viewed."
@@ -180,4 +171,20 @@
     "label": "click_buy_online",
     "description": "Recorded when a visitor clicks a tracked ‘buy online’ or similar outbound purchase link."
   }
-," gbp_search_views\:{\label\:\Search Views\,\description\:\Number of times your business appeared in Google Search results.\},\gbp_maps_views\:{\label\:\Maps Views\,\description\:\Number of times your business appeared on Google Maps.\},\gbp_website_clicks\:{\label\:\Website Clicks\,\description\:\Number of clicks to your website from your Google Business Profile.\},\gbp_direction_requests\:{\label\:\Direction Requests\,\description\:\Number of requests for driving directions to your business location.\}}
+  "gbp_search_views": {
+    "label": "Search Views",
+    "description": "Number of times your business appeared in Google Search results."
+  },
+  "gbp_maps_views": {
+    "label": "Maps Views",
+    "description": "Number of times your business appeared on Google Maps."
+  },
+  "gbp_website_clicks": {
+    "label": "Website Clicks",
+    "description": "Number of clicks to your website from your Google Business Profile."
+  },
+  "gbp_direction_requests": {
+    "label": "Direction Requests",
+    "description": "Number of requests for driving directions to your business location."
+  }
+}
