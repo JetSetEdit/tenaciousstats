@@ -170,7 +170,7 @@
   "event_click_buy_online": {
     "label": "click_buy_online",
     "description": "Recorded when a visitor clicks a tracked ‘buy online’ or similar outbound purchase link."
-  }
+  },
   "gbp_search_views": {
     "label": "Search Views",
     "description": "Number of times your business appeared in Google Search results."

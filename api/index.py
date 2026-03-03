@@ -81,89 +81,89 @@ def health_check():
 # GA4 Analytics Endpoints
 if GA4_AVAILABLE:
     @app.get("/api/analytics/overview")
-    def get_overview(start_date: str, end_date: str):
+    def get_overview(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
         """Get overview metrics."""
         try:
             dimensions = []
             metrics = ['sessions', 'totalUsers', 'screenPageViews', 'bounceRate', 'averageSessionDuration', 'engagementRate']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
             return {"success": True, "data": data[0] if data else {}}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/sources")
-    def get_sources(start_date: str, end_date: str, limit: int = 10):
+    def get_sources(start_date: str, end_date: str, limit: int = 10, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
         """Get traffic sources."""
         try:
             dimensions = ['sessionSourceMedium']
             metrics = ['sessions']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/pages")
-    def get_pages(start_date: str, end_date: str, limit: int = 15):
+    def get_pages(start_date: str, end_date: str, limit: int = 15, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
         """Get top pages."""
         try:
             dimensions = ['pagePath', 'pageTitle']
             metrics = ['screenPageViews', 'activeUsers']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/cities")
-    def get_cities(start_date: str, end_date: str, limit: int = 10):
+    def get_cities(start_date: str, end_date: str, limit: int = 10, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
         """Get top cities."""
         try:
             dimensions = ['city']
             metrics = ['sessions']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/retention")
-    def get_retention(start_date: str, end_date: str):
+    def get_retention(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
         """Get new vs returning users."""
         try:
             dimensions = ['newVsReturning']
             metrics = ['sessions']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/countries")
-    def get_countries(start_date: str, end_date: str):
+    def get_countries(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
         """Get sessions by country."""
         try:
             dimensions = ['country']
             metrics = ['sessions']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/devices")
-    def get_devices(start_date: str, end_date: str):
+    def get_devices(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
         """Get sessions by device category."""
         try:
             dimensions = ['deviceCategory']
             metrics = ['sessions']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/events")
-    def get_events(start_date: str, end_date: str, limit: int = 20):
+    def get_events(start_date: str, end_date: str, limit: int = 20, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
         """Get top events."""
         try:
             dimensions = ['eventName']
             metrics = ['eventCount']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -172,7 +172,7 @@ else:
     _GA4_UNAVAILABLE = {"success": False, "data": None, "error": "GA4 not available. Check credentials.json and utils path."}
 
     @app.get("/api/analytics/overview")
-    def get_overview_unavailable(start_date: str, end_date: str):
+    def get_overview_unavailable(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
         return {**_GA4_UNAVAILABLE, "data": {}}
 
     @app.get("/api/analytics/sources")
@@ -206,12 +206,31 @@ else:
 # Google Business Profile Endpoints
 if GBP_AVAILABLE:
     @app.get("/api/gbp/insights")
-    def get_gbp_insights(start_date: Optional[str] = None, end_date: Optional[str] = None):
+    def get_gbp_insights(start_date: Optional[str] = None, end_date: Optional[str] = None, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
         """Get Google Business Profile Insights."""
         try:
+            # Current period
             result = gbp.get_insights(start_date, end_date)
             if "error" in result:
                 raise HTTPException(status_code=500, detail=result["error"])
+            
+            # Comparison period
+            if compare_start_date and compare_end_date:
+                comp_result = gbp.get_insights(compare_start_date, compare_end_date)
+                if not "error" in comp_result:
+                    # Merge summaries
+                    curr_summary = result.get("summary", {})
+                    comp_summary = comp_result.get("summary", {})
+                    
+                    # Add _compare fields to summary
+                    if "views" in curr_summary and "views" in comp_summary:
+                        curr_summary["views"]["search_compare"] = comp_summary["views"].get("search", 0)
+                        curr_summary["views"]["maps_compare"] = comp_summary["views"].get("maps", 0)
+                    
+                    if "customerActions" in curr_summary and "customerActions" in comp_summary:
+                        curr_summary["customerActions"]["websiteClicks_compare"] = comp_summary["customerActions"].get("websiteClicks", 0)
+                        curr_summary["customerActions"]["directionRequests_compare"] = comp_summary["customerActions"].get("directionRequests", 0)
+            
             return result
         except HTTPException:
             raise

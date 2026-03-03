@@ -57,30 +57,65 @@ def get_ga4_client():
     return BetaAnalyticsDataClient()
 
 
-def fetch_ga4_data(start_date: str, end_date: str, dimensions: list, metrics: list, limit: int = 10000):
+def fetch_ga4_data(start_date: str, end_date: str, dimensions: list, metrics: list, limit: int = 10000, compare_start_date: str = None, compare_end_date: str = None):
     """Fetches data from GA4 API and returns a list of dicts (no pandas needed)."""
     client = get_ga4_client()
     
+    date_ranges = [DateRange(start_date=start_date, end_date=end_date)]
+    if compare_start_date and compare_end_date:
+        date_ranges.append(DateRange(start_date=compare_start_date, end_date=compare_end_date))
+
     request = RunReportRequest(
         property=f"properties/{PROPERTY_ID}",
         dimensions=[Dimension(name=dim) for dim in dimensions],
         metrics=[Metric(name=met) for met in metrics],
-        date_ranges=[DateRange(start_date=start_date, end_date=end_date)],
+        date_ranges=date_ranges,
         limit=limit
     )
     
     response = client.run_report(request=request)
     
-    data = []
+    is_compare = len(date_ranges) > 1
+    num_metrics = len(metrics)
+    num_dimensions = len(dimensions)
+
+    # GA4 often appends a 'date_range' dimension if multiple ranges are requested
+    # Let's check if the last dimension value in the first row looks like 'date_range_X'
+    has_auto_date_dim = False
+    actual_num_dims = len(response.dimension_headers)
+    if is_compare and actual_num_dims > num_dimensions:
+        has_auto_date_dim = True
+
+    # Dictionary to group rows by dimension values
+    # Key: tuple of dimension values, Value: dict of metrics
+    grouped_data = {}
+
     for row in response.rows:
-        item = {}
-        for i, dim in enumerate(dimensions):
-            item[dim] = row.dimension_values[i].value
-        for i, met in enumerate(metrics):
-            item[met] = row.metric_values[i].value
-        data.append(item)
-    
-    return data
+        # Extract dimension values (excluding the auto-added date_range if present)
+        row_dims = tuple(row.dimension_values[i].value for i in range(num_dimensions))
+        
+        # Determine if this row is for the current period or comparison period
+        is_current = True
+        if has_auto_date_dim:
+            date_range_val = row.dimension_values[actual_num_dims - 1].value
+            is_current = (date_range_val == 'date_range_0')
+        elif num_dimensions == 0:
+            is_current = (len(grouped_data) == 0 or row_dims not in grouped_data or "_is_done" not in grouped_data[row_dims])
+
+        if row_dims not in grouped_data:
+            grouped_data[row_dims] = {}
+            for i, dim in enumerate(dimensions):
+                grouped_data[row_dims][dim] = row.dimension_values[i].value
+
+        if is_current:
+            for i, met in enumerate(metrics):
+                grouped_data[row_dims][met] = row.metric_values[i].value
+            if num_dimensions == 0: grouped_data[row_dims]["_is_done"] = True
+        else:
+            for i, met in enumerate(metrics):
+                grouped_data[row_dims][f"{met}_compare"] = row.metric_values[i].value
+
+    return list(grouped_data.values())
 
 
 def format_metric(value):
@@ -100,6 +135,6 @@ def format_metric(value):
 get_client = get_ga4_client
 
 
-def fetch_analytics_data(start_date: str, end_date: str, dimensions: list, metrics: list, limit: int = 10000):
+def fetch_analytics_data(start_date: str, end_date: str, dimensions: list, metrics: list, limit: int = 10000, compare_start_date: str = None, compare_end_date: str = None):
     """Returns list of dicts for API (same signature as fetch_ga4_data)."""
-    return fetch_ga4_data(start_date, end_date, dimensions, metrics, limit)
+    return fetch_ga4_data(start_date, end_date, dimensions, metrics, limit, compare_start_date, compare_end_date)

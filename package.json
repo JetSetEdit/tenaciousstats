@@ -4,7 +4,8 @@
   "scripts": {
     "prebuild": "node increment-version.js",
     "build": "echo Build complete",
-    "dev": "http-server public -p 8080 -o",
+    "dev": "python run_vercel_local.py",
+    "dev:static": "http-server public -p 8080 -o",
     "dev:local": "python run_vercel_local.py",
     "dev:vercel": "vercel dev",
     "docker:up": "docker-compose -f docker-compose.dev.yml up",

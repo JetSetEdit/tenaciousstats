@@ -149,6 +149,31 @@
             background-color: #f9fafb;
         }
 
+        .text-green-600 {
+            color: #16a34a;
+        }
+
+        .text-red-600 {
+            color: #dc2626;
+        }
+
+        .text-gray-500 {
+            color: #6b7280;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+
+        .font-medium {
+            font-weight: 500;
+        }
+
+        .mt-1 {
+            margin-top: 0.25rem;
+        }
+
         .bg-green-100 {
             background-color: #dcfce7;
         }
@@ -990,21 +1015,50 @@
                 background: white !important;
             }
 
-            /* Text colors - ensure black for print */
+            /* Text colors */
+            body,
             p,
             div,
-            span,
             li,
             td,
             th {
                 color: black !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Trend indicators - Preserve colors using specific classes */
+            .trend-up {
+                color: #27ae60 !important;
+            }
+
+            .trend-down {
+                color: #e74c3c !important;
+            }
+
+            /* Tooltip triggers and specific styled spans should keep their color if functional */
+            .tooltip-trigger span {
+                color: #4b5563 !important;
+            }
+
+            /* Orange accents - keep for headers but ensure readability */
+            h2[style*="color: #ff5800"],
+            h2[style*="color: #FE5000"] {
+                color: #ff5800 !important;
+                border-bottom: 2pt solid #ff5800 !important;
+            }
+
+            /* Tooltip triggers and specific styled spans should keep their color if functional */
+            .tooltip-trigger span {
+                color: #4b5563 !important;
+                /* Keep the slate grey for trend numbers */
             }
 
             /* Orange accents - keep for headers but ensure readability */
             h2[style*="color: #ff5800"],
             h2[style*="color: #FE5000"] {
                 color: black !important;
-                border-bottom-color: #ff5800 !important;
+                border-bottom: 2pt solid #ff5800 !important;
             }
 
             /* Report header */
@@ -1282,6 +1336,8 @@
                             <input type="date" id="endDate">
                         </div>
                         <div class="checkbox-group">
+                            <label><input type="checkbox" id="compareCheckbox"> <b>Compare to previous
+                                    period</b></label>
                             <label><input type="checkbox" value="Overview" checked> Overview</label>
                             <label><input type="checkbox" value="Traffic Sources" checked> Traffic Sources</label>
                             <label><input type="checkbox" value="Top Pages" checked> Top Pages</label>
@@ -1290,6 +1346,7 @@
                             <label><input type="checkbox" value="Tech/Devices"> Tech/Devices</label>
                             <label><input type="checkbox" value="Events"> Events</label>
                             <label><input type="checkbox" value="Business Profile"> Business Profile</label>
+                            <label><input type="checkbox" value="Email Campaigns"> Email Campaigns</label>
                         </div>
                         <button onclick="loadData()">Refresh Data</button>
                         <button onclick="generateReport()" style="margin-top: 0.5rem; background-color: #4a90e2;">📄
@@ -1726,6 +1783,30 @@
 
                     <h3
                         style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        Understanding Growth & Percentage Change</h3>
+                    <div
+                        style="background: #fdf2f2; border: 1px solid #f9d5d5; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                        <p style="margin-top: 0; font-weight: bold; color: #c53030;">Why do some changes exceed 100%?
+                        </p>
+                        <p style="font-size: 0.95rem; color: #2d3748;">A percentage change above 100% simply means the
+                            metric has <strong>more than doubled</strong>. For example:</p>
+                        <ul style="font-size: 0.95rem; color: #4a5568; margin-bottom: 1rem;">
+                            <li><strong>100% Increase:</strong> The value doubled (e.g., from 10 to 20).</li>
+                            <li><strong>200% Increase:</strong> The value tripled (e.g., from 10 to 30).</li>
+                            <li><strong>900% Increase:</strong> The value grew 10 times larger (e.g., from 2 to 20).
+                            </li>
+                        </ul>
+                        <p style="font-size: 0.95rem; color: #2d3748;"><strong>Infinity or >999%:</strong> This occurs
+                            when the baseline (previous period) was zero or very close to it. If you had 0 visits last
+                            month and 10 this month, the growth is mathematically "infinite," which we display as >999%
+                            to keep the report clean.</p>
+                        <p style="font-size: 0.95rem; color: #2d3748; margin-bottom: 0;"><strong>Inverted
+                                Metrics:</strong> For metrics like <em>Bounce Rate</em>, a decrease (▼) is considered a
+                            "Good" trend, while for most others, an increase (▲) is positive.</p>
+                    </div>
+
+                    <h3
+                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
                         Google Business Profile</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
@@ -2032,6 +2113,7 @@
             const endDate = document.getElementById('endDate').value;
             const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
             const sections = Array.from(checkboxes).map(cb => cb.value);
+            const isComparing = document.getElementById('compareCheckbox').checked;
 
             if (!startDate || !endDate) {
                 alert('Please select both start and end dates');
@@ -2048,10 +2130,36 @@
             // Add cache-busting timestamp to ensure fresh data
             const timestamp = new Date().getTime();
 
+            // Prepare comparison dates if enabled
+            let compParams = {};
+            if (isComparing) {
+                const sDate = new Date(startDate);
+                const eDate = new Date(endDate);
+                const diffTime = Math.abs(eDate - sDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                const compEndDate = new Date(sDate);
+                compEndDate.setDate(compEndDate.getDate() - 1);
+                const compStartDate = new Date(compEndDate);
+                compStartDate.setDate(compStartDate.getDate() - (diffDays - 1));
+
+                compParams.compare_start_date = compStartDate.toISOString().split('T')[0];
+                compParams.compare_end_date = compEndDate.toISOString().split('T')[0];
+            }
+
+            const labelCurr = getShortDateLabel(startDate, endDate);
+            const labelPrev = isComparing ? getShortDateLabel(compParams.compare_start_date, compParams.compare_end_date) : '';
+
+
+
             // Overview
             if (sections.includes('Overview')) {
                 try {
-                    const url = getApiUrl('/analytics/overview', { start_date: startDate, end_date: endDate });
+                    const url = getApiUrl('/analytics/overview', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        ...compParams
+                    });
                     const response = await fetchWithBypass(url);
                     if (!response.ok) {
                         const errorText = await response.text();
@@ -2061,25 +2169,55 @@
                     const result = await response.json();
                     if (result.success && result.data) {
                         const stats = result.data;
+
+                        // Setup special color overrides for metrics where lower is better (like bounce rate)
+                        const invertColor = (current, previous) => {
+                            if (previous === undefined || previous === null || Number(previous) === 0) return '';
+                            const pctChange = ((parseFloat(current) - parseFloat(previous)) / parseFloat(previous)) * 100;
+                            const colorClass = pctChange < 0 ? 'text-green-600' : (pctChange > 0 ? 'text-red-600' : 'text-gray-500');
+                            const sign = pctChange > 0 ? '↑' : (pctChange < 0 ? '↓' : '');
+                            return `<div class="text-sm font-medium mt-1 ${colorClass}">${sign} ${Math.abs(pctChange).toFixed(1)}% vs prev</div>`;
+                        }
+
                         sectionsData['Overview'] = `
                             <div class="section">
                                 <h2>Traffic Overview</h2>
                                 <div class="metrics-grid">
                                     <div class="metric-card">
-                                        <div class="metric-label">${createTooltip('Total Sessions', tooltips['Total Sessions'])}</div>
+                                        <div class="metric-label">${createTooltip('Total Sessions (' + labelCurr + ')', tooltips['Total Sessions'])}</div>
                                         <div class="metric-value">${formatNumber(stats.sessions || 0)}</div>
+                                        ${isComparing ? `
+                                            <div class="metric-label" style="margin-top: 0.5rem;">${labelPrev}</div>
+                                            <div style="font-size: 1rem; font-weight: bold; color: #64748b;">${formatNumber(stats.sessions_compare || 0)}</div>
+                                            ${formatPercentChange(stats.sessions, stats.sessions_compare)}
+                                        ` : ''}
                                     </div>
                                     <div class="metric-card">
-                                        <div class="metric-label">${createTooltip('Total Users', tooltips['Total Users'])}</div>
+                                        <div class="metric-label">${createTooltip('Total Users (' + labelCurr + ')', tooltips['Total Users'])}</div>
                                         <div class="metric-value">${formatNumber(stats.totalUsers || 0)}</div>
+                                        ${isComparing ? `
+                                            <div class="metric-label" style="margin-top: 0.5rem;">${labelPrev}</div>
+                                            <div style="font-size: 1rem; font-weight: bold; color: #64748b;">${formatNumber(stats.totalUsers_compare || 0)}</div>
+                                            ${formatPercentChange(stats.totalUsers, stats.totalUsers_compare)}
+                                        ` : ''}
                                     </div>
                                     <div class="metric-card">
-                                        <div class="metric-label">${createTooltip('Page Views', tooltips['Page Views'])}</div>
+                                        <div class="metric-label">${createTooltip('Page Views (' + labelCurr + ')', tooltips['Page Views'])}</div>
                                         <div class="metric-value">${formatNumber(stats.screenPageViews || 0)}</div>
+                                        ${isComparing ? `
+                                            <div class="metric-label" style="margin-top: 0.5rem;">${labelPrev}</div>
+                                            <div style="font-size: 1rem; font-weight: bold; color: #64748b;">${formatNumber(stats.screenPageViews_compare || 0)}</div>
+                                            ${formatPercentChange(stats.screenPageViews, stats.screenPageViews_compare)}
+                                        ` : ''}
                                     </div>
                                     <div class="metric-card">
-                                        <div class="metric-label">${createTooltip('Engagement Rate', tooltips['Engagement Rate'])}</div>
+                                        <div class="metric-label">${createTooltip('Engagement Rate (' + labelCurr + ')', tooltips['Engagement Rate'])}</div>
                                         <div class="metric-value">${((stats.engagementRate || 0) * 100).toFixed(1)}%</div>
+                                        ${isComparing ? `
+                                            <div class="metric-label" style="margin-top: 0.5rem;">${labelPrev}</div>
+                                            <div style="font-size: 1rem; font-weight: bold; color: #64748b;">${((stats.engagementRate_compare || 0) * 100).toFixed(1)}%</div>
+                                            ${formatPercentChange(stats.engagementRate, stats.engagementRate_compare)}
+                                        ` : ''}
                                     </div>
                                 </div>
                             </div>
@@ -2095,7 +2233,13 @@
             // Traffic Sources
             if (sections.includes('Traffic Sources')) {
                 try {
-                    const url = getApiUrl('/analytics/sources', { start_date: startDate, end_date: endDate, limit: 10, _t: timestamp });
+                    const url = getApiUrl('/analytics/sources', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        limit: 10,
+                        _t: timestamp,
+                        ...compParams
+                    });
                     const response = await fetchWithBypass(url);
                     if (!response.ok) {
                         const errorText = await response.text();
@@ -2133,6 +2277,31 @@
                                 font: { family: 'Roboto' }
                             });
                         });
+
+                        if (isComparing) {
+                            sectionsData['Traffic Sources'] += `
+                                <table style="margin-top: 1.5rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Source / Medium</th>
+                                            <th>Sessions (${labelCurr})</th>
+                                            <th>Sessions (${labelPrev})</th>
+                                            <th>Trend</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${result.data.map(d => `
+                                            <tr>
+                                                <td>${d.sessionSourceMedium}</td>
+                                                <td>${formatNumber(d.sessions)}</td>
+                                                <td>${formatNumber(d.sessions_compare || 0)}</td>
+                                                <td>${formatPercentChange(d.sessions, d.sessions_compare)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            `;
+                        }
                     }
                 } catch (error) {
                     const errorMsg = error.message || 'Unknown error';
@@ -2144,7 +2313,13 @@
             // Top Pages
             if (sections.includes('Top Pages')) {
                 try {
-                    const url = getApiUrl('/analytics/pages', { start_date: startDate, end_date: endDate, limit: 20, _t: timestamp });
+                    const url = getApiUrl('/analytics/pages', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        limit: 20,
+                        _t: timestamp,
+                        ...compParams
+                    });
                     const response = await fetchWithBypass(url);
                     if (!response.ok) {
                         const errorText = await response.text();
@@ -2161,17 +2336,26 @@
                                         <tr>
                                             <th>${createTooltip('Page Title', tooltips['Page Title'])}</th>
                                             <th>${createTooltip('Path', tooltips['Path'])}</th>
-                                            <th>${createTooltip('Views', tooltips['Views'])}</th>
-                                            <th>${createTooltip('Users', tooltips['Users'])}</th>
+                                            <th>${createTooltip('Views (' + labelCurr + ')', tooltips['Views'])}</th>
+                                            ${isComparing ? `<th>Views (${labelPrev})</th>` : ''}
+                                            <th>${createTooltip('Users (' + labelCurr + ')', tooltips['Users'])}</th>
+                                            ${isComparing ? `<th>Users (${labelPrev})</th>` : ''}
+                                            ${isComparing ? '<th>Views Trend</th><th>Users Trend</th>' : ''}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         ${result.data.map(page => `
                                             <tr>
                                                 <td>${page.pageTitle || 'N/A'}</td>
-                                                <td>${page.pagePath || 'N/A'}</td>
+                                                <td><span style="font-family: monospace; font-size: 0.85rem;">${page.pagePath || 'N/A'}</span></td>
                                                 <td>${formatNumber(page.screenPageViews || 0)}</td>
+                                                ${isComparing ? `<td>${formatNumber(page.screenPageViews_compare || 0)}</td>` : ''}
                                                 <td>${formatNumber(page.activeUsers || 0)}</td>
+                                                ${isComparing ? `<td>${formatNumber(page.activeUsers_compare || 0)}</td>` : ''}
+                                                ${isComparing ? `
+                                                    <td>${formatPercentChange(page.screenPageViews, page.screenPageViews_compare)}</td>
+                                                    <td>${formatPercentChange(page.activeUsers, page.activeUsers_compare)}</td>
+                                                ` : ''}
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -2189,7 +2373,12 @@
             // User Retention
             if (sections.includes('User Retention')) {
                 try {
-                    const url = getApiUrl('/analytics/retention', { start_date: startDate, end_date: endDate, _t: timestamp });
+                    const url = getApiUrl('/analytics/retention', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        _t: timestamp,
+                        ...compParams
+                    });
                     const response = await fetchWithBypass(url);
                     const result = await response.json();
                     if (result.success && result.data && result.data.length > 0) {
@@ -2212,6 +2401,31 @@
                                 font: { family: 'Roboto' }
                             });
                         });
+
+                        if (isComparing) {
+                            sectionsData['User Retention'] += `
+                                <table style="margin-top: 1.5rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>User Type</th>
+                                            <th>Sessions (${labelCurr})</th>
+                                            <th>Sessions (${labelPrev})</th>
+                                            <th>Trend</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${result.data.map(d => `
+                                            <tr>
+                                                <td>${d.newVsReturning}</td>
+                                                <td>${formatNumber(d.sessions)}</td>
+                                                <td>${formatNumber(d.sessions_compare || 0)}</td>
+                                                <td>${formatPercentChange(d.sessions, d.sessions_compare)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            `;
+                        }
                     }
                 } catch (error) {
                     sectionsData['User Retention'] = `<div class="error">Error loading retention: ${error.message}</div>`;
@@ -2222,12 +2436,23 @@
             if (sections.includes('Geographics')) {
                 try {
                     // Cities
-                    const citiesUrl = getApiUrl('/analytics/cities', { start_date: startDate, end_date: endDate, limit: 10, _t: timestamp });
+                    const citiesUrl = getApiUrl('/analytics/cities', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        limit: 10,
+                        _t: timestamp,
+                        ...compParams
+                    });
                     const citiesResponse = await fetchWithBypass(citiesUrl);
                     const citiesResult = await citiesResponse.json();
 
                     // Countries
-                    const countriesUrl = getApiUrl('/analytics/countries', { start_date: startDate, end_date: endDate, _t: timestamp });
+                    const countriesUrl = getApiUrl('/analytics/countries', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        _t: timestamp,
+                        ...compParams
+                    });
                     const countriesResponse = await fetchWithBypass(countriesUrl);
                     const countriesResult = await countriesResponse.json();
 
@@ -2245,7 +2470,8 @@
                                     <thead>
                                         <tr>
                                             <th>City</th>
-                                            <th>Sessions</th>
+                                            <th>Sessions (${labelCurr})</th>
+                                            ${isComparing ? `<th>Sessions (${labelPrev})</th><th>Trend</th>` : ''}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2253,6 +2479,10 @@
                                             <tr>
                                                 <td>${city.city || 'N/A'}</td>
                                                 <td>${formatNumber(city.sessions || 0)}</td>
+                                                ${isComparing ? `
+                                                    <td>${formatNumber(city.sessions_compare || 0)}</td>
+                                                    <td>${formatPercentChange(city.sessions, city.sessions_compare)}</td>
+                                                ` : ''}
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -2280,6 +2510,31 @@
                                     font: { family: 'Roboto' }
                                 });
                             });
+
+                            if (isComparing) {
+                                geoHTML += `
+                                    <table style="margin-top: 1rem;">
+                                        <thead>
+                                            <tr>
+                                                <th>Country</th>
+                                                <th>Sessions (${labelCurr})</th>
+                                                <th>Sessions (${labelPrev})</th>
+                                                <th>Trend</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${countriesResult.data.slice(0, 5).map(c => `
+                                                <tr>
+                                                    <td>${c.country}</td>
+                                                    <td>${formatNumber(c.sessions)}</td>
+                                                    <td>${formatNumber(c.sessions_compare || 0)}</td>
+                                                    <td>${formatPercentChange(c.sessions, c.sessions_compare)}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                `;
+                            }
                         }
 
                         geoHTML += `</div>`;
@@ -2293,7 +2548,11 @@
             // Tech/Devices
             if (sections.includes('Tech/Devices')) {
                 try {
-                    const url = getApiUrl('/analytics/devices', { start_date: startDate, end_date: endDate });
+                    const url = getApiUrl('/analytics/devices', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        ...compParams
+                    });
                     const response = await fetchWithBypass(url);
                     const result = await response.json();
                     if (result.success && result.data && result.data.length > 0) {
@@ -2316,6 +2575,31 @@
                                 font: { family: 'Roboto' }
                             });
                         });
+
+                        if (isComparing) {
+                            sectionsData['Tech/Devices'] += `
+                                <table style="margin-top: 1.5rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Device Category</th>
+                                            <th>Sessions (${labelCurr})</th>
+                                            <th>Sessions (${labelPrev})</th>
+                                            <th>Trend</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${result.data.map(d => `
+                                            <tr>
+                                                <td>${d.deviceCategory}</td>
+                                                <td>${formatNumber(d.sessions)}</td>
+                                                <td>${formatNumber(d.sessions_compare || 0)}</td>
+                                                <td>${formatPercentChange(d.sessions, d.sessions_compare)}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            `;
+                        }
                     }
                 } catch (error) {
                     sectionsData['Tech/Devices'] = `<div class="error">Error loading devices: ${error.message}</div>`;
@@ -2325,7 +2609,13 @@
             // Events
             if (sections.includes('Events')) {
                 try {
-                    const url = getApiUrl('/analytics/events', { start_date: startDate, end_date: endDate, limit: 20, _t: timestamp });
+                    const url = getApiUrl('/analytics/events', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        limit: 20,
+                        _t: timestamp,
+                        ...compParams
+                    });
                     const response = await fetchWithBypass(url);
                     const result = await response.json();
                     if (result.success && result.data && result.data.length > 0) {
@@ -2337,7 +2627,8 @@
                                     <thead>
                                         <tr>
                                             <th>${createTooltip('Event Name', tooltips['Event Name'])}</th>
-                                            <th>${createTooltip('Event Count', tooltips['Event Count'] || tooltips['Count'])}</th>
+                                            <th>${createTooltip('Event Count (' + labelCurr + ')', tooltips['Event Count'] || tooltips['Count'])}</th>
+                                            ${isComparing ? `<th>Event Count (${labelPrev})</th><th>Trend</th>` : ''}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2345,6 +2636,10 @@
                                             <tr>
                                                 <td>${event.eventName || 'N/A'}</td>
                                                 <td>${formatNumber(event.eventCount || 0)}</td>
+                                                ${isComparing ? `
+                                                    <td>${formatNumber(event.eventCount_compare || 0)}</td>
+                                                    <td>${formatPercentChange(event.eventCount, event.eventCount_compare)}</td>
+                                                ` : ''}
                                             </tr>
                                         `).join('')}
                                     </tbody>
@@ -2379,7 +2674,12 @@
                     const ratingsResponse = await fetchWithBypass(ratingsUrl);
                     const reviewsUrl = getApiUrl('/gbp/reviews', { _t: timestamp });
                     const reviewsResponse = await fetchWithBypass(reviewsUrl);
-                    const insightsUrl = getApiUrl('/gbp/insights', { start_date: startDate, end_date: endDate, _t: timestamp });
+                    const insightsUrl = getApiUrl('/gbp/insights', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        _t: timestamp,
+                        ...compParams
+                    });
                     const insightsResponse = await fetchWithBypass(insightsUrl);
 
                     let ratingsResult = { success: false, data: {} };
@@ -2513,20 +2813,40 @@
                                 <h3 style="color: #2c3e50; margin-bottom: 1rem;">Business Insights</h3>
                                 <div class="metrics-grid">
                                     <div class="metric-card">
-                                        <div class="metric-label">${createTooltip('Search Views', tooltips['Search Views'])}</div>
+                                        <div class="metric-label">${createTooltip('Search Views (' + labelCurr + ')', tooltips['Search Views'])}</div>
                                         <div class="metric-value">${formatNumber(insights.views.search || 0)}</div>
+                                        ${isComparing ? `
+                                            <div class="metric-label" style="margin-top: 0.5rem;">${labelPrev}</div>
+                                            <div style="font-size: 1rem; font-weight: bold; color: #64748b;">${formatNumber(insights.views.search_compare || 0)}</div>
+                                            ${formatPercentChange(insights.views.search, insights.views.search_compare)}
+                                        ` : ''}
                                     </div>
                                     <div class="metric-card">
-                                        <div class="metric-label">${createTooltip('Maps Views', tooltips['Maps Views'])}</div>
+                                        <div class="metric-label">${createTooltip('Maps Views (' + labelCurr + ')', tooltips['Maps Views'])}</div>
                                         <div class="metric-value">${formatNumber(insights.views.maps || 0)}</div>
+                                        ${isComparing ? `
+                                            <div class="metric-label" style="margin-top: 0.5rem;">${labelPrev}</div>
+                                            <div style="font-size: 1rem; font-weight: bold; color: #64748b;">${formatNumber(insights.views.maps_compare || 0)}</div>
+                                            ${formatPercentChange(insights.views.maps, insights.views.maps_compare)}
+                                        ` : ''}
                                     </div>
                                     <div class="metric-card">
-                                        <div class="metric-label">${createTooltip('Website Clicks', tooltips['Website Clicks'])}</div>
+                                        <div class="metric-label">${createTooltip('Website Clicks (' + labelCurr + ')', tooltips['Website Clicks'])}</div>
                                         <div class="metric-value">${formatNumber(insights.customerActions?.websiteClicks || 0)}</div>
+                                        ${isComparing ? `
+                                            <div class="metric-label" style="margin-top: 0.5rem;">${labelPrev}</div>
+                                            <div style="font-size: 1rem; font-weight: bold; color: #64748b;">${formatNumber(insights.customerActions?.websiteClicks_compare || 0)}</div>
+                                            ${formatPercentChange(insights.customerActions?.websiteClicks, insights.customerActions?.websiteClicks_compare)}
+                                        ` : ''}
                                     </div>
                                     <div class="metric-card">
-                                        <div class="metric-label">${createTooltip('Direction Requests', tooltips['Direction Requests'])}</div>
+                                        <div class="metric-label">${createTooltip('Direction Requests (' + labelCurr + ')', tooltips['Direction Requests'])}</div>
                                         <div class="metric-value">${formatNumber(insights.customerActions?.directionRequests || 0)}</div>
+                                        ${isComparing ? `
+                                            <div class="metric-label" style="margin-top: 0.5rem;">${labelPrev}</div>
+                                            <div style="font-size: 1rem; font-weight: bold; color: #64748b;">${formatNumber(insights.customerActions?.directionRequests_compare || 0)}</div>
+                                            ${formatPercentChange(insights.customerActions?.directionRequests, insights.customerActions?.directionRequests_compare)}
+                                        ` : ''}
                                     </div>
                                 </div>
                                 ${!hasAnyInsight ? '<p style="color: #7f8c8d; font-size: 0.9rem; margin-top: 0.5rem;">No activity in the selected date range.</p>' : ''}
@@ -2541,8 +2861,102 @@
                 }
             }
 
+            // Email Campaigns (Static/JSON data)
+            if (sections.includes('Email Campaigns')) {
+                try {
+                    const response = await fetch('/data/email_campaigns.json?_t=' + new Date().getTime());
+                    const data = await response.json();
+
+                    if (data && data.length >= 2) {
+                        const camp1 = data[0];
+                        const camp2 = data[1];
+
+                        sectionsData['Email Campaigns'] = `
+                            <div class="section">
+                                <h2>Email Campaign Comparison</h2>
+                                <p style="color: #64748b; margin-bottom: 1.5rem;">Comparing: <strong>${camp1.emailname}</strong> vs <strong>${camp2.emailname}</strong></p>
+                                <div id="emailCampaignChart"></div>
+                                
+                                <table style="margin-top: 2rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>Metric</th>
+                                            <th>${camp1.emailname}</th>
+                                            <th>${camp2.emailname}</th>
+                                            <th>Trend</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Opens</td>
+                                            <td>${formatNumber(camp1.opens)}</td>
+                                            <td>${formatNumber(camp2.opens)}</td>
+                                            <td>${formatPercentChange(camp1.opens, camp2.opens)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Clicks</td>
+                                            <td>${formatNumber(camp1.clicks)}</td>
+                                            <td>${formatNumber(camp2.clicks)}</td>
+                                            <td>${formatPercentChange(camp1.clicks, camp2.clicks)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Bounces</td>
+                                            <td>${formatNumber(camp1.bounces)}</td>
+                                            <td>${formatNumber(camp2.bounces)}</td>
+                                            <td>${formatPercentChange(camp1.bounces, camp2.bounces)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Unopened</td>
+                                            <td>${formatNumber(camp1.unopens)}</td>
+                                            <td>${formatNumber(camp2.unopens)}</td>
+                                            <td>${formatPercentChange(camp1.unopens, camp2.unopens)}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Unsubscribes</td>
+                                            <td>${formatNumber(camp1.unsubscribes)}</td>
+                                            <td>${formatNumber(camp2.unsubscribes)}</td>
+                                            <td>${formatPercentChange(camp1.unsubscribes, camp2.unsubscribes)}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        `;
+
+                        chartRenderers.push(() => {
+                            const metrics = ['Opens', 'Clicks', 'Bounces', 'Unopened', 'Unsubscribes'];
+                            const values1 = [camp1.opens, camp1.clicks, camp1.bounces, camp1.unopens, camp1.unsubscribes];
+                            const values2 = [camp2.opens, camp2.clicks, camp2.bounces, camp2.unopens, camp2.unsubscribes];
+
+                            Plotly.newPlot('emailCampaignChart', [
+                                {
+                                    x: metrics,
+                                    y: values1,
+                                    name: camp1.emailname,
+                                    type: 'bar',
+                                    marker: { color: '#ff5800' }
+                                },
+                                {
+                                    x: metrics,
+                                    y: values2,
+                                    name: camp2.emailname,
+                                    type: 'bar',
+                                    marker: { color: '#4a90e2' }
+                                }
+                            ], {
+                                barmode: 'group',
+                                title: 'Campaign Performance Comparison',
+                                font: { family: 'Roboto' },
+                                margin: { t: 50, b: 50, l: 50, r: 50 }
+                            });
+                        });
+                    }
+                } catch (error) {
+                    sectionsData['Email Campaigns'] = `<div class="error">Error loading Email Campaigns data: ${error.message}</div>`;
+                }
+            }
+
             // Build tabbed interface if we have sections
-            const sectionOrder = ['Overview', 'Traffic Sources', 'Top Pages', 'User Retention', 'Geographics', 'Tech/Devices', 'Events', 'Business Profile'];
+            const sectionOrder = ['Overview', 'Traffic Sources', 'Top Pages', 'User Retention', 'Geographics', 'Tech/Devices', 'Events', 'Business Profile', 'Email Campaigns'];
             const availableSections = sectionOrder.filter(s => sections.includes(s) && sectionsData[s]);
 
             let finalHTML = '';
@@ -2727,9 +3141,21 @@
             return n.toLocaleString();
         }
 
+        function getShortDateLabel(startStr, endStr) {
+            const s = new Date(startStr);
+            const e = new Date(endStr);
+            const sameMonth = s.getMonth() === e.getMonth();
+            const month = s.toLocaleDateString('en-US', { month: 'short' });
+            if (sameMonth) {
+                return `${month} ${s.getDate()}-${e.getDate()}`;
+            }
+            return `${month} ${s.getDate()} - ${e.toLocaleDateString('en-US', { month: 'short' })} ${e.getDate()}`;
+        }
+
         async function generateReport() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
+            const isComparing = document.getElementById('compareCheckbox')?.checked || false;
 
             // Read checkboxes fresh each time
             const checkboxes = document.querySelectorAll('.checkbox-group input[type="checkbox"]:checked');
@@ -2752,6 +3178,25 @@
                 return;
             }
 
+            // Calculate comparison dates if enabled
+            let compParams = {};
+            if (isComparing) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+                const compareEnd = new Date(start);
+                compareEnd.setDate(compareEnd.getDate() - 1);
+                const compareStart = new Date(compareEnd);
+                compareStart.setDate(compareStart.getDate() - diffDays + 1);
+
+                compParams = {
+                    compare_start_date: compareStart.toISOString().split('T')[0],
+                    compare_end_date: compareEnd.toISOString().split('T')[0]
+                };
+            }
+
             const content = document.getElementById('content');
             content.innerHTML = '<div class="loading">Generating report...</div>';
 
@@ -2762,11 +3207,22 @@
                 const fetchKeys = [];
 
                 // Always fetch overview for Executive Summary
-                fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/overview', { start_date: startDate, end_date: endDate, _t: timestamp })));
+                fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/overview', {
+                    start_date: startDate,
+                    end_date: endDate,
+                    ...compParams,
+                    _t: timestamp
+                })));
                 fetchKeys.push('overview');
 
                 if (sections.includes('Traffic Sources')) {
-                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/sources', { start_date: startDate, end_date: endDate, limit: 10, _t: timestamp })));
+                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/sources', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        ...compParams,
+                        limit: 10,
+                        _t: timestamp
+                    })));
                     fetchKeys.push('sources');
                 } else {
                     fetchPromises.push(Promise.resolve(null));
@@ -2774,7 +3230,13 @@
                 }
 
                 if (sections.includes('Top Pages')) {
-                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/pages', { start_date: startDate, end_date: endDate, limit: 20, _t: timestamp })));
+                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/pages', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        ...compParams,
+                        limit: 20,
+                        _t: timestamp
+                    })));
                     fetchKeys.push('pages');
                 } else {
                     fetchPromises.push(Promise.resolve(null));
@@ -2782,7 +3244,12 @@
                 }
 
                 if (sections.includes('User Retention')) {
-                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/retention', { start_date: startDate, end_date: endDate, _t: timestamp })));
+                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/retention', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        ...compParams,
+                        _t: timestamp
+                    })));
                     fetchKeys.push('retention');
                 } else {
                     fetchPromises.push(Promise.resolve(null));
@@ -2790,9 +3257,20 @@
                 }
 
                 if (sections.includes('Geographics')) {
-                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/cities', { start_date: startDate, end_date: endDate, limit: 10, _t: timestamp })));
+                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/cities', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        ...compParams,
+                        limit: 10,
+                        _t: timestamp
+                    })));
                     fetchKeys.push('cities');
-                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/countries', { start_date: startDate, end_date: endDate, _t: timestamp })));
+                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/countries', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        ...compParams,
+                        _t: timestamp
+                    })));
                     fetchKeys.push('countries');
                 } else {
                     fetchPromises.push(Promise.resolve(null));
@@ -2802,7 +3280,12 @@
                 }
 
                 if (sections.includes('Tech/Devices')) {
-                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/devices', { start_date: startDate, end_date: endDate, _t: timestamp })));
+                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/devices', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        ...compParams,
+                        _t: timestamp
+                    })));
                     fetchKeys.push('devices');
                 } else {
                     fetchPromises.push(Promise.resolve(null));
@@ -2810,7 +3293,13 @@
                 }
 
                 if (sections.includes('Events')) {
-                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/events', { start_date: startDate, end_date: endDate, limit: 20, _t: timestamp })));
+                    fetchPromises.push(fetchWithBypass(getApiUrl('/analytics/events', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        ...compParams,
+                        limit: 20,
+                        _t: timestamp
+                    })));
                     fetchKeys.push('events');
                 } else {
                     fetchPromises.push(Promise.resolve(null));
@@ -2818,7 +3307,12 @@
                 }
 
                 if (sections.includes('Business Profile')) {
-                    fetchPromises.push(fetchWithBypass(getApiUrl('/gbp/insights', { start_date: startDate, end_date: endDate, _t: timestamp })));
+                    fetchPromises.push(fetchWithBypass(getApiUrl('/gbp/insights', {
+                        start_date: startDate,
+                        end_date: endDate,
+                        ...compParams,
+                        _t: timestamp
+                    })));
                     fetchKeys.push('gbpInsights');
                 } else {
                     fetchPromises.push(Promise.resolve(null));
@@ -2840,6 +3334,18 @@
                 const devices = responses[6] && responses[6] !== null && responses[6].ok ? await responses[6].json() : { success: false, data: [] };
                 const events = responses[7] && responses[7] !== null && responses[7].ok ? await responses[7].json() : { success: false, data: [] };
                 const gbpInsights = responses[8] && responses[8] !== null && responses[8].ok ? await responses[8].json() : { success: false, summary: {} };
+
+                // Fetch email campaigns (static/JSON data)
+                let emailCampaigns = { success: false, data: [] };
+                if (sections.includes('Email Campaigns')) {
+                    try {
+                        const emailResp = await fetch('/data/email_campaigns.json?_t=' + timestamp);
+                        const emailData = await emailResp.json();
+                        emailCampaigns = { success: true, data: emailData };
+                    } catch (e) {
+                        console.error('Error fetching email campaigns:', e);
+                    }
+                }
 
 
                 // Format dates
@@ -2870,6 +3376,10 @@
                 const formattedEndDate = formatDateDDMMYYYY(endDate);
                 const formattedCollectionTime = formatDateTimeDDMMYYYYHHMM(dataCollectionTime);
 
+                // Create short labels for columns (e.g., "Jan 1-31")
+                const labelCurr = getShortDateLabel(startDate, endDate);
+                const labelPrev = isComparing ? getShortDateLabel(compParams.compare_start_date, compParams.compare_end_date) : '';
+
                 // Calculate percentages
                 const totalSessions = parseFloat(overview.data.sessions || 0);
                 const totalSourceSessions = sources.data.reduce((sum, s) => sum + parseFloat(s.sessions || 0), 0);
@@ -2898,30 +3408,48 @@
                         
                         <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #e0e0e0; box-sizing: border-box;">
                             <h2 style="color: #ff5800; margin-bottom: 1rem; font-size: 1.5rem;">Executive Summary</h2>
-                            <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
+                             <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <tr>
                                     <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;"><strong>Total Sessions:</strong></td>
-                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">${formatNumber(overview.data.sessions || 0)}</td>
+                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">
+                                        ${formatNumber(overview.data.sessions || 0)}
+                                        ${isComparing ? `<span style="margin-left: 10px; font-size: 0.9rem;">${formatPercentChange(overview.data.sessions || 0, overview.data.sessions_compare || 0)}</span>` : ''}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;"><strong>Total Users:</strong></td>
-                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">${formatNumber(overview.data.totalUsers || 0)}</td>
+                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">
+                                        ${formatNumber(overview.data.totalUsers || 0)}
+                                        ${isComparing ? `<span style="margin-left: 10px; font-size: 0.9rem;">${formatPercentChange(overview.data.totalUsers || 0, overview.data.totalUsers_compare || 0)}</span>` : ''}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;"><strong>Page Views:</strong></td>
-                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">${formatNumber(overview.data.screenPageViews || 0)}</td>
+                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">
+                                        ${formatNumber(overview.data.screenPageViews || 0)}
+                                        ${isComparing ? `<span style="margin-left: 10px; font-size: 0.9rem;">${formatPercentChange(overview.data.screenPageViews || 0, overview.data.screenPageViews_compare || 0)}</span>` : ''}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;"><strong>Engagement Rate:</strong></td>
-                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">${((overview.data.engagementRate || 0) * 100).toFixed(1)}%</td>
+                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">
+                                        ${((overview.data.engagementRate || 0) * 100).toFixed(1)}%
+                                        ${isComparing ? `<span style="margin-left: 10px; font-size: 0.9rem;">${formatPercentChange(overview.data.engagementRate || 0, overview.data.engagementRate_compare || 0)}</span>` : ''}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;"><strong>Avg. Session Duration:</strong></td>
-                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">${Math.round(overview.data.averageSessionDuration || 0)}s</td>
+                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">
+                                        ${Math.round(overview.data.averageSessionDuration || 0)}s
+                                        ${isComparing ? `<span style="margin-left: 10px; font-size: 0.9rem;">${formatPercentChange(overview.data.averageSessionDuration || 0, overview.data.averageSessionDuration_compare || 0)}</span>` : ''}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;"><strong>Bounce Rate:</strong></td>
-                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">${((overview.data.bounceRate || 0) * 100).toFixed(1)}%</td>
+                                    <td style="padding: 0.75rem; border: 1px solid #ddd; font-size: 1.1rem; box-sizing: border-box;">
+                                        ${((overview.data.bounceRate || 0) * 100).toFixed(1)}%
+                                        ${isComparing ? `<span style="margin-left: 10px; font-size: 0.9rem;">${formatPercentChange(overview.data.bounceRate || 0, overview.data.bounceRate_compare || 0, true)}</span>` : ''}
+                                    </td>
                                 </tr>
                             </table>
                         </div>
@@ -2936,17 +3464,22 @@
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section" data-is-first-section="true">
                             <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Traffic Sources</h2>
                             <div id="reportSourcesChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box; overflow: visible;"></div>
-                            <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
+                             <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
-                                    <col style="width: 50%;">
-                                    <col style="width: 25%;">
-                                    <col style="width: 25%;">
+                                    <col style="width: ${isComparing ? '27%' : '50%'};">
+                                    <col style="width: ${isComparing ? '18%' : '25%'};">
+                                    <col style="width: ${isComparing ? '18%' : '25%'};">
+                                    ${isComparing ? `<col style="width: 18%;"><col style="width: 19%;">` : ''}
                                 </colgroup>
                                 <thead>
                                     <tr style="background-color: #f8f9fa;">
                                         <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Source</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Percentage</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Share (%)</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions (${labelCurr})</th>
+                                        ${isComparing ? `
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions (${labelPrev})</th>
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Trend</th>
+                                        ` : ''}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2960,11 +3493,15 @@
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; word-wrap: break-word;">${source.sessionSourceMedium || 'N/A'}</td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;"><strong>${pct}%</strong></td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(source.sessions || 0)}</td>
+                                ${isComparing ? `
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(source.sessions_compare || 0)}</td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(source.sessions, source.sessions_compare)}</td>
+                                ` : ''}
                             </tr>
                         `;
                         });
                     } else {
-                        reportHtml += '<tr><td colspan="3">No source data available</td></tr>';
+                        reportHtml += `<tr><td colspan="${isComparing ? 5 : 3}">No source data available</td></tr>`;
                     }
 
                     reportHtml += `
@@ -2979,19 +3516,26 @@
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
                             <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Top Pages</h2>
-                            <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
+                             <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
-                                    <col style="width: 35%;">
-                                    <col style="width: 30%;">
-                                    <col style="width: 17.5%;">
-                                    <col style="width: 17.5%;">
+                                    <col style="width: ${isComparing ? '22%' : '35%'};">
+                                    <col style="width: ${isComparing ? '18%' : '30%'};">
+                                    <col style="width: ${isComparing ? '11%' : '17.5%'};">
+                                    <col style="width: ${isComparing ? '11%' : '17.5%'};">
+                                    ${isComparing ? `<col style="width: 10%;"><col style="width: 10%;"><col style="width: 9%;"><col style="width: 9%;">` : ''}
                                 </colgroup>
                                 <thead>
                                     <tr style="background-color: #f8f9fa;">
                                         <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Page Title</th>
                                         <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Path</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Views</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Users</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Views (${labelCurr})</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Users (${labelCurr})</th>
+                                        ${isComparing ? `
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Views (${labelPrev})</th>
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Users (${labelPrev})</th>
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Views Trend</th>
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Users Trend</th>
+                                        ` : ''}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -3005,11 +3549,17 @@
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; font-family: monospace; font-size: 0.9rem; color: #7f8c8d; box-sizing: border-box; word-wrap: break-word; overflow-wrap: break-word;">${page.pagePath || 'N/A'}</td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(page.screenPageViews || 0)}</td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(page.activeUsers || 0)}</td>
+                                ${isComparing ? `
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(page.screenPageViews_compare || 0)}</td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(page.activeUsers_compare || 0)}</td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(page.screenPageViews, page.screenPageViews_compare)}</td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(page.activeUsers, page.activeUsers_compare)}</td>
+                                ` : ''}
                             </tr>
                         `;
                         });
                     } else {
-                        reportHtml += '<tr><td colspan="4">No page data available</td></tr>';
+                        reportHtml += `<tr><td colspan="${isComparing ? 6 : 4}">No page data available</td></tr>`;
                     }
 
                     reportHtml += `
@@ -3028,17 +3578,24 @@
 
                     if (productPages.length > 0) {
                         reportHtml += `
-                        <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
+                         <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                             <colgroup>
-                                <col style="width: 60%;">
-                                <col style="width: 20%;">
-                                <col style="width: 20%;">
+                                <col style="width: ${isComparing ? '30%' : '60%'};">
+                                <col style="width: ${isComparing ? '12%' : '20%'};">
+                                <col style="width: ${isComparing ? '12%' : '20%'};">
+                                ${isComparing ? '<col style="width: 11%;"><col style="width: 11%;"><col style="width: 12%;"><col style="width: 12%;">' : ''}
                             </colgroup>
                             <thead>
                                 <tr style="background-color: #f8f9fa;">
                                     <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Product</th>
-                                    <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Views</th>
-                                    <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Users</th>
+                                    <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Views (${labelCurr})</th>
+                                    <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Users (${labelCurr})</th>
+                                    ${isComparing ? `
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Views (${labelPrev})</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Users (${labelPrev})</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Views Trend</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Users Trend</th>
+                                    ` : ''}
                                 </tr>
                             </thead>
                             <tbody>
@@ -3049,6 +3606,12 @@
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; word-wrap: break-word;"><strong>${product.pageTitle || 'N/A'}</strong></td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(product.screenPageViews || 0)}</td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(product.activeUsers || 0)}</td>
+                                ${isComparing ? `
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(product.screenPageViews_compare || 0)}</td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(product.activeUsers_compare || 0)}</td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(product.screenPageViews, product.screenPageViews_compare)}</td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(product.activeUsers, product.activeUsers_compare)}</td>
+                                ` : ''}
                             </tr>
                         `;
                         });
@@ -3076,15 +3639,20 @@
                             <div id="reportRetentionChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box;"></div>
                             <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
-                                    <col style="width: 50%;">
-                                    <col style="width: 25%;">
-                                    <col style="width: 25%;">
+                                    <col style="width: ${isComparing ? '27%' : '50%'};">
+                                    <col style="width: ${isComparing ? '18%' : '25%'};">
+                                    <col style="width: ${isComparing ? '18%' : '25%'};">
+                                    ${isComparing ? `<col style="width: 18%;"><col style="width: 19%;">` : ''}
                                 </colgroup>
                                 <thead>
                                     <tr style="background-color: #f8f9fa;">
                                         <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">User Type</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Percentage</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Share (%)</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions (${labelCurr})</th>
+                                        ${isComparing ? `
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions (${labelPrev})</th>
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Trend</th>
+                                        ` : ''}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -3092,11 +3660,19 @@
                                         <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;"><strong>New Users</strong></td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;"><strong>${newPct}%</strong></td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(newSessions)}</td>
+                                        ${isComparing ? `
+                                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(newUsers?.sessions_compare || 0)}</td>
+                                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(newSessions, newUsers?.sessions_compare || 0)}</td>
+                                        ` : ''}
                                     </tr>
                                     <tr>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;"><strong>Returning Users</strong></td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;"><strong>${returnPct}%</strong></td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(returnSessions)}</td>
+                                        ${isComparing ? `
+                                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(returningUsers?.sessions_compare || 0)}</td>
+                                            <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(returnSessions, returningUsers?.sessions_compare || 0)}</td>
+                                        ` : ''}
                                     </tr>
                                 </tbody>
                             </table>
@@ -3123,17 +3699,22 @@
                     if (cities.data && cities.data.length > 0) {
                         reportHtml += `
                             <h3 style="color: #2c3e50; margin-top: 1.5rem; margin-bottom: 1rem; font-size: 1.2rem; font-weight: 600;">Top Cities</h3>
-                            <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
+                             <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
-                                    <col style="width: 50%;">
-                                    <col style="width: 25%;">
-                                    <col style="width: 25%;">
+                                    <col style="width: ${isComparing ? '27%' : '50%'};">
+                                    <col style="width: ${isComparing ? '18%' : '25%'};">
+                                    <col style="width: ${isComparing ? '18%' : '25%'};">
+                                    ${isComparing ? `<col style="width: 18%;"><col style="width: 19%;">` : ''}
                                 </colgroup>
                                 <thead>
                                     <tr style="background-color: #f8f9fa;">
                                         <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">City</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Percentage</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Share (%)</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions (${labelCurr})</th>
+                                        ${isComparing ? `
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions (${labelPrev})</th>
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Trend</th>
+                                        ` : ''}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -3145,6 +3726,10 @@
                                     <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; word-wrap: break-word;"><strong>${city.city || 'N/A'}</strong></td>
                                     <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;"><strong>${cityPct}%</strong></td>
                                     <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(city.sessions || 0)}</td>
+                                    ${isComparing ? `
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(city.sessions_compare || 0)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(city.sessions, city.sessions_compare)}</td>
+                                    ` : ''}
                                 </tr>
                             `;
                         });
@@ -3167,15 +3752,20 @@
                             <div id="reportDevicesChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box;"></div>
                             <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
-                                    <col style="width: 50%;">
-                                    <col style="width: 25%;">
-                                    <col style="width: 25%;">
+                                    <col style="width: ${isComparing ? '27%' : '50%'};">
+                                    <col style="width: ${isComparing ? '18%' : '25%'};">
+                                    <col style="width: ${isComparing ? '18%' : '25%'};">
+                                    ${isComparing ? '<col style="width: 18%;"><col style="width: 19%;">' : ''}
                                 </colgroup>
                                 <thead>
                                     <tr style="background-color: #f8f9fa;">
                                         <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Device Category</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Percentage</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Share (%)</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions (${labelCurr})</th>
+                                        ${isComparing ? `
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Sessions (${labelPrev})</th>
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Trend</th>
+                                        ` : ''}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -3187,6 +3777,10 @@
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; word-wrap: break-word;"><strong>${device.deviceCategory || 'N/A'}</strong></td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;"><strong>${devicePct}%</strong></td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(device.sessions || 0)}</td>
+                                ${isComparing ? `
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(device.sessions_compare || 0)}</td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(device.sessions, device.sessions_compare)}</td>
+                                ` : ''}
                             </tr>
                         `;
                     });
@@ -3205,13 +3799,18 @@
                             <div id="reportEventsChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box;"></div>
                             <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
-                                    <col style="width: 70%;">
-                                    <col style="width: 30%;">
+                                    <col style="width: ${isComparing ? '34%' : '70%'};">
+                                    <col style="width: ${isComparing ? '22%' : '30%'};">
+                                    ${isComparing ? '<col style="width: 22%;"><col style="width: 22%;">' : ''}
                                 </colgroup>
                                 <thead>
                                     <tr style="background-color: #f8f9fa;">
                                         <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Event Name</th>
-                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Count</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Count (${labelCurr})</th>
+                                        ${isComparing ? `
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Count (${labelPrev})</th>
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">Trend</th>
+                                        ` : ''}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -3221,6 +3820,10 @@
                             <tr>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; word-wrap: break-word;"><strong>${event.eventName || 'N/A'}</strong></td>
                                 <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(event.eventCount || 0)}</td>
+                                ${isComparing ? `
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(event.eventCount_compare || 0)}</td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(event.eventCount, event.eventCount_compare)}</td>
+                                ` : ''}
                             </tr>
                         `;
                     });
@@ -3246,22 +3849,48 @@
                         if (hasInsights) {
                             reportHtml += `
                                 <h3 style="color: #2c3e50; margin-top: 1.5rem; margin-bottom: 1rem; font-size: 1.2rem; font-weight: 600;">Performance Insights</h3>
-                                <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed; margin-bottom: 2rem;">
+                                 <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed; margin-bottom: 2rem;">
+                                    <thead>
+                                        <tr style="background-color: #f8f9fa;">
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; width: 34%;">GBP Metrics</th>
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; width: 22%;">${labelCurr}</th>
+                                            ${isComparing ? `
+                                                <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; width: 22%;">${labelPrev}</th>
+                                                <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; width: 22%;">Trend</th>
+                                            ` : ''}
+                                        </tr>
+                                    </thead>
                                     <tr>
-                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;"><strong>Search Views:</strong></td>
-                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;">${formatNumber(insights.views.search || 0)}</td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;"><strong>Search Views</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatNumber(insights.views.search || 0)}</td>
+                                        ${isComparing ? `
+                                            <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatNumber(insights.views.search_compare || 0)}</td>
+                                            <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatPercentChange(insights.views.search || 0, insights.views.search_compare || 0)}</td>
+                                        ` : ''}
                                     </tr>
                                     <tr>
-                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;"><strong>Maps Views:</strong></td>
-                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;">${formatNumber(insights.views.maps || 0)}</td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;"><strong>Maps Views</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatNumber(insights.views.maps || 0)}</td>
+                                        ${isComparing ? `
+                                            <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatNumber(insights.views.maps_compare || 0)}</td>
+                                            <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatPercentChange(insights.views.maps || 0, insights.views.maps_compare || 0)}</td>
+                                        ` : ''}
                                     </tr>
                                     <tr>
-                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;"><strong>Website Clicks:</strong></td>
-                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;">${formatNumber(insights.customerActions?.websiteClicks || 0)}</td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;"><strong>Website Clicks</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatNumber(insights.customerActions?.websiteClicks || 0)}</td>
+                                        ${isComparing ? `
+                                            <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatNumber(insights.customerActions?.websiteClicks_compare || 0)}</td>
+                                            <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatPercentChange(insights.customerActions?.websiteClicks || 0, insights.customerActions?.websiteClicks_compare || 0)}</td>
+                                        ` : ''}
                                     </tr>
                                     <tr>
-                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;"><strong>Direction Requests:</strong></td>
-                                        <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;">${formatNumber(insights.customerActions?.directionRequests || 0)}</td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;"><strong>Direction Requests</strong></td>
+                                        <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatNumber(insights.customerActions?.directionRequests || 0)}</td>
+                                        ${isComparing ? `
+                                            <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatNumber(insights.customerActions?.directionRequests_compare || 0)}</td>
+                                            <td style="padding: 0.75rem; border: 1px solid #ddd; box-sizing: border-box;">${formatPercentChange(insights.customerActions?.directionRequests || 0, insights.customerActions?.directionRequests_compare || 0)}</td>
+                                        ` : ''}
                                     </tr>
                                 </table>
                             `;
@@ -3273,12 +3902,70 @@
                     }
                 }
 
+                // 9. Email Campaigns (only if checked)
+                if (sections.includes('Email Campaigns') && emailCampaigns.success && emailCampaigns.data && emailCampaigns.data.length >= 2) {
+                    const camp1 = emailCampaigns.data[0];
+                    const camp2 = emailCampaigns.data[1];
+                    reportHtml += `
+                        <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
+                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Email Campaigns Comparison</h2>
+                            <p style="color: #64748b; margin-bottom: 1rem;">Comparing: <strong>${camp1.emailname}</strong> vs <strong>${camp2.emailname}</strong></p>
+                            <div id="reportEmailCampaignChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box;"></div>
+                            <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
+                                <thead>
+                                    <tr style="background-color: #f8f9fa;">
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold;">Metric</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold;">${camp1.emailname}</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold;">${camp2.emailname}</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold;">Trend</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">Opens</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp1.opens)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp2.opens)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.opens, camp2.opens)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">Clicks</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp1.clicks)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp2.clicks)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.clicks, camp2.clicks)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">Bounces</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp1.bounces)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp2.bounces)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.bounces, camp2.bounces)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">Unopened</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp1.unopens)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp2.unopens)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.unopens, camp2.unopens)}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">Unsubscribes</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp1.unsubscribes)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp2.unsubscribes)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.unsubscribes, camp2.unsubscribes)}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    `;
+                }
+
                 const generatedDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
                 reportHtml += `
-                        <div style="text-align: center; margin-top: 2rem;">
+                        <div style="text-align: center; margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;" class="no-print">
                             <button onclick="window.print()" style="background-color: #7f8c8d; color: white; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem;">
-                                🖨️ Print
+                                🖨️ Print Report
+                            </button>
+                            <button onclick="generatePDF()" style="background-color: #ff5800; color: white; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem;">
+                                📄 Download PDF
                             </button>
                         </div>
                         
@@ -3564,6 +4251,40 @@
                             plot_bgcolor: 'rgba(0,0,0,0)'
                         }, { staticPlot: true, displayModeBar: false });
                     }
+
+                    // Email Campaign Comparison Chart
+                    if (sections.includes('Email Campaigns') && emailCampaigns.data && emailCampaigns.data.length >= 2) {
+                        const camp1 = emailCampaigns.data[0];
+                        const camp2 = emailCampaigns.data[1];
+                        const metrics = ['Opens', 'Clicks', 'Bounces', 'Unopened', 'Unsubscribes'];
+                        const values1 = [camp1.opens, camp1.clicks, camp1.bounces, camp1.unopens, camp1.unsubscribes];
+                        const values2 = [camp2.opens, camp2.clicks, camp2.bounces, camp2.unopens, camp2.unsubscribes];
+
+                        await convertChartToImage('reportEmailCampaignChart', [
+                            {
+                                x: metrics,
+                                y: values1,
+                                name: camp1.emailname,
+                                type: 'bar',
+                                marker: { color: '#ff5800' }
+                            },
+                            {
+                                x: metrics,
+                                y: values2,
+                                name: camp2.emailname,
+                                type: 'bar',
+                                marker: { color: '#4a90e2' }
+                            }
+                        ], {
+                            barmode: 'group',
+                            font: { family: 'Roboto', size: 12 },
+                            margin: { l: 50, r: 50, t: 50, b: 50 },
+                            paper_bgcolor: 'rgba(0,0,0,0)',
+                            plot_bgcolor: 'rgba(0,0,0,0)',
+                            showlegend: true,
+                            legend: { orientation: 'h', y: -0.2 }
+                        }, { staticPlot: true, displayModeBar: false });
+                    }
                 }, 500);
 
             } catch (error) {
@@ -3595,12 +4316,13 @@
             }
         }
 
-        // Generate PDF using html2pdf.js library
-        function generatePDF() {
-            const button = document.getElementById('pdfButton');
+        async function generatePDF() {
+            const button = event && event.target && event.target.tagName === 'BUTTON' ? event.target : document.getElementById('pdfButton');
+            const originalText = button ? button.textContent : '';
+
             if (button) {
                 button.disabled = true;
-                button.textContent = '⏳ Generating PDF...';
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating PDF...';
             }
 
             // Get the report container (A4 sized)
@@ -3929,16 +4651,25 @@
 
         // Calculate percentage change
         function calcPercentChange(current, previous) {
-            if (previous === 0) return current > 0 ? 100 : 0;
-            return ((current - previous) / previous) * 100;
+            const curr = parseFloat(String(current).replace(/,/g, '')) || 0;
+            const prev = parseFloat(String(previous).replace(/,/g, '')) || 0;
+            if (prev === 0) return curr > 0 ? 100 : 0;
+            return ((curr - prev) / prev) * 100;
+        }
+
+        // Format the percentage value only (with capping)
+        function formatPercentValue(val, decimals = 1) {
+            const absVal = Math.abs(val);
+            if (absVal > 999) return '>999%';
+            return absVal.toFixed(decimals) + '%';
         }
 
         // Format change indicator with arrow and color
         function formatChange(current, previous, inverted = false) {
             const change = calcPercentChange(current, previous);
-            const absChange = Math.abs(change).toFixed(1);
+            const absChange = Math.abs(change);
 
-            if (Math.abs(change) < 0.5) {
+            if (absChange < 0.1) {
                 return '<span style="color: #7f8c8d;">— No change</span>';
             }
 
@@ -3947,10 +4678,33 @@
             const isGood = inverted ? !isUp : isUp;
             const color = isGood ? '#27ae60' : '#e74c3c';
             const arrow = isUp ? '▲' : '▼';
-            const word = isUp ? 'increase' : 'decrease';
 
-            // User Request: Color the arrows only, keep text neutral (dark gray)
-            return `<span style="color: ${color}; font-weight: bold;">${arrow}</span> <span style="color: #4b5563; font-weight: 600;">${absChange}%</span>`;
+            const displayPct = formatPercentValue(change);
+
+            const trendClass = isUp ? 'trend-up' : 'trend-down';
+            let html = `<span style="color: ${color}; font-weight: bold;" class="${trendClass}">${arrow}</span> `;
+
+            if (absChange >= 100) {
+                const tooltipText = absChange > 999
+                    ? "This represents massive growth from a zero or near-zero baseline."
+                    : `A ${displayPct} change means the value has more than doubled compared to the previous period.`;
+
+                html += `
+                    <span class="tooltip-trigger" style="cursor: help;">
+                        <span style="color: #4b5563; font-weight: 600; border-bottom: 1px dotted #94a3b8;">${displayPct}</span>
+                        <span class="tooltip">${tooltipText}</span>
+                    </span>
+                `;
+            } else {
+                html += `<span style="color: #4b5563; font-weight: 600;">${displayPct}</span>`;
+            }
+
+            return html;
+        }
+
+        // Alias for compatibility/clarity in report generation
+        function formatPercentChange(current, previous, inverted = false) {
+            return formatChange(current, previous, inverted);
         }
 
         // Load and compare data for both periods
@@ -4112,16 +4866,16 @@
                             The Big Story: ${winner.name} Explosion 🚀
                           </h2>
                           <p class="mt-2 text-sm text-slate-500">
-                             ${winner.name} delivered <span class="font-semibold text-slate-900">${formatNumber(winner.current)}</span> this month, a massive ${winner.val.toFixed(0)}% jump vs previous period.
+                             ${winner.name} delivered <span class="font-semibold text-slate-900">${formatNumber(winner.current)}</span> this month, a massive ${formatPercentValue(winner.val, 0)} jump vs previous (baseline) period (baseline).
                           </p>
                         </div>
 
                         <div class="flex flex-col items-start gap-2 sm:items-end">
                              <span class="pill-trend ${winner.val > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-700 border-rose-100'}" style="white-space: nowrap;">
                                 ${winner.val > 0 ? '<i class="fas fa-arrow-trend-up"></i>' : '<i class="fas fa-arrow-trend-down"></i>'}
-                                ${Math.abs(winner.val).toFixed(1)}%
+                                ${formatPercentValue(winner.val)}
                              </span>
-                             <p class="text-xs text-slate-500">vs previous month</p>
+                             <p class="text-xs text-slate-500">vs previous (baseline) month (baseline)</p>
                         </div>
                     </div>
                 </div>
@@ -4138,7 +4892,7 @@
             return `
                 <span class="pill-trend ${tone}" style="white-space: nowrap;">
                     <i class="fas ${icon}"></i>
-                    ${Math.abs(change).toFixed(1)}%
+                    ${formatPercentValue(change)}
                 </span>
              `;
         }
