@@ -2861,20 +2861,33 @@
                 }
             }
 
-            // Email Campaigns (Static/JSON data)
+            // Email Campaigns (Static/JSON data - manually updated from Benchmark Email)
             if (sections.includes('Email Campaigns')) {
                 try {
                     const response = await fetch('/data/email_campaigns.json?_t=' + new Date().getTime());
-                    const data = await response.json();
+                    const raw = await response.json();
+                    const data = Array.isArray(raw) ? raw : (raw.campaigns || []);
+                    const lastUpdated = !Array.isArray(raw) && raw.lastUpdated ? raw.lastUpdated : null;
+                    const emailNote = !Array.isArray(raw) && raw.note ? raw.note : 'Email campaign stats are manually added from Benchmark Email (not from the same automated pipeline as other sections).';
 
                     if (data && data.length >= 2) {
                         const camp1 = data[0];
                         const camp2 = data[1];
+                        const updatedNote = lastUpdated ? ` Stats last updated: ${new Date(lastUpdated).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}.` : '';
 
+                        const emailMetricTooltips = {
+                            'Opens': 'Higher is better. More people opened the email.',
+                            'Clicks': 'Higher is better. More people clicked links in the email.',
+                            'Bounces': 'Lower is better. Fewer delivery failures.',
+                            'Unopened': 'Lower is better. More of your list engaged.',
+                            'Unsubscribes': 'Lower is better. Fewer people left your list.'
+                        };
                         sectionsData['Email Campaigns'] = `
                             <div class="section">
                                 <h2>Email Campaign Comparison</h2>
-                                <p style="color: #64748b; margin-bottom: 1.5rem;">Comparing: <strong>${camp1.emailname}</strong> vs <strong>${camp2.emailname}</strong></p>
+                                <p style="color: #64748b; margin-bottom: 0.5rem;">Comparing: <strong>${camp1.emailname}</strong> vs <strong>${camp2.emailname}</strong></p>
+                                <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.5rem;"><strong>Trend guide:</strong> For <strong>Opens</strong> and <strong>Clicks</strong>, ▲ up is good. For <strong>Bounces</strong>, <strong>Unopened</strong>, and <strong>Unsubscribes</strong>, ▼ down is good.</p>
+                                <p style="font-size: 0.85rem; color: #94a3b8; font-style: italic; margin-bottom: 1rem;">${emailNote}${updatedNote}</p>
                                 <div id="emailCampaignChart"></div>
                                 
                                 <table style="margin-top: 2rem;">
@@ -2888,34 +2901,34 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>Opens</td>
+                                            <td>${createTooltip('Opens', emailMetricTooltips['Opens'])}</td>
                                             <td>${formatNumber(camp1.opens)}</td>
                                             <td>${formatNumber(camp2.opens)}</td>
                                             <td>${formatPercentChange(camp1.opens, camp2.opens)}</td>
                                         </tr>
                                         <tr>
-                                            <td>Clicks</td>
+                                            <td>${createTooltip('Clicks', emailMetricTooltips['Clicks'])}</td>
                                             <td>${formatNumber(camp1.clicks)}</td>
                                             <td>${formatNumber(camp2.clicks)}</td>
                                             <td>${formatPercentChange(camp1.clicks, camp2.clicks)}</td>
                                         </tr>
                                         <tr>
-                                            <td>Bounces</td>
+                                            <td>${createTooltip('Bounces', emailMetricTooltips['Bounces'])}</td>
                                             <td>${formatNumber(camp1.bounces)}</td>
                                             <td>${formatNumber(camp2.bounces)}</td>
-                                            <td>${formatPercentChange(camp1.bounces, camp2.bounces)}</td>
+                                            <td>${formatPercentChange(camp1.bounces, camp2.bounces, true)}</td>
                                         </tr>
                                         <tr>
-                                            <td>Unopened</td>
+                                            <td>${createTooltip('Unopened', emailMetricTooltips['Unopened'])}</td>
                                             <td>${formatNumber(camp1.unopens)}</td>
                                             <td>${formatNumber(camp2.unopens)}</td>
-                                            <td>${formatPercentChange(camp1.unopens, camp2.unopens)}</td>
+                                            <td>${formatPercentChange(camp1.unopens, camp2.unopens, true)}</td>
                                         </tr>
                                         <tr>
-                                            <td>Unsubscribes</td>
+                                            <td>${createTooltip('Unsubscribes', emailMetricTooltips['Unsubscribes'])}</td>
                                             <td>${formatNumber(camp1.unsubscribes)}</td>
                                             <td>${formatNumber(camp2.unsubscribes)}</td>
-                                            <td>${formatPercentChange(camp1.unsubscribes, camp2.unsubscribes)}</td>
+                                            <td>${formatPercentChange(camp1.unsubscribes, camp2.unsubscribes, true)}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -3335,13 +3348,16 @@
                 const events = responses[7] && responses[7] !== null && responses[7].ok ? await responses[7].json() : { success: false, data: [] };
                 const gbpInsights = responses[8] && responses[8] !== null && responses[8].ok ? await responses[8].json() : { success: false, summary: {} };
 
-                // Fetch email campaigns (static/JSON data)
-                let emailCampaigns = { success: false, data: [] };
+                // Fetch email campaigns (static/JSON data - manually updated from Benchmark Email)
+                let emailCampaigns = { success: false, data: [], lastUpdated: null, note: null };
                 if (sections.includes('Email Campaigns')) {
                     try {
                         const emailResp = await fetch('/data/email_campaigns.json?_t=' + timestamp);
-                        const emailData = await emailResp.json();
-                        emailCampaigns = { success: true, data: emailData };
+                        const emailRaw = await emailResp.json();
+                        const emailList = Array.isArray(emailRaw) ? emailRaw : (emailRaw.campaigns || []);
+                        const lastUpdated = !Array.isArray(emailRaw) && emailRaw.lastUpdated ? emailRaw.lastUpdated : null;
+                        const emailNote = !Array.isArray(emailRaw) && emailRaw.note ? emailRaw.note : 'Email campaign stats are manually added from Benchmark Email (not from the same automated pipeline as other sections).';
+                        emailCampaigns = { success: true, data: emailList, lastUpdated, note: emailNote };
                     } catch (e) {
                         console.error('Error fetching email campaigns:', e);
                     }
@@ -3906,10 +3922,21 @@
                 if (sections.includes('Email Campaigns') && emailCampaigns.success && emailCampaigns.data && emailCampaigns.data.length >= 2) {
                     const camp1 = emailCampaigns.data[0];
                     const camp2 = emailCampaigns.data[1];
+                    const emailNoteReport = emailCampaigns.note || 'Email campaign stats are manually added from Benchmark Email (not from the same automated pipeline as other sections).';
+                    const updatedNoteReport = emailCampaigns.lastUpdated ? ` Stats last updated: ${new Date(emailCampaigns.lastUpdated).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })}.` : '';
+                    const emailMetricTooltipsReport = {
+                        'Opens': 'Higher is better. More people opened the email.',
+                        'Clicks': 'Higher is better. More people clicked links in the email.',
+                        'Bounces': 'Lower is better. Fewer delivery failures.',
+                        'Unopened': 'Lower is better. More of your list engaged.',
+                        'Unsubscribes': 'Lower is better. Fewer people left your list.'
+                    };
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
                             <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Email Campaigns Comparison</h2>
-                            <p style="color: #64748b; margin-bottom: 1rem;">Comparing: <strong>${camp1.emailname}</strong> vs <strong>${camp2.emailname}</strong></p>
+                            <p style="color: #64748b; margin-bottom: 0.5rem;">Comparing: <strong>${camp1.emailname}</strong> vs <strong>${camp2.emailname}</strong></p>
+                            <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.5rem;"><strong>Trend guide:</strong> For <strong>Opens</strong> and <strong>Clicks</strong>, ▲ up is good. For <strong>Bounces</strong>, <strong>Unopened</strong>, and <strong>Unsubscribes</strong>, ▼ down is good.</p>
+                            <p style="font-size: 0.85rem; color: #94a3b8; font-style: italic; margin-bottom: 1rem;">${emailNoteReport}${updatedNoteReport}</p>
                             <div id="reportEmailCampaignChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box;"></div>
                             <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <thead>
@@ -3922,34 +3949,34 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">Opens</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${createTooltip('Opens', emailMetricTooltipsReport['Opens'])}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp1.opens)}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp2.opens)}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.opens, camp2.opens)}</td>
                                     </tr>
                                     <tr>
-                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">Clicks</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${createTooltip('Clicks', emailMetricTooltipsReport['Clicks'])}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp1.clicks)}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp2.clicks)}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.clicks, camp2.clicks)}</td>
                                     </tr>
                                     <tr>
-                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">Bounces</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${createTooltip('Bounces', emailMetricTooltipsReport['Bounces'])}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp1.bounces)}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp2.bounces)}</td>
-                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.bounces, camp2.bounces)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.bounces, camp2.bounces, true)}</td>
                                     </tr>
                                     <tr>
-                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">Unopened</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${createTooltip('Unopened', emailMetricTooltipsReport['Unopened'])}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp1.unopens)}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp2.unopens)}</td>
-                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.unopens, camp2.unopens)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.unopens, camp2.unopens, true)}</td>
                                     </tr>
                                     <tr>
-                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">Unsubscribes</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${createTooltip('Unsubscribes', emailMetricTooltipsReport['Unsubscribes'])}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp1.unsubscribes)}</td>
                                         <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(camp2.unsubscribes)}</td>
-                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.unsubscribes, camp2.unsubscribes)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(camp1.unsubscribes, camp2.unsubscribes, true)}</td>
                                     </tr>
                                 </tbody>
                             </table>

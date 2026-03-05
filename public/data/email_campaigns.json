@@ -1,20 +1,24 @@
-[
-    {
-        "emailname": "On a Roll March 2026",
-        "opens": 341,
-        "clicks": 168,
-        "bounces": 9,
-        "unopens": 647,
-        "unsubscribes": 1,
-        "abuse": 0
-    },
-    {
-        "emailname": "On a Roll February 2026",
-        "opens": 319,
-        "clicks": 76,
-        "bounces": 2,
-        "unopens": 651,
-        "unsubscribes": 2,
-        "abuse": 0
-    }
-]
+{
+    "lastUpdated": "2026-03-03",
+    "note": "Email campaign stats are manually added from Benchmark Email (not from the same automated pipeline as other sections). Note: the campaign labelled 'January' in the source report was sent in February (2 Feb 2026).",
+    "campaigns": [
+        {
+            "emailname": "On a Roll March 2026",
+            "opens": 341,
+            "clicks": 168,
+            "bounces": 9,
+            "unopens": 647,
+            "unsubscribes": 1,
+            "abuse": 0
+        },
+        {
+            "emailname": "On a Roll February 2026",
+            "opens": 319,
+            "clicks": 76,
+            "bounces": 2,
+            "unopens": 651,
+            "unsubscribes": 2,
+            "abuse": 0
+        }
+    ]
+}

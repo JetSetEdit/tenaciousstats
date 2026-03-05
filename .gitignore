@@ -27,3 +27,4 @@ node_modules/
 # vercel-deployment-download/
 
 .vercel
+.env*.local
