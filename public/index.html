@@ -796,14 +796,14 @@
                 border: none !important;
                 background: white !important;
                 box-sizing: border-box !important;
-                overflow: hidden !important;
+                overflow: visible !important;
             }
 
             #reportContainer {
                 width: 100% !important;
                 max-width: 100% !important;
                 box-sizing: border-box !important;
-                overflow: hidden !important;
+                overflow: visible !important;
             }
 
             /* Ensure all report content fits within margins */
@@ -814,7 +814,7 @@
 
             /* Report sections - prevent breaking and start each on new page */
             .report-section {
-                page-break-inside: avoid !important;
+                page-break-inside: auto !important;
                 page-break-before: always !important;
                 margin-bottom: 1.2cm !important;
                 padding: 0 !important;
@@ -1102,9 +1102,9 @@
                 page-break-before: auto !important;
             }
 
-            /* Avoid breaking tables across pages when possible */
+            /* Allow breaking tables across pages when necessary */
             table.report-table {
-                page-break-inside: avoid !important;
+                page-break-inside: auto !important;
             }
 
             /* If table is too large, allow breaking but keep header */

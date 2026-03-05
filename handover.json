@@ -1,11 +1,13 @@
 {
   "project": "Tenacious Stats",
-  "description": "GA4 analytics dashboard + optional Google Business Profile. Single-page HTML + FastAPI backend; runs locally or on Vercel/Docker.",
+  "description": "GA4 analytics dashboard + optional Google Business Profile + email campaign comparison. Single-page HTML + FastAPI backend; runs locally or on Vercel/Docker.",
   "last_updated": "2026-02-10",
   "handover_doc_md": "HANDOVER.md",
   "production_url": "https://tenacious-stats-dashboard.vercel.app/",
   "working": {
     "ga4_analytics": true,
+    "month_over_month_comparison": true,
+    "comparison_note": "All GA4 endpoints accept optional compare_start_date, compare_end_date; responses include *_compare metric fields",
     "sections": {
       "overview": true,
       "traffic_sources": true,
@@ -13,14 +15,21 @@
       "user_retention": true,
       "geographics": true,
       "tech_devices": true,
-      "events": true
+      "events": true,
+      "business_profile": "conditional",
+      "email_campaigns": true
     },
+    "email_campaigns_source": "public/data/email_campaigns.json (static JSON; served at /data/email_campaigns.json)",
     "period_comparison_tab": true,
     "monthly_report_pdf": true,
+    "report_print_css": "overflow: visible; page-break-inside: auto for tables/sections",
     "local_dev": true,
+    "local_dev_reload": true,
+    "local_serves": ["/", "/version.txt", "/keyterms.json", "/data/email_campaigns.json"],
     "vercel_production": true,
     "health_check": true,
-    "check_scripts": ["check_google_auth.py", "check_all_sections.py"]
+    "check_scripts": ["check_google_auth.py", "check_all_sections.py"],
+    "debug_scripts": ["debug_api_data.py", "debug_ga4_dims.py", "debug_ga4_raw.py", "debug_ga4_rows.py", "test_api_compare.py"]
   },
   "not_working_or_conditional": [
     {
@@ -68,17 +77,20 @@
   "api_endpoints": [
     { "method": "GET", "path": "/api", "query": [], "purpose": "API info" },
     { "method": "GET", "path": "/api/health", "query": [], "purpose": "Health; GA4/GBP availability" },
-    { "method": "GET", "path": "/api/analytics/overview", "query": ["start_date", "end_date"], "purpose": "Executive metrics" },
-    { "method": "GET", "path": "/api/analytics/sources", "query": ["start_date", "end_date", "limit"], "purpose": "Traffic sources" },
-    { "method": "GET", "path": "/api/analytics/pages", "query": ["start_date", "end_date", "limit"], "purpose": "Top pages" },
-    { "method": "GET", "path": "/api/analytics/retention", "query": ["start_date", "end_date"], "purpose": "New vs returning" },
-    { "method": "GET", "path": "/api/analytics/cities", "query": ["start_date", "end_date", "limit"], "purpose": "Top cities" },
-    { "method": "GET", "path": "/api/analytics/countries", "query": ["start_date", "end_date"], "purpose": "Sessions by country" },
-    { "method": "GET", "path": "/api/analytics/devices", "query": ["start_date", "end_date"], "purpose": "Device categories" },
-    { "method": "GET", "path": "/api/analytics/events", "query": ["start_date", "end_date", "limit"], "purpose": "Top events" },
+    { "method": "GET", "path": "/api/analytics/overview", "query": ["start_date", "end_date", "compare_start_date", "compare_end_date"], "purpose": "Executive metrics" },
+    { "method": "GET", "path": "/api/analytics/sources", "query": ["start_date", "end_date", "limit", "compare_start_date", "compare_end_date"], "purpose": "Traffic sources" },
+    { "method": "GET", "path": "/api/analytics/pages", "query": ["start_date", "end_date", "limit", "compare_start_date", "compare_end_date"], "purpose": "Top pages" },
+    { "method": "GET", "path": "/api/analytics/retention", "query": ["start_date", "end_date", "compare_start_date", "compare_end_date"], "purpose": "New vs returning" },
+    { "method": "GET", "path": "/api/analytics/cities", "query": ["start_date", "end_date", "limit", "compare_start_date", "compare_end_date"], "purpose": "Top cities" },
+    { "method": "GET", "path": "/api/analytics/countries", "query": ["start_date", "end_date", "compare_start_date", "compare_end_date"], "purpose": "Sessions by country" },
+    { "method": "GET", "path": "/api/analytics/devices", "query": ["start_date", "end_date", "compare_start_date", "compare_end_date"], "purpose": "Device categories" },
+    { "method": "GET", "path": "/api/analytics/events", "query": ["start_date", "end_date", "limit", "compare_start_date", "compare_end_date"], "purpose": "Top events" },
     { "method": "GET", "path": "/api/gbp/ratings", "query": [], "purpose": "GBP ratings summary" },
     { "method": "GET", "path": "/api/gbp/reviews", "query": [], "purpose": "GBP reviews" },
     { "method": "GET", "path": "/api/gbp/insights", "query": ["start_date", "end_date"], "purpose": "GBP insights" }
+  ],
+  "static_data": [
+    { "path": "/data/email_campaigns.json", "file": "public/data/email_campaigns.json", "purpose": "Email campaign comparison (opens, clicks, bounces, etc.)" }
   ],
   "commands": {
     "run_local": "python run_vercel_local.py",
@@ -88,18 +100,21 @@
   },
   "key_files": {
     "dashboard": "public/index.html",
+    "email_campaigns_json": "public/data/email_campaigns.json",
     "api_app": "api/index.py",
     "gbp_module": "api/gbp.py",
     "ga4_utils": "utils/ga4_utils.py",
     "local_server": "run_vercel_local.py",
     "gbp_oauth_script": "gbp_oauth_login.py",
-    "fix_gbp_doc": "FIX_BUSINESS_PROFILE.md"
+    "fix_gbp_doc": "FIX_BUSINESS_PROFILE.md",
+    "debug_scripts": ["debug_api_data.py", "debug_ga4_dims.py", "debug_ga4_raw.py", "debug_ga4_rows.py", "test_api_compare.py"]
   },
   "handover_checklist": [
     "GA4: credentials.json in project root (or B64 on Vercel)",
     "GBP: Run gbp_oauth_login.py with business owner account; restart server",
     "Confirm at business.google.com which account owns the profile",
     "Restart server after API route changes",
-    "Plotly script present in index.html for report charts"
+    "Plotly script present in index.html for report charts",
+    "Email Campaigns: public/data/email_campaigns.json exists; local server serves /data/email_campaigns.json"
   ]
 }

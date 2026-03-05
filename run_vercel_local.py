@@ -37,8 +37,14 @@ if os.path.exists(public_path):
     def serve_keyterms():
         return FileResponse(os.path.join(public_path, "keyterms.json"))
 
+    _data_dir = os.path.join(public_path, "data")
+    if os.path.exists(_data_dir):
+        @app.get("/data/email_campaigns.json", response_class=FileResponse)
+        def serve_email_campaigns():
+            return FileResponse(os.path.join(_data_dir, "email_campaigns.json"))
+
     # Do NOT mount StaticFiles at "/" — it would shadow /api/* and cause 404s for analytics.
-    print(f"Serving static files from {public_path} (/, /version.txt, /keyterms.json)")
+    print(f"Serving static files from {public_path} (/, /version.txt, /keyterms.json, /data/email_campaigns.json)")
 else:
     print(f"Warning: 'public' directory not found at {public_path}")
 
@@ -53,4 +59,4 @@ if __name__ == "__main__":
     if not os.environ.get("DOCKER"):
         print("Serves the full dashboard (styled UI, glossary, API). Opening browser...")
         threading.Thread(target=_open_browser, daemon=True).start()
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("run_vercel_local:app", host="0.0.0.0", port=8000, reload=True)
