@@ -49,7 +49,7 @@ If the live dashboard at tenacious-stats-dashboard.vercel.app loses Business Pro
 
 1. Run `python gbp_oauth_login.py` locally and sign in with the business owner account (as above).
 2. Encode the new token and set it in Vercel:
-   - Create the base64 token (e.g. run a small script that reads `token.pickle`, base64-encodes it, and prints the string).
+   - From the project root: **`python gbp_token_b64_for_vercel.py`** — copy the single line of output (or use any base64 encoder on `token.pickle`).
    - In Vercel: Project → Settings → Environment Variables → set **`GOOGLE_OAUTH_TOKEN_B64`** to that value.
 3. Redeploy (or wait for the next deploy).
 
