@@ -16,7 +16,12 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import GA4 utilities
 try:
-    from utils.ga4_utils import get_client, fetch_analytics_data
+    from utils.ga4_utils import (
+        get_client,
+        fetch_analytics_data,
+        fetch_blog_screen_page_views_total,
+        fetch_path_screen_page_views_total,
+    )
     GA4_AVAILABLE = True
 except ImportError:
     GA4_AVAILABLE = False
@@ -34,6 +39,13 @@ try:
 except ImportError as e:
     GBP_AVAILABLE = False
     print(f"Warning: GBP module not available: {e}")
+
+try:
+    from utils.on_a_roll_rss import fetch_on_a_roll_meta_by_month, DEFAULT_ON_A_ROLL_FEED
+    OAR_RSS_AVAILABLE = True
+except ImportError:
+    OAR_RSS_AVAILABLE = False
+    DEFAULT_ON_A_ROLL_FEED = "https://www.tenacioustapes.com.au/category/on-a-roll/feed/"
 
 # FastAPI app
 app = FastAPI(title="Tenacious Stats API", version="1.0.0")
@@ -78,6 +90,38 @@ def health_check():
         "gbp_available": GBP_AVAILABLE
     }
 
+
+@app.get("/api/on-a-roll-slugs")
+def on_a_roll_slugs(feed_url: Optional[str] = None):
+    """
+    Server-side fetch of WordPress category RSS (avoids browser CORS).
+    Returns featuredPathContains (slug per month) and featuredTitles (RSS <title>, same as page H1 on typical WordPress).
+    """
+    if not OAR_RSS_AVAILABLE:
+        return {
+            "success": False,
+            "data": {"featuredPathContains": {}, "featuredTitles": {}, "feedUrl": ""},
+            "error": "on_a_roll_rss module not available",
+        }
+    url = (feed_url or "").strip() or DEFAULT_ON_A_ROLL_FEED
+    try:
+        by_slug, by_title = fetch_on_a_roll_meta_by_month(url)
+        return {
+            "success": True,
+            "data": {
+                "featuredPathContains": by_slug,
+                "featuredTitles": by_title,
+                "feedUrl": url,
+            },
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "data": {"featuredPathContains": {}, "featuredTitles": {}, "feedUrl": url},
+            "error": str(e),
+        }
+
+
 # GA4 Analytics Endpoints
 if GA4_AVAILABLE:
     @app.get("/api/analytics/overview")
@@ -110,6 +154,60 @@ if GA4_AVAILABLE:
             metrics = ['screenPageViews', 'activeUsers']
             data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
             return {"success": True, "data": data}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/api/analytics/blog-path-views")
+    def get_blog_path_views(
+        start_date: str,
+        end_date: str,
+        path_contains: str = "blog",
+    ):
+        """
+        Total screenPageViews for URLs whose pagePath contains path_contains (case-insensitive).
+        Uses GA4 dimension filter — not limited to top-N landing pages.
+        """
+        try:
+            total = fetch_blog_screen_page_views_total(
+                start_date, end_date, path_contains=path_contains
+            )
+            return {
+                "success": True,
+                "data": {
+                    "screenPageViews": total,
+                    "pathContains": path_contains,
+                },
+            }
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    @app.get("/api/analytics/path-views-total")
+    def get_path_views_total(
+        start_date: str,
+        end_date: str,
+        path: str,
+        match: str = "contains",
+    ):
+        """
+        Total screenPageViews for pagePath.
+        match=contains: substring (case-insensitive), e.g. oar-f701
+        match=exact: exact pagePath in GA4, e.g. /on-a-roll/
+        """
+        try:
+            m = (match or "contains").strip().lower()
+            if m not in ("contains", "exact"):
+                m = "contains"
+            total = fetch_path_screen_page_views_total(
+                start_date, end_date, path, match_type=m
+            )
+            return {
+                "success": True,
+                "data": {
+                    "screenPageViews": total,
+                    "path": path,
+                    "match": m,
+                },
+            }
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
@@ -182,6 +280,14 @@ else:
     @app.get("/api/analytics/pages")
     def get_pages_unavailable(start_date: str, end_date: str, limit: int = 15):
         return {**_GA4_UNAVAILABLE, "data": []}
+
+    @app.get("/api/analytics/blog-path-views")
+    def get_blog_path_views_unavailable(start_date: str, end_date: str, path_contains: str = "blog"):
+        return {**_GA4_UNAVAILABLE, "data": {"screenPageViews": 0, "pathContains": path_contains}}
+
+    @app.get("/api/analytics/path-views-total")
+    def get_path_views_total_unavailable(start_date: str, end_date: str, path: str, match: str = "contains"):
+        return {**_GA4_UNAVAILABLE, "data": {"screenPageViews": 0, "path": path, "match": match}}
 
     @app.get("/api/analytics/cities")
     def get_cities_unavailable(start_date: str, end_date: str, limit: int = 10):

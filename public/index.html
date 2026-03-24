@@ -528,6 +528,676 @@
             display: block;
         }
 
+        /* Jan–Apr tab — same visual language as Dashboard .section + report tables.
+           For more months: set SIMPLE_STATS_MONTH_INDICES in script (length N), then
+           document.documentElement or #simple-section style --simple-month-count: N;
+           add matching <col>/<th> columns in HTML (or generate the table in JS). */
+        #simple-section {
+            font-family: 'Roboto', sans-serif;
+            --simple-month-count: 4;
+            --simple-label-col: 22%;
+            /* One “month block” in the main grid = (100% − label) / N */
+            --simple-month-block-pct: calc((100% - var(--simple-label-col)) / var(--simple-month-count));
+            --simple-month-col: var(--simple-month-block-pct);
+            /* Q1 subtable: each month = two cols; split block ~65/35 */
+            --simple-month-ch: calc(var(--simple-month-block-pct) * 0.65);
+            --simple-month-num: calc(var(--simple-month-block-pct) * 0.35);
+        }
+
+        #simple-section .simple-stats-wrap {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 0 2rem;
+        }
+
+        #simple-section .simple-stats-wrap.simple-stats-panel {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Screen-only title; print uses .simple-stats-print-header (monthly report style) */
+        #simple-section .simple-stats-print-header {
+            display: none;
+        }
+
+        #simple-section .simple-stats-wrap h2.simple-stats-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 1.25rem;
+            color: #2c3e50;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #ff5800;
+        }
+
+        /* Inner table area — no second box (panel already is the card) */
+        #simple-section .simple-stats-card {
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+        }
+
+        /* Wide year grids (up to 12 months): grow table, scroll horizontally on small viewports */
+        #simple-section .simple-stats-table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            max-width: 100%;
+        }
+
+        #simple-section table.simple-stats-table {
+            width: 100%;
+            min-width: calc(13rem + var(--simple-month-count) * 5.25rem);
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            table-layout: fixed;
+        }
+
+        #simple-section table.simple-stats-table col.simple-col-label {
+            width: var(--simple-label-col);
+        }
+
+        #simple-section table.simple-stats-table col.simple-col-month {
+            width: var(--simple-month-col);
+        }
+
+        #simple-section table.simple-stats-table th,
+        #simple-section table.simple-stats-table td {
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0.75rem 0.65rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        /* Accordion groups: outer “card” grid (does not affect thead) */
+        #simple-section table.simple-stats-table tbody.simple-stats-acc-group > tr > td {
+            border-left: 1px solid #aeb9c7;
+            border-right: 1px solid #aeb9c7;
+        }
+
+        #simple-section table.simple-stats-table tbody.simple-stats-acc-group > tr > td:first-child {
+            border-left: 1px solid #8a96a8;
+        }
+
+        #simple-section table.simple-stats-table tbody.simple-stats-acc-group > tr > td:last-child {
+            border-right: 1px solid #8a96a8;
+        }
+
+        /* Vertical column dividers inside each accordion block */
+        #simple-section table.simple-stats-table tbody.simple-stats-acc-group > tr:not(.simple-stats-section-header) > td:not(:last-child) {
+            border-right: 1px solid #d5dde8;
+        }
+
+        #simple-section table.simple-stats-table tbody.simple-stats-acc-group > tr:not(.simple-stats-section-header) > td:last-child {
+            border-right: 1px solid #8a96a8;
+        }
+
+        #simple-section table.simple-stats-table thead th {
+            background: #f8f9fa;
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 0.875rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        #simple-section .simple-stats-row-label {
+            font-weight: 600;
+            color: #2c3e50;
+            white-space: nowrap;
+            background: #fafafa;
+        }
+
+        #simple-section .simple-stats-row-label small {
+            font-weight: 400;
+            font-size: 0.75rem;
+            color: #7f8c8d;
+            display: block;
+            margin-top: 0.15rem;
+        }
+
+        /* Accordion section headers — td is top of grid card; button sits inside */
+        #simple-section .simple-stats-section-header td {
+            padding: 0;
+            background: #eef1f6;
+            border: 1px solid #8a96a8;
+            border-bottom: none;
+            vertical-align: middle;
+        }
+
+        #simple-section tbody.simple-stats-acc-group:not(:first-of-type) .simple-stats-section-header td {
+            border-top: 14px solid #e4e9f0;
+        }
+
+        #simple-section tbody.simple-stats-acc-group:first-of-type .simple-stats-section-header td {
+            border-top: 1px solid #8a96a8;
+        }
+
+        #simple-section .simple-stats-acc-trigger {
+            width: 100%;
+            box-sizing: border-box;
+            text-align: left;
+            font: inherit;
+            font-weight: 700;
+            font-size: 0.875rem;
+            letter-spacing: 0.02em;
+            color: #2c3e50;
+            background: #eef1f6;
+            border: none;
+            border-bottom: 2px solid #ff5800;
+            border-left: 4px solid #ff5800;
+            padding: 0.65rem 0.85rem 0.75rem 0.75rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-radius: 0;
+            transition: background 0.15s ease;
+        }
+
+        #simple-section .simple-stats-acc-trigger:hover {
+            background: #e6eaf2;
+        }
+
+        #simple-section .simple-stats-acc-trigger:focus {
+            outline: 2px solid #ff5800;
+            outline-offset: 2px;
+        }
+
+        #simple-section .simple-stats-acc-trigger::before {
+            content: '';
+            display: inline-block;
+            width: 0.4rem;
+            height: 0.4rem;
+            border-right: 2px solid #ff5800;
+            border-bottom: 2px solid #ff5800;
+            transform: rotate(45deg);
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+            margin-top: -0.15rem;
+        }
+
+        #simple-section tbody.simple-stats-acc-group.is-collapsed .simple-stats-acc-trigger::before {
+            transform: rotate(-45deg);
+            margin-top: 0;
+        }
+
+        #simple-section .simple-stats-table tbody.simple-stats-acc-group:first-of-type .simple-stats-acc-trigger {
+            padding-top: 0.5rem;
+        }
+
+        /* Close card when section is collapsed */
+        #simple-section tbody.simple-stats-acc-group.is-collapsed > tr.simple-stats-section-header > td {
+            border-bottom: 2px solid #8a96a8;
+        }
+
+        #simple-section tbody.simple-stats-acc-group.is-collapsed .simple-stats-acc-trigger {
+            border-bottom-color: transparent;
+        }
+
+        /* Panel body — grid rows inside the card */
+        #simple-section tbody.simple-stats-acc-group > tr:not(.simple-stats-section-header) > td {
+            background: #f7f9fc;
+            border-bottom: 1px solid #d5dde8;
+        }
+
+        #simple-section tbody.simple-stats-acc-group > tr:last-child:not(.simple-stats-section-header) > td {
+            border-bottom: 2px solid #8a96a8;
+        }
+
+        #simple-section tbody.simple-stats-acc-group:not(:last-child) > tr:last-child:not(.simple-stats-section-header) > td {
+            padding-bottom: 1rem;
+        }
+
+        #simple-section tbody.simple-stats-acc-group.is-collapsed > tr:not(.simple-stats-section-header) {
+            display: none;
+        }
+
+        /* Large embed blocks (top pages, channels, capitals) — inset grid inside the card */
+        #simple-section .simple-stats-table tbody tr.simple-stats-embed > td {
+            padding: 1.25rem 1.1rem 1.5rem;
+            background: #f0f3f8;
+            border-bottom: 1px solid #d5dde8;
+        }
+
+        /* Divider before row after an embed (e.g. On a Roll) */
+        #simple-section .simple-stats-table tbody tr.simple-stats-embed + tr:not(.simple-stats-section-header) > td {
+            padding-top: 1.05rem;
+            border-top: 2px solid #c5cdd8;
+        }
+
+        #simple-section .simple-stats-table tbody tr.simple-stats-embed + tr:not(.simple-stats-section-header) > td:first-child {
+            box-shadow: inset 4px 0 0 #ff5800;
+        }
+
+        #simple-section .simple-stats-muted {
+            color: #7f8c8d;
+            font-size: 0.8125rem;
+        }
+
+        /* Core metric cells — match dashboard .metric-value orange */
+        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-sessions"],
+        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-users"],
+        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-engagement"],
+        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-buy-online"] {
+            text-align: left;
+            font-weight: 700;
+            font-size: 1.125rem;
+            color: #ff5800;
+            font-variant-numeric: tabular-nums;
+            background: #fff;
+        }
+
+        /* On a Roll — story stack */
+        #simple-section .simple-oar-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.35rem;
+            max-width: 22rem;
+            text-align: left;
+        }
+
+        #simple-section .simple-oar-month-tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: #ff5800;
+            text-transform: uppercase;
+            background: #fff5f0;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ffd4bf;
+        }
+
+        #simple-section .simple-oar-story-link {
+            font-weight: 600;
+            font-size: 0.8125rem;
+            line-height: 1.4;
+            color: #2c3e50;
+            text-decoration: none;
+            word-break: break-word;
+            border-bottom: 1px solid transparent;
+        }
+
+        #simple-section .simple-oar-story-link:hover {
+            color: #ff5800;
+            border-bottom-color: #ff5800;
+        }
+
+        #simple-section .simple-oar-views-line {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #ff5800;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-oar-feature"] {
+            text-align: left;
+            vertical-align: top;
+            background: #fff;
+        }
+
+        #simple-section .simple-stats-badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin: 0.15rem 0;
+            line-height: 1.35;
+        }
+
+        #simple-section .simple-stats-badge.b-blue {
+            background: #E6F1FB;
+            color: #0C447C;
+        }
+
+        #simple-section .simple-stats-badge.b-teal {
+            background: #E1F5EE;
+            color: #085041;
+        }
+
+        #simple-section .simple-stats-badge.b-amber {
+            background: #FAEEDA;
+            color: #633806;
+        }
+
+        #simple-section .simple-stats-badge.b-coral {
+            background: #FAECE7;
+            color: #712B13;
+        }
+
+        #simple-section .simple-stats-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem 1rem;
+            margin-bottom: 1.25rem;
+            padding: 1rem 1.25rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        #simple-section .simple-stats-toolbar label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        #simple-section .simple-stats-toolbar input[type="number"] {
+            width: 5.5rem;
+            padding: 0.45rem 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.875rem;
+        }
+
+        #simple-section .simple-stats-toolbar #simple-stats-load-btn {
+            background: #ff5800 !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.5rem 1.25rem !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            font-size: 0.875rem !important;
+            font-family: inherit !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+            transition: background 0.2s ease;
+        }
+
+        #simple-section .simple-stats-toolbar #simple-stats-load-btn:hover {
+            background: #d43d00 !important;
+        }
+
+        #simple-section .simple-stats-toolbar .simple-stats-print-btn {
+            background: #7f8c8d !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.5rem 1.1rem !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            font-size: 0.875rem !important;
+            font-family: inherit !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.4rem !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+            transition: background 0.2s ease;
+        }
+
+        #simple-section .simple-stats-toolbar .simple-stats-print-btn:hover {
+            background: #636e72 !important;
+        }
+
+        #simple-section .simple-stats-status {
+            font-size: 0.8125rem;
+            color: #7f8c8d;
+        }
+
+        #simple-section .simple-stats-table td[id$="-engagement"] .simple-stats-muted {
+            color: #7f8c8d;
+            font-weight: 400;
+            font-size: 0.75rem;
+        }
+
+        #simple-section .simple-stats-status.error {
+            color: #c0392b;
+        }
+
+        /* Nested Q1 grids: lead column lines up with main “label” column; month pairs = main Jan–Apr */
+        #simple-section table.simple-pages-subtable.simple-pages-q1 {
+            table-layout: fixed;
+        }
+
+        #simple-section table.simple-pages-q1 col.simple-q1-lead {
+            width: var(--simple-label-col);
+        }
+
+        #simple-section table.simple-pages-q1 col.simple-q1-ch {
+            width: var(--simple-month-ch);
+        }
+
+        #simple-section table.simple-pages-q1 col.simple-q1-num {
+            width: var(--simple-month-num);
+        }
+
+        #simple-section table.simple-geo-q1 {
+            table-layout: fixed;
+        }
+
+        #simple-section table.simple-geo-q1 col.simple-geo-label {
+            width: var(--simple-label-col);
+        }
+
+        #simple-section table.simple-geo-q1 col.simple-geo-month {
+            width: var(--simple-month-col);
+        }
+
+        #simple-section .simple-q1-lead-th,
+        #simple-section .simple-q1-lead-cell {
+            padding: 0 !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        #simple-section thead .simple-q1-lead-th {
+            background: #f8f9fa !important;
+            border-right: none !important;
+        }
+
+        #simple-section .simple-embed-intro {
+            padding-left: var(--simple-label-col);
+            box-sizing: border-box;
+        }
+
+        /* Content performance — page / views sub-table */
+        #simple-section table.simple-pages-subtable {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        #simple-section table.simple-pages-subtable th {
+            text-align: left;
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* Jan · Feb · Mar sub-tables — report-style frame */
+        #simple-section table.simple-pages-q1,
+        #simple-section table.simple-geo-q1 {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 0.35rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+
+        #simple-section table.simple-pages-q1 thead th,
+        #simple-section table.simple-geo-q1 thead th {
+            background: #f8f9fa;
+            color: #2c3e50;
+            font-weight: 700;
+            border-bottom: 2px solid #ff5800;
+            border-right: 1px solid #e0e0e0;
+            border-top: none;
+            border-left: none;
+        }
+
+        /* After each month’s metric col (lead + pairs: …, %, Views, …) — any month count */
+        #simple-section table.simple-pages-q1 thead th:nth-child(odd):not(:first-child):not(:last-child),
+        #simple-section table.simple-pages-q1 tbody td:nth-child(odd):not(:first-child):not(:last-child) {
+            border-right: 2px solid #e0e0e0;
+        }
+
+        #simple-section table.simple-geo-q1 thead th:first-child {
+            border-right: 2px solid #e0e0e0;
+        }
+
+        #simple-section table.simple-pages-q1 thead th:last-child,
+        #simple-section table.simple-geo-q1 thead th:last-child {
+            border-right: none;
+        }
+
+        #simple-section table.simple-pages-q1 tbody td,
+        #simple-section table.simple-geo-q1 tbody td {
+            border: none;
+            border-bottom: 1px solid #cbd5e1;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        #simple-section table.simple-pages-q1 tbody td:nth-child(1) {
+            background: transparent;
+        }
+
+        /* Four repeating band colours for month pairs (scales to 12+ months) */
+        #simple-section table.simple-pages-q1 tbody td:nth-child(8n+2),
+        #simple-section table.simple-pages-q1 tbody td:nth-child(8n+3) {
+            background: #fafbfc;
+        }
+
+        #simple-section table.simple-pages-q1 tbody td:nth-child(8n+4),
+        #simple-section table.simple-pages-q1 tbody td:nth-child(8n+5) {
+            background: #f5f7fa;
+        }
+
+        #simple-section table.simple-pages-q1 tbody td:nth-child(8n+6),
+        #simple-section table.simple-pages-q1 tbody td:nth-child(8n+7) {
+            background: #f1f5f9;
+        }
+
+        #simple-section table.simple-pages-q1 tbody td:nth-child(8n+8),
+        #simple-section table.simple-pages-q1 tbody td:nth-child(8n+9) {
+            background: #e8ecf4;
+        }
+
+        #simple-section table.simple-pages-q1 tbody tr:nth-child(even) td:nth-child(8n+2),
+        #simple-section table.simple-pages-q1 tbody tr:nth-child(even) td:nth-child(8n+3) {
+            background: #eef2f6;
+        }
+
+        #simple-section table.simple-pages-q1 tbody tr:nth-child(even) td:nth-child(8n+4),
+        #simple-section table.simple-pages-q1 tbody tr:nth-child(even) td:nth-child(8n+5) {
+            background: #e8ecf2;
+        }
+
+        #simple-section table.simple-pages-q1 tbody tr:nth-child(even) td:nth-child(8n+6),
+        #simple-section table.simple-pages-q1 tbody tr:nth-child(even) td:nth-child(8n+7) {
+            background: #e2e8f0;
+        }
+
+        #simple-section table.simple-pages-q1 tbody tr:nth-child(even) td:nth-child(8n+8),
+        #simple-section table.simple-pages-q1 tbody tr:nth-child(even) td:nth-child(8n+9) {
+            background: #d8dee8;
+        }
+
+        #simple-section table.simple-geo-q1 tbody td:first-child {
+            border-right: 2px solid #cbd5e1;
+            background: #fafbfc;
+        }
+
+        #simple-section table.simple-geo-q1 tbody td:nth-child(4n+2) {
+            background: #fafbfc;
+        }
+
+        #simple-section table.simple-geo-q1 tbody td:nth-child(4n+3) {
+            background: #f5f7fa;
+        }
+
+        #simple-section table.simple-geo-q1 tbody td:nth-child(4n+4) {
+            background: #f1f5f9;
+        }
+
+        #simple-section table.simple-geo-q1 tbody td:nth-child(4n+5) {
+            background: #e8ecf4;
+        }
+
+        #simple-section table.simple-pages-q1 tbody td:last-child,
+        #simple-section table.simple-geo-q1 tbody td:last-child {
+            border-right: none;
+        }
+
+        #simple-section table.simple-geo-q1 tbody tr:nth-child(even) td:first-child {
+            background: #f1f5f9;
+        }
+
+        #simple-section table.simple-geo-q1 tbody tr:nth-child(even) td:nth-child(4n+2) {
+            background: #eef2f6;
+        }
+
+        #simple-section table.simple-geo-q1 tbody tr:nth-child(even) td:nth-child(4n+3) {
+            background: #e8ecf2;
+        }
+
+        #simple-section table.simple-geo-q1 tbody tr:nth-child(even) td:nth-child(4n+4) {
+            background: #e2e8f0;
+        }
+
+        #simple-section table.simple-geo-q1 tbody tr:nth-child(even) td:nth-child(4n+5) {
+            background: #d8dee8;
+        }
+
+        #simple-section table.simple-pages-q1 tbody tr:last-child td,
+        #simple-section table.simple-geo-q1 tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        #simple-section table.simple-pages-q1 td.simple-q1-page-cell {
+            vertical-align: top;
+        }
+
+        #simple-section table.simple-pages-q1 td.simple-q1-placeholder,
+        #simple-section table.simple-geo-q1 td.simple-q1-placeholder {
+            text-align: left;
+            padding: 0.85rem 1rem;
+            border-right: none !important;
+            background: #f8fafc !important;
+            border-bottom: 1px solid #cbd5e1;
+        }
+
+        #simple-section table.simple-pages-subtable td {
+            border: 1px solid #e0e0e0;
+            padding: 0.55rem 0.75rem;
+            vertical-align: top;
+        }
+
+        #simple-section table.simple-pages-subtable td.simple-page-amount {
+            text-align: left;
+            font-weight: 700;
+            color: #ff5800;
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        #simple-section .simple-page-title {
+            font-weight: 600;
+            color: #2c3e50;
+            line-height: 1.35;
+        }
+
+        #simple-section .simple-page-path {
+            font-size: 0.75rem;
+            color: #7f8c8d;
+            font-family: ui-monospace, monospace;
+            margin-top: 0.2rem;
+            word-break: break-all;
+        }
+
         /* A4 Report Container Styling */
         #reportContainer {
             width: 794px !important;
@@ -608,7 +1278,7 @@
 
         @media print {
 
-            /* Page setup - A4 portrait (210mm x 297mm) */
+            /* Page setup - A4 portrait (210mm x 297mm) — default for dashboard, glossary, monthly report */
             @page {
                 size: A4 portrait;
                 margin: 1cm 1cm 2.5cm 1cm;
@@ -616,6 +1286,17 @@
                 /* Note: Browser print headers/footers (URL, page numbers) 
                    cannot be removed via CSS. Disable them in your browser's 
                    print dialog: "More settings" > Uncheck "Headers and footers" */
+            }
+
+            /* Jan–Apr (Web stats): landscape — named page + page property (Chromium, Firefox, Safari 15.4+) */
+            @page janmar-landscape {
+                size: A4 landscape;
+                margin: 0.75cm 1cm 1.1cm 1cm;
+            }
+
+            /* Use landscape only when this tab is what’s being printed */
+            #simple-section.nav-content-section.active {
+                page: janmar-landscape;
             }
 
             /* Print footer that appears on every page */
@@ -693,12 +1374,16 @@
                 display: none !important;
             }
 
-            /* Show glossary section when printing */
-            #glossary-section {
+            /* Only the current nav tab prints (Jan–Apr, Dashboard, etc.) — do not show every section */
+            .nav-content-section:not(.active) {
+                display: none !important;
+            }
+
+            .nav-content-section.active {
                 display: block !important;
             }
 
-            /* Show print header when printing */
+            /* Show print header when printing (inside glossary when that tab is active) */
             .glossary-print-header {
                 display: block !important;
                 page-break-after: avoid;
@@ -760,11 +1445,6 @@
 
             #glossary-section table tr:last-child td {
                 border-bottom: none;
-            }
-
-            /* Ensure glossary content is visible */
-            .nav-content-section {
-                display: block !important;
             }
 
             /* Reset body for print */
@@ -1111,6 +1791,253 @@
             table.report-table thead tr {
                 page-break-after: avoid !important;
             }
+
+            /* Simple tab — print: page breaks like monthly .report-section; softer separation (not full grid) */
+            #simple-section .simple-stats-toolbar {
+                display: none !important;
+            }
+
+            #simple-section h2.simple-stats-title {
+                display: none !important;
+            }
+
+            #simple-section .simple-stats-print-header {
+                display: block !important;
+                text-align: left !important;
+                margin: 0 0 0.5cm 0 !important;
+                padding: 0 0 0.4cm 0 !important;
+                border-bottom: 2pt solid #ff5800 !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            #simple-section .simple-stats-print-logo {
+                height: 14mm !important;
+                max-height: 14mm !important;
+                width: auto !important;
+                max-width: 200px !important;
+                margin: 0 0 0.35cm 0 !important;
+                display: block !important;
+            }
+
+            #simple-section .simple-stats-print-title {
+                font-size: 18pt !important;
+                font-weight: bold !important;
+                color: black !important;
+                margin: 0 0 0.15cm 0 !important;
+                padding: 0 !important;
+                border: none !important;
+            }
+
+            #simple-section .simple-stats-print-meta,
+            #simple-section .simple-stats-print-generated {
+                font-size: 10pt !important;
+                color: #333 !important;
+                margin: 0.1cm 0 !important;
+                line-height: 1.4 !important;
+            }
+
+            #simple-section .simple-stats-print-generated {
+                font-size: 9pt !important;
+                color: #555 !important;
+                font-style: italic !important;
+            }
+
+            #simple-section .simple-stats-card {
+                box-shadow: none !important;
+                page-break-inside: auto !important;
+            }
+
+            #simple-section .simple-stats-wrap.simple-stats-panel {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                max-width: 100% !important;
+            }
+
+            #simple-section .simple-stats-table-scroll {
+                overflow: visible !important;
+                max-width: none !important;
+            }
+
+            /* One major section per printed page (after cover + “At a glance”) */
+            #simple-section tbody.simple-stats-acc-group {
+                page-break-inside: auto !important;
+            }
+
+            #simple-section tbody.simple-stats-acc-group:not(:first-of-type) {
+                page-break-before: always !important;
+                break-before: page !important;
+            }
+
+            /* New page already separates sections — no top rule on section headers when printing */
+            #simple-section tbody.simple-stats-acc-group:not(:first-of-type) tr.simple-stats-section-header td {
+                border-top: none !important;
+                padding-top: 0 !important;
+            }
+
+            /* Override global tr { page-break-inside: avoid } so long nested tables can split */
+            #simple-section table.simple-stats-table > tbody > tr {
+                page-break-inside: auto !important;
+            }
+
+            #simple-section table.simple-pages-q1 tbody tr,
+            #simple-section table.simple-geo-q1 tbody tr {
+                page-break-inside: auto !important;
+            }
+
+            /* Keep section title with the rows that follow */
+            #simple-section tr.simple-stats-section-header {
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            #simple-section .simple-stats-section-header td {
+                page-break-inside: avoid !important;
+            }
+
+            /* Main table: open layout, light horizontal rhythm (less “boxed grid”) */
+            #simple-section table.simple-stats-table {
+                width: 100% !important;
+                max-width: 100% !important;
+                border-collapse: collapse !important;
+                table-layout: auto !important;
+                margin: 0 !important;
+                font-size: 10pt !important;
+                border: none !important;
+                page-break-inside: auto !important;
+            }
+
+            #simple-section table.simple-stats-table thead {
+                display: table-header-group !important;
+            }
+
+            #simple-section table.simple-stats-table thead th {
+                background: #f3f4f6 !important;
+                color: black !important;
+                font-weight: bold !important;
+                border: none !important;
+                border-bottom: 2pt solid #ff5800 !important;
+                padding: 0.26cm 0.2cm !important;
+                font-size: 10pt !important;
+            }
+
+            #simple-section table.simple-stats-table thead th:not(:first-child) {
+                border-left: 0.35pt solid #ddd !important;
+            }
+
+            #simple-section table td,
+            #simple-section table th {
+                max-width: none !important;
+                overflow: visible !important;
+            }
+
+            #simple-section table.simple-stats-table > tbody > tr > td {
+                border: none !important;
+                border-bottom: 0.5pt solid #d8d8d8 !important;
+                padding: 0.2cm 0.18cm !important;
+                font-size: 10pt !important;
+                color: black !important;
+                vertical-align: top !important;
+            }
+
+            #simple-section table.simple-stats-table > tbody > tr > td:not(:first-child) {
+                border-left: 0.35pt solid #e8e8e8 !important;
+            }
+
+            /* Nested detail tables: monthly-report feel — orange rule under header, light rows */
+            #simple-section table.simple-pages-q1,
+            #simple-section table.simple-geo-q1 {
+                width: 100% !important;
+                border: none !important;
+                border-radius: 0 !important;
+                margin: 0.2cm 0 0 0 !important;
+                page-break-inside: auto !important;
+            }
+
+            #simple-section table.simple-pages-q1 thead,
+            #simple-section table.simple-geo-q1 thead {
+                display: table-header-group !important;
+            }
+
+            #simple-section table.simple-pages-q1 thead tr,
+            #simple-section table.simple-geo-q1 thead tr {
+                page-break-after: avoid !important;
+            }
+
+            #simple-section table.simple-pages-subtable th {
+                background: #f3f4f6 !important;
+                color: black !important;
+                border: none !important;
+                border-bottom: 1.5pt solid #ff5800 !important;
+                font-size: 9pt !important;
+                padding: 0.18cm 0.15cm !important;
+            }
+
+            #simple-section table.simple-pages-subtable th:not(:first-child) {
+                border-left: 0.35pt solid #ddd !important;
+            }
+
+            #simple-section table.simple-pages-subtable td {
+                border: none !important;
+                border-bottom: 0.5pt solid #dedede !important;
+                padding: 0.15cm 0.12cm !important;
+                font-size: 9pt !important;
+            }
+
+            #simple-section table.simple-pages-subtable td:not(:first-child) {
+                border-left: 0.35pt solid #ececec !important;
+            }
+
+            /* Key metrics — brand orange */
+            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-sessions"],
+            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-users"],
+            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-engagement"],
+            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-buy-online"],
+            #simple-section .simple-page-amount,
+            #simple-section .simple-oar-views-line {
+                color: #c2410c !important;
+                font-weight: bold !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Section titles: open band + orange rule (not a full cell box) */
+            #simple-section .simple-stats-section-header td {
+                background: transparent !important;
+                border: none !important;
+                padding: 0.28cm 0 0.12cm 0 !important;
+            }
+
+            #simple-section button.simple-stats-acc-trigger {
+                display: block !important;
+                width: 100% !important;
+                text-align: left !important;
+                cursor: default !important;
+                background: transparent !important;
+                border: none !important;
+                border-bottom: 1.5pt solid #ff5800 !important;
+                font-size: 12pt !important;
+                font-weight: bold !important;
+                color: black !important;
+                padding: 0.12cm 0 0.18cm 0 !important;
+                margin: 0 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            #simple-section .simple-stats-acc-group.is-collapsed > tr:not(.simple-stats-section-header) {
+                display: table-row !important;
+            }
+
+            #simple-section .simple-stats-acc-trigger::before {
+                display: none !important;
+            }
+
+            #simple-section .simple-stats-muted,
+            #simple-section .simple-stats-table td .simple-stats-muted {
+                color: #444 !important;
+            }
         }
 
         /* Password Protection Modal Styles */
@@ -1287,7 +2214,7 @@
             <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png"
                 alt="Tenacious Tapes Logo" style="height: 60px; max-height: 60px; width: auto; max-width: 200px;">
             <h2>🔒 Protected Dashboard</h2>
-            <p>Please enter the password to access the analytics dashboard</p>
+            <p>Please enter the password to open the dashboard</p>
             <form id="password-form" onsubmit="checkPassword(event)">
                 <div class="password-input-group">
                     <input type="password" id="password-input" placeholder="Enter password" autofocus required>
@@ -1306,7 +2233,7 @@
                     alt="Tenacious Tapes Logo" class="header-logo">
                 <div class="header-content">
                     <h1>📊 Tenacious Stats Dashboard</h1>
-                    <p>Analytics for Tenacious Tapes - Adhesive Tapes for every application</p>
+                    <p>Website stats for Tenacious Tapes — adhesive tapes for every application</p>
                 </div>
             </div>
         </div>
@@ -1316,8 +2243,9 @@
             <div class="container">
                 <button class="nav-item active"
                     onclick="showNavSection('dashboard', event); return false;">Dashboard</button>
-                <button class="nav-item" onclick="showNavSection('glossary', event); return false;">Glossary</button>
+                <button class="nav-item" onclick="showNavSection('glossary', event); return false;">Word list</button>
                 <button class="nav-item" onclick="showNavSection('compare', event); return false;">Compare</button>
+                <button class="nav-item" onclick="showNavSection('simple', event); return false;">Jan–Apr</button>
             </div>
         </nav>
 
@@ -1339,24 +2267,24 @@
                             <label><input type="checkbox" id="compareCheckbox"> <b>Compare to previous
                                     period</b></label>
                             <label><input type="checkbox" value="Overview" checked> Overview</label>
-                            <label><input type="checkbox" value="Traffic Sources" checked> Traffic Sources</label>
-                            <label><input type="checkbox" value="Top Pages" checked> Top Pages</label>
-                            <label><input type="checkbox" value="User Retention"> User Retention</label>
-                            <label><input type="checkbox" value="Geographics"> Geographics</label>
-                            <label><input type="checkbox" value="Tech/Devices"> Tech/Devices</label>
-                            <label><input type="checkbox" value="Events"> Events</label>
-                            <label><input type="checkbox" value="Business Profile" checked> Business Profile</label>
-                            <label><input type="checkbox" value="Email Campaigns"> Email Campaigns</label>
+                            <label><input type="checkbox" value="Traffic Sources" checked> Where visits came from</label>
+                            <label><input type="checkbox" value="Top Pages" checked> Popular pages</label>
+                            <label><input type="checkbox" value="User Retention"> New vs returning</label>
+                            <label><input type="checkbox" value="Geographics"> Cities and countries</label>
+                            <label><input type="checkbox" value="Tech/Devices"> Phones and computers</label>
+                            <label><input type="checkbox" value="Events"> Clicks and actions</label>
+                            <label><input type="checkbox" value="Business Profile" checked> Google Business Profile</label>
+                            <label><input type="checkbox" value="Email Campaigns"> Email campaigns</label>
                         </div>
                         <button onclick="loadData()">Refresh Data</button>
                         <button onclick="generateReport()" style="margin-top: 0.5rem; background-color: #4a90e2;">📄
                             Generate Monthly Report</button>
-                        <h3 class="config-heading">⚙️ Configuration</h3>
+                        <h3 class="config-heading">⚙️ Settings</h3>
                     </div>
 
                     <!-- Main Content -->
                     <div id="content">
-                        <div class="loading">Configure dates and click "Refresh Data" to load analytics</div>
+                        <div class="loading">Pick dates and click “Refresh Data” to load numbers</div>
                     </div>
                 </div>
             </div>
@@ -1370,7 +2298,7 @@
                         <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png"
                             alt="Tenacious Tapes Logo"
                             style="height: 60px; max-height: 60px; width: auto; max-width: 200px; margin-bottom: 1rem;">
-                        <h1 style="color: #2c3e50; margin-bottom: 0.5rem; font-size: 2rem;">Analytics Glossary</h1>
+                        <h1 style="color: #2c3e50; margin-bottom: 0.5rem; font-size: 2rem;">Word list</h1>
                         <p style="color: #7f8c8d; font-size: 1.1rem;">Tenacious Tapes - Adhesive Tapes for every
                             application</p>
                     </div>
@@ -1380,19 +2308,17 @@
                 <div style="margin-bottom: 1.5rem; text-align: right;">
                     <button onclick="window.print()"
                         style="background-color: #ff5800; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        🖨️ Print Glossary
+                        🖨️ Print word list
                     </button>
                 </div>
 
                 <div class="section">
-                    <h2 style="margin-top: 0;">Glossary</h2>
-                    <p style="margin-bottom: 2rem; color: #7f8c8d;">Comprehensive definitions of analytics terms and
-                        metrics used in this dashboard. Hover over terms in the interactive dashboard to see quick
-                        tooltips.</p>
+                    <h2 style="margin-top: 0;">Word list</h2>
+                    <p style="margin-bottom: 2rem; color: #7f8c8d;">What the numbers and labels on this dashboard mean. On the main screen, hover a label for a short explanation.</p>
 
                     <h3
                         style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
-                        Executive Summary Metrics</h3>
+                        Main numbers (overview)</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
                         <colgroup>
@@ -1403,29 +2329,28 @@
                             <tr style="background-color: #f8f9fa;">
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Term</th>
+                                    Word</th>
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Definition</th>
+                                    Meaning</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Total Sessions</td>
+                                    Visits (total)</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Total number of visits to the site in this period. One person can create multiple
-                                    sessions if they return.</td>
+                                    How many times people opened the site in this period. One person can count more than once if they come back later.</td>
                             </tr>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Total Users</td>
+                                    People (approx.)</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Estimated number of unique people who visited the site in this period.</td>
+                                    Rough count of different people who visited in this period.</td>
                             </tr>
                             <tr>
                                 <td
@@ -1438,35 +2363,33 @@
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Engagement Rate</td>
+                                    How involved visitors were</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Percent of sessions where visitors did something meaningful, like viewing multiple
-                                    pages, staying a while, or triggering key events.</td>
+                                    Share of visits where people did something meaningful — several pages, a longer stay, or an important action.</td>
                             </tr>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Avg. Session Duration</td>
+                                    Typical visit length</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Average time visitors actively spent on the site during a visit.</td>
+                                    Average time people actively spent on the site during one visit.</td>
                             </tr>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Bounce Rate</td>
+                                    Quick exits</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Percent of sessions where visitors left after only one page with no meaningful
-                                    interaction.</td>
+                                    Share of visits where someone left after a single page without much interaction.</td>
                             </tr>
                         </tbody>
                     </table>
 
                     <h3
                         style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
-                        Traffic Sources</h3>
+                        Where visits came from</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
                         <colgroup>
@@ -1477,10 +2400,10 @@
                             <tr style="background-color: #f8f9fa;">
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Term</th>
+                                    Word</th>
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Definition</th>
+                                    Meaning</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1532,22 +2455,22 @@
                                     Percentage (in sources)</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Share of all sessions that came from this source in the selected period.</td>
+                                    Share of all visits that came from this source in the selected period.</td>
                             </tr>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Sessions (in sources)</td>
+                                    Visits (in this list)</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Number of visits that came from this source.</td>
+                                    How many visits came from this source.</td>
                             </tr>
                         </tbody>
                     </table>
 
                     <h3
                         style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
-                        Top Pages & Searched Products</h3>
+                        Popular pages & product searches</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
                         <colgroup>
@@ -1558,10 +2481,10 @@
                             <tr style="background-color: #f8f9fa;">
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Term</th>
+                                    Word</th>
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Definition</th>
+                                    Meaning</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1576,17 +2499,17 @@
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Users (pages/products)</td>
+                                    People (pages/products)</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    How many unique visitors viewed this page or product at least once.</td>
+                                    How many different people viewed this page or product at least once.</td>
                             </tr>
                         </tbody>
                     </table>
 
                     <h3
                         style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
-                        User Retention</h3>
+                        New vs returning</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
                         <colgroup>
@@ -1597,44 +2520,44 @@
                             <tr style="background-color: #f8f9fa;">
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Term</th>
+                                    Word</th>
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Definition</th>
+                                    Meaning</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    New Users</td>
+                                    New visitors</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    People visiting the site for the first time on this device/browser.</td>
+                                    First-time visits on this device or browser.</td>
                             </tr>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Returning Users</td>
+                                    Returning visitors</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    People who have visited before on this device/browser and came back in this period.
+                                    People who had visited before on this device or browser and came back in this period.
                                 </td>
                             </tr>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Percentage (retention)</td>
+                                    Share (new vs returning)</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Share of total sessions that came from new vs returning visitors.</td>
+                                    Part of all visits that were new visitors vs people coming back.</td>
                             </tr>
                         </tbody>
                     </table>
 
                     <h3
                         style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
-                        Geography & Devices</h3>
+                        Places & devices</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
                         <colgroup>
@@ -1645,37 +2568,35 @@
                             <tr style="background-color: #f8f9fa;">
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Term</th>
+                                    Word</th>
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Definition</th>
+                                    Meaning</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Sessions by Country / Top Cities</td>
+                                    Visits by country / city</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Where visits originated, based on IP location; some traffic may be "not set" if
-                                    location is unclear.</td>
+                                    Roughly where visits came from. Sometimes location is unknown.</td>
                             </tr>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Device Category (desktop / mobile / tablet)</td>
+                                    Phone, tablet, or computer</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Type of device used for the visit, helping you see whether people browse more on
-                                    computers or phones.</td>
+                                    Whether someone used a phone, tablet, or desktop-style browser.</td>
                             </tr>
                         </tbody>
                     </table>
 
                     <h3
                         style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
-                        Events</h3>
+                        Tracked actions</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
                         <colgroup>
@@ -1686,17 +2607,17 @@
                             <tr style="background-color: #f8f9fa;">
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Term</th>
+                                    Word</th>
                                 <th
                                     style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold; box-sizing: border-box;">
-                                    Definition</th>
+                                    Meaning</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
-                                    Event Name</td>
+                                    Action name</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
                                     A specific action that was tracked on the site, such as viewing a page, scrolling,
@@ -1716,8 +2637,7 @@
                                     user_engagement</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    Recorded when a visitor stays on a page for long enough or interacts so the session
-                                    counts as engaged.</td>
+                                    Recorded when someone stays on a page long enough or interacts so the visit counts as engaged.</td>
                             </tr>
                             <tr>
                                 <td
@@ -1867,7 +2787,7 @@
                 <div
                     style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
                     <h2 style="color: #2c3e50; margin-bottom: 1.5rem;">📊 Period Comparison</h2>
-                    <p style="color: #7f8c8d; margin-bottom: 1.5rem;">Compare metrics between two time periods to see
+                    <p style="color: #7f8c8d; margin-bottom: 1.5rem;">Compare numbers between two time periods to see
                         growth or decline.</p>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem;">
@@ -1940,6 +2860,227 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Jan–Apr section — web stats table (four months) -->
+            <div id="simple-section" class="nav-content-section">
+                <div class="simple-stats-wrap simple-stats-panel">
+                    <div class="simple-stats-print-header" aria-hidden="true">
+                        <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png"
+                            alt="Tenacious Tapes" class="simple-stats-print-logo">
+                        <h1 class="simple-stats-print-title">Jan–Apr website stats</h1>
+                        <p class="simple-stats-print-meta"><strong>January · February · March · April</strong></p>
+                        <p class="simple-stats-print-meta">Calendar year: <span id="simple-print-header-year">—</span></p>
+                        <p class="simple-stats-print-generated">Prepared <span id="simple-print-header-date">—</span></p>
+                    </div>
+                    <h2 class="simple-stats-title">Web stats</h2>
+                    <div class="simple-stats-toolbar">
+                        <label for="simple-stats-year">Year</label>
+                        <input type="number" id="simple-stats-year" min="2020" max="2035" step="1" title="Calendar year for Jan–Apr">
+                        <button type="button" id="simple-stats-load-btn" onclick="loadSimpleJanMarStats()">
+                            Load Jan–Apr
+                        </button>
+                        <button type="button" id="simple-stats-print-btn" class="simple-stats-print-btn"
+                            onclick="window.print(); return false;"
+                            title="Open print dialog — choose Save as PDF to keep a copy"
+                            aria-label="Print or save Jan–Apr web stats as PDF">
+                            <i class="fas fa-print" aria-hidden="true"></i> Print / PDF
+                        </button>
+                        <span id="simple-stats-status" class="simple-stats-status"></span>
+                    </div>
+                    <div id="simple-content" class="simple-stats-card">
+                        <div class="simple-stats-table-scroll">
+                        <!-- Main month columns + colspans must match SIMPLE_STATS_MONTH_INDICES (see script). -->
+                        <table class="simple-stats-table">
+                            <colgroup>
+                                <col class="simple-col-label">
+                                <col class="simple-col-month">
+                                <col class="simple-col-month">
+                                <col class="simple-col-month">
+                                <col class="simple-col-month">
+                            </colgroup>
+                            <thead>
+                                <tr>
+                                    <th scope="col">What we’re measuring</th>
+                                    <th scope="col">January</th>
+                                    <th scope="col">February</th>
+                                    <th scope="col">March</th>
+                                    <th scope="col">April</th>
+                                </tr>
+                            </thead>
+                            <tbody class="simple-stats-acc-group">
+                                <tr class="simple-stats-section-header">
+                                    <td colspan="5">
+                                        <button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-glance">
+                                            At a glance
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="simple-stats-row-label">Visits</td>
+                                    <td id="simple-m1-sessions"></td>
+                                    <td id="simple-m2-sessions"></td>
+                                    <td id="simple-m3-sessions"></td>
+                                    <td id="simple-m4-sessions"></td>
+                                </tr>
+                                <tr>
+                                    <td class="simple-stats-row-label">People (approx.)</td>
+                                    <td id="simple-m1-users"></td>
+                                    <td id="simple-m2-users"></td>
+                                    <td id="simple-m3-users"></td>
+                                    <td id="simple-m4-users"></td>
+                                </tr>
+                                <tr>
+                                    <td class="simple-stats-row-label">How involved visitors were</td>
+                                    <td id="simple-m1-engagement"></td>
+                                    <td id="simple-m2-engagement"></td>
+                                    <td id="simple-m3-engagement"></td>
+                                    <td id="simple-m4-engagement"></td>
+                                </tr>
+                                <tr>
+                                    <td class="simple-stats-row-label">Buy online clicks</td>
+                                    <td id="simple-m1-buy-online"></td>
+                                    <td id="simple-m2-buy-online"></td>
+                                    <td id="simple-m3-buy-online"></td>
+                                    <td id="simple-m4-buy-online"></td>
+                                </tr>
+                                <tr>
+                                    <td class="simple-stats-row-label">On a Roll — this month’s story</td>
+                                    <td id="simple-m1-oar-feature"></td>
+                                    <td id="simple-m2-oar-feature"></td>
+                                    <td id="simple-m3-oar-feature"></td>
+                                    <td id="simple-m4-oar-feature"></td>
+                                </tr>
+                            </tbody>
+                            <tbody class="simple-stats-acc-group">
+                                <tr class="simple-stats-section-header">
+                                    <td colspan="5">
+                                        <button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-sources">
+                                            Where visits came from
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="simple-stats-embed">
+                                    <td colspan="5">
+                                        <p class="simple-stats-muted simple-embed-intro" style="margin: 0 0 0.65rem 0.15rem; font-size: 0.8125rem;">
+                                            Top channels <small>(up to three per month, share of that month’s visits)</small>
+                                        </p>
+                                        <table class="simple-pages-subtable simple-pages-q1" aria-label="Top traffic channels by month">
+                                            <colgroup>
+                                                <col class="simple-q1-lead">
+                                                <col class="simple-q1-ch"><col class="simple-q1-num">
+                                                <col class="simple-q1-ch"><col class="simple-q1-num">
+                                                <col class="simple-q1-ch"><col class="simple-q1-num">
+                                                <col class="simple-q1-ch"><col class="simple-q1-num">
+                                            </colgroup>
+                                            <thead>
+                                                <tr>
+                                                    <th class="simple-q1-lead-th" aria-hidden="true"></th>
+                                                    <th scope="col">Channel</th>
+                                                    <th scope="col">%</th>
+                                                    <th scope="col">Channel</th>
+                                                    <th scope="col">%</th>
+                                                    <th scope="col">Channel</th>
+                                                    <th scope="col">%</th>
+                                                    <th scope="col">Channel</th>
+                                                    <th scope="col">%</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="simple-sources-q1-tbody">
+                                                <tr>
+                                                    <td colspan="9" class="simple-stats-muted simple-q1-placeholder">Click <strong>Load Jan–Apr</strong> to load data.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody class="simple-stats-acc-group">
+                                <tr class="simple-stats-section-header">
+                                    <td colspan="5">
+                                        <button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-pages">
+                                            Popular pages
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="simple-stats-embed">
+                                    <td colspan="5">
+                                        <p class="simple-stats-muted simple-embed-intro" style="margin: 0 0 0.65rem 0.15rem; font-size: 0.8125rem;">
+                                            Top pages <small>(up to five per month — each <strong>Page</strong> / <strong>Views</strong> pair matches <strong>January</strong>, <strong>February</strong>, <strong>March</strong>, then <strong>April</strong> in the table header above)</small>
+                                        </p>
+                                        <table class="simple-pages-subtable simple-pages-q1" aria-label="Top pages: page title and views for January through April">
+                                            <colgroup>
+                                                <col class="simple-q1-lead">
+                                                <col class="simple-q1-ch"><col class="simple-q1-num">
+                                                <col class="simple-q1-ch"><col class="simple-q1-num">
+                                                <col class="simple-q1-ch"><col class="simple-q1-num">
+                                                <col class="simple-q1-ch"><col class="simple-q1-num">
+                                            </colgroup>
+                                            <thead>
+                                                <tr>
+                                                    <th class="simple-q1-lead-th" aria-hidden="true"></th>
+                                                    <th scope="col">Page</th>
+                                                    <th scope="col">Views</th>
+                                                    <th scope="col">Page</th>
+                                                    <th scope="col">Views</th>
+                                                    <th scope="col">Page</th>
+                                                    <th scope="col">Views</th>
+                                                    <th scope="col">Page</th>
+                                                    <th scope="col">Views</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="simple-pages-q1-tbody">
+                                                <tr>
+                                                    <td colspan="9" class="simple-stats-muted simple-q1-placeholder">Click <strong>Load Jan–Apr</strong> to load data.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tbody class="simple-stats-acc-group">
+                                <tr class="simple-stats-section-header">
+                                    <td colspan="5">
+                                        <button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-geo">
+                                            Geography
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="simple-stats-embed">
+                                    <td colspan="5">
+                                        <p class="simple-stats-muted simple-embed-intro" style="margin: 0 0 0.65rem 0.15rem; font-size: 0.8125rem;">
+                                            Australian capitals <small>(visits per month; only cities with visits; busiest month first)</small>
+                                        </p>
+                                        <table class="simple-pages-subtable simple-geo-q1" aria-label="Capital city visits by month">
+                                            <colgroup>
+                                                <col class="simple-geo-label">
+                                                <col class="simple-geo-month">
+                                                <col class="simple-geo-month">
+                                                <col class="simple-geo-month">
+                                                <col class="simple-geo-month">
+                                            </colgroup>
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Capital</th>
+                                                    <th scope="col">Jan</th>
+                                                    <th scope="col">Feb</th>
+                                                    <th scope="col">Mar</th>
+                                                    <th scope="col">Apr</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="simple-geo-q1-tbody">
+                                                <tr>
+                                                    <td colspan="5" class="simple-stats-muted simple-q1-placeholder">Click <strong>Load Jan–Apr</strong> to load data.</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Floating Download Button -->
@@ -1950,7 +3091,7 @@
         <div class="footer">
             <p><strong>Tenacious Tapes</strong> - Adhesive Tapes for every application</p>
             <p>📞 +61 (0)3 9580 5573 | ✉️ customerservice@tenacioustapes.com.au</p>
-            <p class="footer-version" id="versionDisplay">Data Updated with Smart Logic • Build v1.1.0</p>
+            <p class="footer-version" id="versionDisplay">Build v1.1.0</p>
         </div>
     </div> <!-- End main-content -->
 
@@ -2108,6 +3249,445 @@
             return fetch(urlObj.toString(), { ...options, headers });
         }
 
+        function simpleFmtNum(n) {
+            if (n === undefined || n === null || n === '') return '—';
+            const v = parseFloat(n);
+            if (isNaN(v)) return '—';
+            return Math.round(v).toLocaleString();
+        }
+
+        /** Month pills: update labels after load (e.g. Jan 2026) */
+        function simpleUpdateMonthPillLabels(year) {
+            const j = document.getElementById('simple-pill-jan');
+            const f = document.getElementById('simple-pill-feb');
+            const m = document.getElementById('simple-pill-mar');
+            const a = document.getElementById('simple-pill-apr');
+            if (j) j.textContent = 'Jan ' + year;
+            if (f) f.textContent = 'Feb ' + year;
+            if (m) m.textContent = 'Mar ' + year;
+            if (a) a.textContent = 'Apr ' + year;
+        }
+
+        /** Print/PDF header (monthly report style): year + timestamp */
+        function simpleUpdatePrintHeaderMeta() {
+            const yearEl = document.getElementById('simple-print-header-year');
+            const dateEl = document.getElementById('simple-print-header-date');
+            const yIn = document.getElementById('simple-stats-year');
+            let y = yIn && parseInt(yIn.value, 10);
+            if (!y || y < 2020 || y > 2035) y = new Date().getFullYear();
+            if (yearEl) yearEl.textContent = String(y);
+            if (dateEl) {
+                try {
+                    dateEl.textContent = new Date().toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' });
+                } catch (e2) {
+                    dateEl.textContent = new Date().toISOString().slice(0, 16).replace('T', ' ');
+                }
+            }
+        }
+        window.simpleUpdatePrintHeaderMeta = simpleUpdatePrintHeaderMeta;
+
+        /** Toggle column highlight; click same pill again to clear. Pass '' to clear only. */
+        function simpleToggleMonthPill(which) {
+            const sec = document.getElementById('simple-section');
+            if (!sec) return;
+            const cur = sec.getAttribute('data-month-focus') || '';
+            const next = which === '' ? '' : (cur === which ? '' : which);
+            if (next) sec.setAttribute('data-month-focus', next);
+            else sec.removeAttribute('data-month-focus');
+            sec.classList.remove('simple-month-focus-jan', 'simple-month-focus-feb', 'simple-month-focus-mar', 'simple-month-focus-apr');
+            if (next === 'jan') sec.classList.add('simple-month-focus-jan');
+            if (next === 'feb') sec.classList.add('simple-month-focus-feb');
+            if (next === 'mar') sec.classList.add('simple-month-focus-mar');
+            if (next === 'apr') sec.classList.add('simple-month-focus-apr');
+            ['jan', 'feb', 'mar', 'apr'].forEach((m) => {
+                const btn = document.getElementById('simple-pill-' + m);
+                if (btn) btn.setAttribute('aria-pressed', m === next ? 'true' : 'false');
+            });
+        }
+        window.simpleToggleMonthPill = simpleToggleMonthPill;
+
+        /** Jan–Apr table: accordion sections (same panel look as Popular pages) */
+        function initSimpleStatsAccordions() {
+            const root = document.getElementById('simple-content');
+            if (!root) return;
+            root.querySelectorAll('.simple-stats-acc-trigger').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const tb = btn.closest('tbody.simple-stats-acc-group');
+                    if (!tb) return;
+                    const nowCollapsed = tb.classList.toggle('is-collapsed');
+                    btn.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
+                });
+            });
+        }
+        window.initSimpleStatsAccordions = initSimpleStatsAccordions;
+
+        /* Print/PDF: strip column highlight in preview, restore when dialog closes */
+        (function simplePrintRestoreMonthFocus() {
+            let savedFocus = '';
+            window.addEventListener('beforeprint', function () {
+                simpleUpdatePrintHeaderMeta();
+                const sec = document.getElementById('simple-section');
+                savedFocus = (sec && sec.getAttribute('data-month-focus')) || '';
+                if (savedFocus) simpleToggleMonthPill('');
+            });
+            window.addEventListener('afterprint', function () {
+                if (savedFocus) {
+                    simpleToggleMonthPill(savedFocus);
+                    savedFocus = '';
+                }
+            });
+        })();
+
+        /** Calendar months (1–12) loaded in the Web stats grid — length drives fetches & CSS --simple-month-count. */
+        const SIMPLE_STATS_MONTH_INDICES = [1, 2, 3, 4];
+
+        const SIMPLE_STATS_MONTH_SHORT = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        function simpleSyncSimpleSectionMonthCount() {
+            const sec = document.getElementById('simple-section');
+            if (sec) {
+                sec.style.setProperty('--simple-month-count', String(SIMPLE_STATS_MONTH_INDICES.length));
+            }
+        }
+
+        function simpleMonthRange(year, month1to12) {
+            const m = String(month1to12).padStart(2, '0');
+            const lastDay = new Date(year, month1to12, 0).getDate();
+            return {
+                start_date: `${year}-${m}-01`,
+                end_date: `${year}-${m}-${String(lastDay).padStart(2, '0')}`
+            };
+        }
+
+        function simpleSortedSourcesList(sourcesJson) {
+            if (!sourcesJson || !sourcesJson.success || !sourcesJson.data || !sourcesJson.data.length) return [];
+            const rows = sourcesJson.data;
+            return [...rows].sort((a, b) => (parseFloat(b.sessions) || 0) - (parseFloat(a.sessions) || 0));
+        }
+
+        function simpleSourcesMonthPairHtml(sourcesJson, rankIndex, esc) {
+            const sorted = simpleSortedSourcesList(sourcesJson);
+            const total = sorted.reduce((a, r) => a + (parseFloat(r.sessions) || 0), 0);
+            const row = sorted[rankIndex];
+            if (!row) {
+                return '<td class="simple-q1-page-cell"><span class="simple-stats-muted">—</span></td>' +
+                    '<td class="simple-page-amount"><span class="simple-stats-muted">—</span></td>';
+            }
+            const label = esc(row.sessionSourceMedium || 'Unknown');
+            const pct = total > 0 ? ((parseFloat(row.sessions) / total) * 100).toFixed(1) : '0';
+            return '<td class="simple-q1-page-cell"><div class="simple-page-title">' + label + '</div></td>' +
+                '<td class="simple-page-amount">' + pct + '%</td>';
+        }
+
+        function simpleRenderSourcesQ1Tbody(bundles, esc) {
+            const tb = document.getElementById('simple-sources-q1-tbody');
+            if (!tb) return;
+            const src = bundles.map(function (b) { return b.sources; });
+            const colspan = 1 + src.length * 2;
+            const any = src.some(function (s) {
+                return s && s.success && s.data && s.data.length;
+            });
+            if (!any) {
+                tb.innerHTML = '<tr><td colspan="' + colspan + '" class="simple-stats-muted simple-q1-placeholder">—</td></tr>';
+                return;
+            }
+            const lead = '<td class="simple-q1-lead-cell" aria-hidden="true"></td>';
+            const rows = [];
+            for (let rank = 0; rank < 3; rank++) {
+                let rowHtml = '<tr>' + lead;
+                for (let m = 0; m < src.length; m++) {
+                    rowHtml += simpleSourcesMonthPairHtml(src[m], rank, esc);
+                }
+                rowHtml += '</tr>';
+                rows.push(rowHtml);
+            }
+            tb.innerHTML = rows.join('');
+        }
+
+        function simpleFindCitySessions(citiesResp, name) {
+            const cityList = (citiesResp.success && citiesResp.data) ? citiesResp.data : [];
+            const hit = cityList.find(c => (c.city || '').toLowerCase() === name.toLowerCase());
+            return hit ? (parseFloat(hit.sessions) || 0) : 0;
+        }
+
+        function simpleViewsCell(n) {
+            return n > 0 ? n.toLocaleString() : '—';
+        }
+
+        function simpleMockPathViewsResponse() {
+            return Promise.resolve({
+                ok: true,
+                json: async () => ({ success: true, data: { screenPageViews: 0 } })
+            });
+        }
+
+        async function fetchSimpleMonthBundle(year, monthNum, oarConfig) {
+            const { start_date, end_date } = simpleMonthRange(year, monthNum);
+            const params = { start_date, end_date };
+            const ymKey = `${year}-${String(monthNum).padStart(2, '0')}`;
+            const featSlug = (oarConfig && oarConfig.featuredPathContains && oarConfig.featuredPathContains[ymKey]) || '';
+            const featSlugTrim = String(featSlug).trim();
+            const featTitleRaw = (oarConfig && oarConfig.featuredTitles && oarConfig.featuredTitles[ymKey]) || '';
+            const featTitleTrim = String(featTitleRaw).trim();
+
+            const [ovRes, srcRes, pagesMergeRes, pathFeatRes, citiesRes, evRes] = await Promise.all([
+                fetchWithBypass(getApiUrl('/analytics/overview', params)),
+                fetchWithBypass(getApiUrl('/analytics/sources', { ...params, limit: '15' })),
+                fetchWithBypass(getApiUrl('/analytics/pages', { ...params, limit: '100' })),
+                featSlugTrim
+                    ? fetchWithBypass(getApiUrl('/analytics/path-views-total', { ...params, path: featSlugTrim, match: 'contains' }))
+                    : simpleMockPathViewsResponse(),
+                fetchWithBypass(getApiUrl('/analytics/cities', { ...params, limit: '50' })),
+                fetchWithBypass(getApiUrl('/analytics/events', { ...params, limit: '50' }))
+            ]);
+            const overview = await ovRes.json();
+            if (!ovRes.ok || !overview.success) {
+                const d = overview.detail;
+                const msg = typeof d === 'string' ? d : (d && JSON.stringify(d)) || overview.error || ('HTTP ' + ovRes.status);
+                throw new Error(msg);
+            }
+            return {
+                start_date,
+                end_date,
+                ymKey,
+                oarFeaturedSlug: featSlugTrim || null,
+                oarFeaturedTitle: featTitleTrim || null,
+                overview: overview.data || {},
+                sources: await srcRes.json(),
+                pagesMerge: await pagesMergeRes.json(),
+                pathFeature: await pathFeatRes.json(),
+                cities: await citiesRes.json(),
+                events: await evRes.json()
+            };
+        }
+
+        async function loadSimpleJanMarStats() {
+            const yearInput = document.getElementById('simple-stats-year');
+            const statusEl = document.getElementById('simple-stats-status');
+            const btn = document.getElementById('simple-stats-load-btn');
+            let year = parseInt(yearInput && yearInput.value, 10);
+            if (!year || year < 2020 || year > 2035) year = new Date().getFullYear();
+
+            const setErr = (msg) => {
+                statusEl.textContent = msg;
+                statusEl.classList.add('error');
+            };
+            statusEl.classList.remove('error');
+            statusEl.textContent = 'Loading Jan–Apr…';
+            if (btn) btn.disabled = true;
+            simpleToggleMonthPill(''); /* clear column highlight while reloading */
+
+            const esc = (s) => String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const escAttr = (s) => String(s || '')
+                .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const AU_CAPITALS = ['Sydney', 'Melbourne', 'Brisbane', 'Adelaide', 'Perth', 'Hobart', 'Canberra', 'Darwin'];
+
+            try {
+                let oarConfig = { featuredPathContains: {}, featuredTitles: {}, useRss: true };
+                let jOverrides = {};
+                let jTitleOverrides = {};
+                let oj = null;
+                try {
+                    const oarUrl = (isLocalDev ? 'http://localhost:8000' : '') + '/data/on_a_roll.json?t=' + Date.now();
+                    const oarRes = await fetch(oarUrl);
+                    if (oarRes.ok) {
+                        oj = await oarRes.json();
+                        if (oj && typeof oj === 'object') {
+                            jOverrides = (oj.featuredPathContains && typeof oj.featuredPathContains === 'object')
+                                ? { ...oj.featuredPathContains }
+                                : {};
+                            jTitleOverrides = (oj.featuredTitles && typeof oj.featuredTitles === 'object')
+                                ? { ...oj.featuredTitles }
+                                : {};
+                            if (typeof oj.useRss === 'boolean') oarConfig.useRss = oj.useRss;
+                        }
+                    }
+                } catch (e) { /* keep defaults */ }
+
+                if (oarConfig.useRss !== false) {
+                    try {
+                        const rssParams = {};
+                        if (oj && oj.rssFeedUrl && String(oj.rssFeedUrl).trim()) {
+                            rssParams.feed_url = String(oj.rssFeedUrl).trim();
+                        }
+                        const rssRes = await fetchWithBypass(getApiUrl('/on-a-roll-slugs', rssParams));
+                        const rssJson = await rssRes.json();
+                        if (rssJson && rssJson.success && rssJson.data && rssJson.data.featuredPathContains) {
+                            oarConfig.featuredPathContains = { ...rssJson.data.featuredPathContains, ...jOverrides };
+                            const rssTitles = (rssJson.data.featuredTitles && typeof rssJson.data.featuredTitles === 'object')
+                                ? rssJson.data.featuredTitles
+                                : {};
+                            oarConfig.featuredTitles = { ...rssTitles, ...jTitleOverrides };
+                        } else {
+                            oarConfig.featuredPathContains = jOverrides;
+                            oarConfig.featuredTitles = jTitleOverrides;
+                        }
+                    } catch (e2) {
+                        oarConfig.featuredPathContains = jOverrides;
+                        oarConfig.featuredTitles = jTitleOverrides;
+                    }
+                } else {
+                    oarConfig.featuredPathContains = jOverrides;
+                    oarConfig.featuredTitles = jTitleOverrides;
+                }
+
+                const bundles = await Promise.all(
+                    SIMPLE_STATS_MONTH_INDICES.map(function (monthNum) {
+                        return fetchSimpleMonthBundle(year, monthNum, oarConfig);
+                    })
+                );
+
+                for (let i = 0; i < bundles.length; i++) {
+                    const b = bundles[i];
+                    const mi = i + 1;
+                    const o = b.overview;
+                    document.getElementById(`simple-m${mi}-sessions`).textContent = simpleFmtNum(o.sessions);
+                    document.getElementById(`simple-m${mi}-users`).textContent = simpleFmtNum(o.totalUsers);
+                    const er = o.engagementRate;
+                    const engEl = document.getElementById(`simple-m${mi}-engagement`);
+                    if (er != null && er !== '') {
+                        engEl.innerHTML = `${(parseFloat(er) * 100).toFixed(1)}% <span class="simple-stats-muted" style="font-weight:400">of visits</span>`;
+                    } else {
+                        engEl.textContent = '—';
+                    }
+                    let featViews = 0;
+                    const pf = b.pathFeature;
+                    if (b.oarFeaturedSlug && pf && pf.success && pf.data && pf.data.screenPageViews != null) {
+                        featViews = parseInt(pf.data.screenPageViews, 10) || 0;
+                    }
+                    const featEl = document.getElementById(`simple-m${mi}-oar-feature`);
+                    if (featEl) {
+                        if (b.oarFeaturedSlug) {
+                            const slug = String(b.oarFeaturedSlug).replace(/^\/+|\/+$/g, '');
+                            const articleUrl = 'https://www.tenacioustapes.com.au/' + encodeURIComponent(slug).replace(/%2F/g, '/') + '/';
+                            const linkLabel = (b.oarFeaturedTitle && String(b.oarFeaturedTitle).trim()) || slug;
+                            const monthNum = SIMPLE_STATS_MONTH_INDICES[i];
+                            const monthTag = (monthNum >= 1 && monthNum <= 12)
+                                ? SIMPLE_STATS_MONTH_SHORT[monthNum]
+                                : '';
+                            const ariaLabel = linkLabel + ' — ' + featViews.toLocaleString() + ' views';
+                            featEl.innerHTML =
+                                '<div class="simple-oar-stack">' +
+                                '<span class="simple-oar-month-tag">' + esc(monthTag) + '</span>' +
+                                '<a class="simple-oar-story-link" href="' + esc(articleUrl) + '" target="_blank" rel="noopener" aria-label="' + escAttr(ariaLabel) + '">' + esc(linkLabel) + '</a>' +
+                                '<span class="simple-oar-views-line">' + featViews.toLocaleString() + ' views</span>' +
+                                '</div>';
+                        } else {
+                            featEl.textContent = '—';
+                        }
+                    }
+
+                    let buy = 0;
+                    if (b.events.success && b.events.data) {
+                        const row = b.events.data.find(e => (e.eventName || '') === 'click_buy_online');
+                        if (row) buy = parseInt(row.eventCount, 10) || 0;
+                    }
+                    document.getElementById(`simple-m${mi}-buy-online`).textContent = buy.toLocaleString();
+                }
+
+                simpleRenderSourcesQ1Tbody(bundles, esc);
+
+                const SIMPLE_TOP_PAGES_PER_MONTH = 5;
+
+                function simpleSortedPagesByViews(pagesJson) {
+                    const list = (pagesJson.success && pagesJson.data) ? [...pagesJson.data] : [];
+                    list.sort((a, b) => (parseInt(b.screenPageViews, 10) || 0) - (parseInt(a.screenPageViews, 10) || 0));
+                    return list;
+                }
+
+                function simpleTopPageCellHtml(p, escFn) {
+                    if (!p) {
+                        return '<td class="simple-q1-page-cell"><span class="simple-stats-muted">—</span></td>';
+                    }
+                    const titleRaw = (p.pageTitle || '').trim();
+                    const pathRaw = (p.pagePath || '').trim();
+                    const title = escFn((titleRaw || pathRaw || 'Page').slice(0, 88));
+                    let pathHtml = '';
+                    if (pathRaw && titleRaw && pathRaw !== titleRaw) {
+                        pathHtml = `<div class="simple-page-path">${escFn(pathRaw.slice(0, 96))}</div>`;
+                    }
+                    return `<td class="simple-q1-page-cell"><div class="simple-page-title">${title}</div>${pathHtml}</td>`;
+                }
+
+                function simpleTopPageViewsCell(p) {
+                    if (!p) return '<td class="simple-page-amount">—</td>';
+                    const v = parseInt(p.screenPageViews, 10) || 0;
+                    return `<td class="simple-page-amount">${simpleViewsCell(v)}</td>`;
+                }
+
+                const pagesByMonth = bundles.map(function (b) {
+                    return simpleSortedPagesByViews(b.pagesMerge);
+                });
+                const pagesColspan = 1 + bundles.length * 2;
+
+                const pagesTbody = document.getElementById('simple-pages-q1-tbody');
+                if (pagesTbody) {
+                    pagesTbody.innerHTML = '';
+                    const anyData = pagesByMonth.some(function (list) { return list.length > 0; });
+                    if (!anyData) {
+                        pagesTbody.innerHTML = '<tr><td colspan="' + pagesColspan + '" class="simple-stats-muted simple-q1-placeholder">—</td></tr>';
+                    } else {
+                        const leadTd = '<td class="simple-q1-lead-cell" aria-hidden="true"></td>';
+                        for (let i = 0; i < SIMPLE_TOP_PAGES_PER_MONTH; i++) {
+                            const tr = document.createElement('tr');
+                            let rowHtml = leadTd;
+                            for (let m = 0; m < pagesByMonth.length; m++) {
+                                const p = pagesByMonth[m][i];
+                                rowHtml += simpleTopPageCellHtml(p, esc) + simpleTopPageViewsCell(p);
+                            }
+                            tr.innerHTML = rowHtml;
+                            pagesTbody.appendChild(tr);
+                        }
+                    }
+                }
+
+                const geoTbody = document.getElementById('simple-geo-q1-tbody');
+                if (geoTbody) {
+                    geoTbody.innerHTML = '';
+                    const geoRows = AU_CAPITALS.map((capital) => {
+                        const sess = bundles.map(function (b) {
+                            return simpleFindCitySessions(b.cities, capital);
+                        });
+                        const peak = Math.max.apply(null, sess);
+                        const total = sess.reduce(function (a, v) { return a + v; }, 0);
+                        return { capital, sess, peak, total };
+                    }).filter((r) => r.total > 0);
+                    geoRows.sort((a, b) => b.peak - a.peak);
+                    if (geoRows.length === 0) {
+                        geoTbody.innerHTML = '<tr><td colspan="' + (1 + bundles.length) + '" class="simple-stats-muted simple-q1-placeholder">No visits from capital cities in this period.</td></tr>';
+                    } else {
+                        geoRows.forEach(({ capital, sess }) => {
+                            const tr = document.createElement('tr');
+                            const cells = sess.map(function (s) {
+                                return `<td class="simple-page-amount">${s > 0 ? simpleFmtNum(s) : '—'}</td>`;
+                            }).join('');
+                            tr.innerHTML = `<td class="simple-stats-row-label simple-geo-capital-cell" style="white-space: nowrap;">${capital}</td>` + cells;
+                            geoTbody.appendChild(tr);
+                        });
+                    }
+                }
+
+                statusEl.textContent = `Loaded January–April ${year}`;
+                simpleUpdateMonthPillLabels(year);
+                simpleUpdatePrintHeaderMeta();
+            } catch (e) {
+                setErr(e.message || String(e));
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+        window.loadSimpleJanMarStats = loadSimpleJanMarStats;
+        window.loadSimpleJanuaryStats = loadSimpleJanMarStats;
+
+        (function initSimpleStatsYear() {
+            simpleSyncSimpleSectionMonthCount();
+            const y = document.getElementById('simple-stats-year');
+            if (y && !y.value) y.value = String(new Date().getFullYear());
+            const yr = y && parseInt(y.value, 10);
+            if (yr && yr >= 2020 && yr <= 2035) simpleUpdateMonthPillLabels(yr);
+            simpleUpdatePrintHeaderMeta();
+        })();
+
         async function loadData() {
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
@@ -2176,12 +3756,12 @@
                             const pctChange = ((parseFloat(current) - parseFloat(previous)) / parseFloat(previous)) * 100;
                             const colorClass = pctChange < 0 ? 'text-green-600' : (pctChange > 0 ? 'text-red-600' : 'text-gray-500');
                             const sign = pctChange > 0 ? '↑' : (pctChange < 0 ? '↓' : '');
-                            return `<div class="text-sm font-medium mt-1 ${colorClass}">${sign} ${Math.abs(pctChange).toFixed(1)}% vs prev</div>`;
+                            return `<div class="text-sm font-medium mt-1 ${colorClass}">${sign} ${Math.abs(pctChange).toFixed(1)}% vs last period</div>`;
                         }
 
                         sectionsData['Overview'] = `
                             <div class="section">
-                                <h2>Traffic Overview</h2>
+                                <h2>At a glance</h2>
                                 <div class="metrics-grid">
                                     <div class="metric-card">
                                         <div class="metric-label">${createTooltip('Total Sessions (' + labelCurr + ')', tooltips['Total Sessions'])}</div>
@@ -2250,7 +3830,7 @@
                     if (result.success && result.data && result.data.length > 0) {
                         sectionsData['Traffic Sources'] = `
                             <div class="section">
-                                <h2>Traffic Sources</h2>
+                                <h2>Where visits came from</h2>
                                 <div id="sourcesChart"></div>
                             </div>
                         `;
@@ -2273,7 +3853,7 @@
                                 type: 'pie',
                                 marker: { colors: colors }
                             }], {
-                                title: 'Sessions by Source',
+                                title: 'Visits by channel',
                                 font: { family: 'Roboto' }
                             });
                         });
@@ -2284,9 +3864,9 @@
                                     <thead>
                                         <tr>
                                             <th>Source / Medium</th>
-                                            <th>Sessions (${labelCurr})</th>
-                                            <th>Sessions (${labelPrev})</th>
-                                            <th>Trend</th>
+                                            <th>Visits (${labelCurr})</th>
+                                            <th>Visits (${labelPrev})</th>
+                                            <th>Change</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2330,7 +3910,7 @@
                     if (result.success && result.data && result.data.length > 0) {
                         sectionsData['Top Pages'] = `
                             <div class="section">
-                                <h2>Top Pages</h2>
+                                <h2>Popular pages</h2>
                                 <table>
                                     <thead>
                                         <tr>
@@ -2384,7 +3964,7 @@
                     if (result.success && result.data && result.data.length > 0) {
                         sectionsData['User Retention'] = `
                             <div class="section">
-                                <h2>User Retention</h2>
+                                <h2>New vs returning</h2>
                                 <div id="retentionChart"></div>
                             </div>
                         `;
@@ -2397,7 +3977,7 @@
                                 type: 'pie',
                                 marker: { colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12'] }
                             }], {
-                                title: 'New vs Returning Users',
+                                title: 'New vs returning people',
                                 font: { family: 'Roboto' }
                             });
                         });
@@ -2407,10 +3987,10 @@
                                 <table style="margin-top: 1.5rem;">
                                     <thead>
                                         <tr>
-                                            <th>User Type</th>
-                                            <th>Sessions (${labelCurr})</th>
-                                            <th>Sessions (${labelPrev})</th>
-                                            <th>Trend</th>
+                                            <th>Type</th>
+                                            <th>Visits (${labelCurr})</th>
+                                            <th>Visits (${labelPrev})</th>
+                                            <th>Change</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2460,18 +4040,18 @@
                         (countriesResult.success && countriesResult.data && countriesResult.data.length > 0)) {
                         let geoHTML = `
                             <div class="section">
-                                <h2>Geographic Distribution</h2>
+                                <h2>Where visitors are</h2>
                         `;
 
                         if (citiesResult.success && citiesResult.data && citiesResult.data.length > 0) {
                             geoHTML += `
-                                <h3 style="margin-top: 1rem; margin-bottom: 1rem;">Top Cities</h3>
+                                <h3 style="margin-top: 1rem; margin-bottom: 1rem;">Main cities</h3>
                                 <table style="margin-bottom: 2rem;">
                                     <thead>
                                         <tr>
                                             <th>City</th>
-                                            <th>Sessions (${labelCurr})</th>
-                                            ${isComparing ? `<th>Sessions (${labelPrev})</th><th>Trend</th>` : ''}
+                                            <th>Visits (${labelCurr})</th>
+                                            ${isComparing ? `<th>Visits (${labelPrev})</th><th>Change</th>` : ''}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2492,7 +4072,7 @@
 
                         if (countriesResult.success && countriesResult.data && countriesResult.data.length > 0) {
                             geoHTML += `
-                                <h3 style="margin-top: 1rem; margin-bottom: 1rem;">Top Countries</h3>
+                                <h3 style="margin-top: 1rem; margin-bottom: 1rem;">Main countries</h3>
                                 <div id="countriesChart"></div>
                             `;
                             // Store chart renderer
@@ -2504,9 +4084,9 @@
                                     type: 'bar',
                                     marker: { color: '#ff5800' }
                                 }], {
-                                    title: 'Sessions by Country (Top 10)',
+                                    title: 'Visits by country (top 10)',
                                     xaxis: { title: 'Country' },
-                                    yaxis: { title: 'Sessions' },
+                                    yaxis: { title: 'Visits' },
                                     font: { family: 'Roboto' }
                                 });
                             });
@@ -2517,9 +4097,9 @@
                                         <thead>
                                             <tr>
                                                 <th>Country</th>
-                                                <th>Sessions (${labelCurr})</th>
-                                                <th>Sessions (${labelPrev})</th>
-                                                <th>Trend</th>
+                                                <th>Visits (${labelCurr})</th>
+                                                <th>Visits (${labelPrev})</th>
+                                                <th>Change</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -2541,7 +4121,7 @@
                         sectionsData['Geographics'] = geoHTML;
                     }
                 } catch (error) {
-                    sectionsData['Geographics'] = `<div class="error">Error loading geographics: ${error.message}</div>`;
+                    sectionsData['Geographics'] = `<div class="error">Error loading location data: ${error.message}</div>`;
                 }
             }
 
@@ -2558,7 +4138,7 @@
                     if (result.success && result.data && result.data.length > 0) {
                         sectionsData['Tech/Devices'] = `
                             <div class="section">
-                                <h2>Device Categories</h2>
+                                <h2>Phones, tablets, and computers</h2>
                                 <div id="devicesChart"></div>
                             </div>
                         `;
@@ -2571,7 +4151,7 @@
                                 type: 'pie',
                                 marker: { colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12'] }
                             }], {
-                                title: 'Sessions by Device Category',
+                                title: 'Visits by device type',
                                 font: { family: 'Roboto' }
                             });
                         });
@@ -2581,10 +4161,10 @@
                                 <table style="margin-top: 1.5rem;">
                                     <thead>
                                         <tr>
-                                            <th>Device Category</th>
-                                            <th>Sessions (${labelCurr})</th>
-                                            <th>Sessions (${labelPrev})</th>
-                                            <th>Trend</th>
+                                            <th>Device type</th>
+                                            <th>Visits (${labelCurr})</th>
+                                            <th>Visits (${labelPrev})</th>
+                                            <th>Change</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -2621,7 +4201,7 @@
                     if (result.success && result.data && result.data.length > 0) {
                         sectionsData['Events'] = `
                             <div class="section">
-                                <h2>Top Events</h2>
+                                <h2>Tracked actions</h2>
                                 <div id="eventsChart"></div>
                                 <table style="margin-top: 2rem;">
                                     <thead>
@@ -2655,7 +4235,7 @@
                                 type: 'bar',
                                 marker: { color: '#ff5800' }
                             }], {
-                                title: 'Top Events (Top 10)',
+                                title: 'Common actions (top 10)',
                                 xaxis: { title: 'Event Name', tickangle: -45 },
                                 yaxis: { title: 'Event Count' },
                                 font: { family: 'Roboto' }
@@ -5114,6 +6694,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize month selectors
             initMonthSelectors();
+            initSimpleStatsAccordions();
         });
     </script>
 </body>

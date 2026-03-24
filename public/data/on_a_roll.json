@@ -1,0 +1,8 @@
+{
+  "lastUpdated": "2026-03-06",
+  "note": "The Jan–Apr tab picks each month’s On a Roll story from your website list automatically. Optional featuredPathContains / featuredTitles (YYYY-MM keys) override the auto pick. useRss false uses only those maps.",
+  "useRss": true,
+  "rssFeedUrl": "https://www.tenacioustapes.com.au/category/on-a-roll/feed/",
+  "featuredPathContains": {},
+  "featuredTitles": {}
+}

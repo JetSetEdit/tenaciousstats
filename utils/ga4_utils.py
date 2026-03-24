@@ -8,6 +8,8 @@ from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
     DateRange,
     Dimension,
+    Filter,
+    FilterExpression,
     Metric,
     RunReportRequest,
 )
@@ -116,6 +118,67 @@ def fetch_ga4_data(start_date: str, end_date: str, dimensions: list, metrics: li
                 grouped_data[row_dims][f"{met}_compare"] = row.metric_values[i].value
 
     return list(grouped_data.values())
+
+
+def fetch_path_screen_page_views_total(
+    start_date: str,
+    end_date: str,
+    path_value: str,
+    match_type: str = "contains",
+) -> int:
+    """
+    Total screenPageViews for pagePath filtered by path_value.
+
+    match_type:
+      - "contains": substring match, case-insensitive (good for slugs like oar-f701)
+      - "exact": EXACT match on pagePath as stored in GA4 (use e.g. /on-a-roll/ including slashes)
+    """
+    path_value = (path_value or "").strip()
+    if not path_value:
+        return 0
+
+    if match_type == "exact":
+        mt = Filter.StringFilter.MatchType.EXACT
+        case_sensitive = False
+    else:
+        mt = Filter.StringFilter.MatchType.CONTAINS
+        case_sensitive = False
+
+    client = get_ga4_client()
+    dim_filter = FilterExpression(
+        filter=Filter(
+            field_name="pagePath",
+            string_filter=Filter.StringFilter(
+                match_type=mt,
+                value=path_value,
+                case_sensitive=case_sensitive,
+            ),
+        )
+    )
+    request = RunReportRequest(
+        property=f"properties/{PROPERTY_ID}",
+        dimensions=[],
+        metrics=[Metric(name="screenPageViews")],
+        date_ranges=[DateRange(start_date=start_date, end_date=end_date)],
+        dimension_filter=dim_filter,
+        limit=1,
+    )
+    response = client.run_report(request=request)
+    if not response.rows:
+        return 0
+    try:
+        return int(float(response.rows[0].metric_values[0].value))
+    except (ValueError, TypeError, IndexError, AttributeError):
+        return 0
+
+
+def fetch_blog_screen_page_views_total(
+    start_date: str, end_date: str, path_contains: str = "blog"
+) -> int:
+    """Blog / editorial URLs: path contains substring (case-insensitive)."""
+    return fetch_path_screen_page_views_total(
+        start_date, end_date, path_contains, match_type="contains"
+    )
 
 
 def format_metric(value):
