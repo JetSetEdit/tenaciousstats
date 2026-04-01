@@ -528,10 +528,8 @@
             display: block;
         }
 
-        /* Jan–Apr tab — same visual language as Dashboard .section + report tables.
-           For more months: set SIMPLE_STATS_MONTH_INDICES in script (length N), then
-           document.documentElement or #simple-section style --simple-month-count: N;
-           add matching <col>/<th> columns in HTML (or generate the table in JS). */
+        /* Jan–Apr tab (Web stats) — same visual language as Dashboard .section + report tables.
+           Month count comes from selected checkboxes; --simple-month-count is set in JS when the table is built. */
         #simple-section {
             font-family: 'Roboto', sans-serif;
             --simple-month-count: 4;
@@ -779,10 +777,10 @@
         }
 
         /* Core metric cells — match dashboard .metric-value orange */
-        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-sessions"],
-        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-users"],
-        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-engagement"],
-        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-buy-online"] {
+        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-c"][id$="-sessions"],
+        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-c"][id$="-users"],
+        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-c"][id$="-engagement"],
+        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-c"][id$="-buy-online"] {
             text-align: left;
             font-weight: 700;
             font-size: 1.125rem;
@@ -835,7 +833,7 @@
             font-variant-numeric: tabular-nums;
         }
 
-        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-oar-feature"] {
+        #simple-section .simple-stats-table > tbody > tr > td[id^="simple-c"][id$="-oar-feature"] {
             text-align: left;
             vertical-align: top;
             background: #fff;
@@ -950,6 +948,149 @@
 
         #simple-section .simple-stats-status.error {
             color: #c0392b;
+        }
+
+        #simple-section .simple-compare-mom-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #simple-section .simple-compare-mom-label input {
+            width: 1rem;
+            height: 1rem;
+            accent-color: #ff5800;
+            cursor: pointer;
+        }
+
+        #simple-section .simple-cell-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.35rem;
+        }
+
+        #simple-section .simple-cell-main {
+            font-weight: inherit;
+            font-size: inherit;
+            color: inherit;
+        }
+
+        #simple-section .simple-mom-line {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.25rem 0.35rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1.35;
+            color: #5a6570;
+        }
+
+        #simple-section .simple-mom-line .simple-mom-val {
+            font-variant-numeric: tabular-nums;
+        }
+
+        #simple-section .simple-mom-line .simple-mom-vs {
+            font-weight: 500;
+            color: #7f8c8d;
+        }
+
+        #simple-section .simple-mom-line .simple-mom-up {
+            color: #1e8449;
+        }
+
+        #simple-section .simple-mom-line .simple-mom-down {
+            color: #c0392b;
+        }
+
+        #simple-section .simple-mom-line .simple-mom-flat {
+            color: #7f8c8d;
+            font-weight: 700;
+        }
+
+        #simple-section .simple-mom-line.simple-mom-na {
+            font-weight: 500;
+        }
+
+        #simple-section table.simple-pages-q1 .simple-mom-line,
+        #simple-section table.simple-geo-q1 .simple-mom-line {
+            font-size: 0.6875rem;
+        }
+
+        #simple-section .simple-month-picker-wrap {
+            flex-basis: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        #simple-section .simple-month-picker-actions {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem 0.75rem;
+        }
+
+        #simple-section .simple-month-picker-actions .simple-month-quick {
+            background: #fff !important;
+            color: #2c3e50 !important;
+            border: 1px solid #cfd6de !important;
+            padding: 0.35rem 0.65rem !important;
+            border-radius: 6px !important;
+            font-size: 0.8125rem !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            font-family: inherit !important;
+        }
+
+        #simple-section .simple-month-picker-actions .simple-month-quick:hover {
+            border-color: #ff5800 !important;
+            color: #ff5800 !important;
+        }
+
+        #simple-section .simple-month-picker {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.35rem 0.5rem;
+        }
+
+        #simple-section .simple-month-picker .simple-month-picker-hint {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-right: 0.25rem;
+        }
+
+        #simple-section .simple-month-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.45rem;
+            border-radius: 6px;
+            border: 1px solid #dfe4ea;
+            background: #fff;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            color: #2c3e50;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        #simple-section .simple-month-chip:hover {
+            border-color: #ff5800;
+        }
+
+        #simple-section .simple-month-chip input {
+            margin: 0;
+            accent-color: #ff5800;
         }
 
         /* Nested Q1 grids: lead column lines up with main “label” column; month pairs = main Jan–Apr */
@@ -1990,10 +2131,10 @@
             }
 
             /* Key metrics — brand orange */
-            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-sessions"],
-            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-users"],
-            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-engagement"],
-            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-m"][id$="-buy-online"],
+            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-c"][id$="-sessions"],
+            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-c"][id$="-users"],
+            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-c"][id$="-engagement"],
+            #simple-section .simple-stats-table > tbody > tr > td[id^="simple-c"][id$="-buy-online"],
             #simple-section .simple-page-amount,
             #simple-section .simple-oar-views-line {
                 color: #c2410c !important;
@@ -2861,222 +3002,63 @@
                 </div>
             </div>
 
-            <!-- Jan–Apr section — web stats table (four months) -->
+            <!-- Jan–Apr tab: web stats — year + any combination of calendar months (built in JS). -->
             <div id="simple-section" class="nav-content-section">
                 <div class="simple-stats-wrap simple-stats-panel">
                     <div class="simple-stats-print-header" aria-hidden="true">
                         <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png"
                             alt="Tenacious Tapes" class="simple-stats-print-logo">
-                        <h1 class="simple-stats-print-title">Jan–Apr website stats</h1>
-                        <p class="simple-stats-print-meta"><strong>January · February · March · April</strong></p>
+                        <h1 class="simple-stats-print-title" id="simple-print-header-title">Website stats</h1>
+                        <p class="simple-stats-print-meta"><strong id="simple-print-header-months">—</strong></p>
                         <p class="simple-stats-print-meta">Calendar year: <span id="simple-print-header-year">—</span></p>
                         <p class="simple-stats-print-generated">Prepared <span id="simple-print-header-date">—</span></p>
                     </div>
                     <h2 class="simple-stats-title">Web stats</h2>
                     <div class="simple-stats-toolbar">
                         <label for="simple-stats-year">Year</label>
-                        <input type="number" id="simple-stats-year" min="2020" max="2035" step="1" title="Calendar year for Jan–Apr">
+                        <input type="number" id="simple-stats-year" min="2020" max="2035" step="1" title="Calendar year for selected months">
                         <button type="button" id="simple-stats-load-btn" onclick="loadSimpleJanMarStats()">
-                            Load Jan–Apr
+                            Load stats
                         </button>
                         <button type="button" id="simple-stats-print-btn" class="simple-stats-print-btn"
                             onclick="window.print(); return false;"
                             title="Open print dialog — choose Save as PDF to keep a copy"
-                            aria-label="Print or save Jan–Apr web stats as PDF">
+                            aria-label="Print or save web stats as PDF">
                             <i class="fas fa-print" aria-hidden="true"></i> Print / PDF
                         </button>
+                        <label class="simple-compare-mom-label" title="Show change vs the previous month column in: At a glance, Where visits came from (% share), Popular pages (views), and Geography (visits)">
+                            <input type="checkbox" id="simple-compare-prev-month">
+                            Compare to previous month
+                        </label>
                         <span id="simple-stats-status" class="simple-stats-status"></span>
+                        <div class="simple-month-picker-wrap">
+                            <div class="simple-month-picker-actions">
+                                <span class="simple-month-picker-hint">Months in <span id="simple-month-picker-year-label"></span></span>
+                                <button type="button" class="simple-month-quick" data-simple-month-preset="1-4">Jan–Apr</button>
+                                <button type="button" class="simple-month-quick" data-simple-month-preset="1-6">H1 (Jan–Jun)</button>
+                                <button type="button" class="simple-month-quick" data-simple-month-preset="7-12">H2 (Jul–Dec)</button>
+                                <button type="button" class="simple-month-quick" data-simple-month-preset="1-12">Full year</button>
+                                <button type="button" class="simple-month-quick" data-simple-month-preset="clear">Clear</button>
+                            </div>
+                            <div class="simple-month-picker" id="simple-month-picker" role="group" aria-label="Months to include">
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="1" checked> Jan</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="2" checked> Feb</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="3" checked> Mar</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="4" checked> Apr</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="5"> May</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="6"> Jun</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="7"> Jul</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="8"> Aug</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="9"> Sep</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="10"> Oct</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="11"> Nov</label>
+                                <label class="simple-month-chip"><input type="checkbox" data-simple-month="12"> Dec</label>
+                            </div>
+                        </div>
                     </div>
                     <div id="simple-content" class="simple-stats-card">
                         <div class="simple-stats-table-scroll">
-                        <!-- Main month columns + colspans must match SIMPLE_STATS_MONTH_INDICES (see script). -->
-                        <table class="simple-stats-table">
-                            <colgroup>
-                                <col class="simple-col-label">
-                                <col class="simple-col-month">
-                                <col class="simple-col-month">
-                                <col class="simple-col-month">
-                                <col class="simple-col-month">
-                            </colgroup>
-                            <thead>
-                                <tr>
-                                    <th scope="col">What we’re measuring</th>
-                                    <th scope="col">January</th>
-                                    <th scope="col">February</th>
-                                    <th scope="col">March</th>
-                                    <th scope="col">April</th>
-                                </tr>
-                            </thead>
-                            <tbody class="simple-stats-acc-group">
-                                <tr class="simple-stats-section-header">
-                                    <td colspan="5">
-                                        <button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-glance">
-                                            At a glance
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="simple-stats-row-label">Visits</td>
-                                    <td id="simple-m1-sessions"></td>
-                                    <td id="simple-m2-sessions"></td>
-                                    <td id="simple-m3-sessions"></td>
-                                    <td id="simple-m4-sessions"></td>
-                                </tr>
-                                <tr>
-                                    <td class="simple-stats-row-label">People (approx.)</td>
-                                    <td id="simple-m1-users"></td>
-                                    <td id="simple-m2-users"></td>
-                                    <td id="simple-m3-users"></td>
-                                    <td id="simple-m4-users"></td>
-                                </tr>
-                                <tr>
-                                    <td class="simple-stats-row-label">How involved visitors were</td>
-                                    <td id="simple-m1-engagement"></td>
-                                    <td id="simple-m2-engagement"></td>
-                                    <td id="simple-m3-engagement"></td>
-                                    <td id="simple-m4-engagement"></td>
-                                </tr>
-                                <tr>
-                                    <td class="simple-stats-row-label">Buy online clicks</td>
-                                    <td id="simple-m1-buy-online"></td>
-                                    <td id="simple-m2-buy-online"></td>
-                                    <td id="simple-m3-buy-online"></td>
-                                    <td id="simple-m4-buy-online"></td>
-                                </tr>
-                                <tr>
-                                    <td class="simple-stats-row-label">On a Roll — this month’s story</td>
-                                    <td id="simple-m1-oar-feature"></td>
-                                    <td id="simple-m2-oar-feature"></td>
-                                    <td id="simple-m3-oar-feature"></td>
-                                    <td id="simple-m4-oar-feature"></td>
-                                </tr>
-                            </tbody>
-                            <tbody class="simple-stats-acc-group">
-                                <tr class="simple-stats-section-header">
-                                    <td colspan="5">
-                                        <button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-sources">
-                                            Where visits came from
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="simple-stats-embed">
-                                    <td colspan="5">
-                                        <p class="simple-stats-muted simple-embed-intro" style="margin: 0 0 0.65rem 0.15rem; font-size: 0.8125rem;">
-                                            Top channels <small>(up to three per month, share of that month’s visits)</small>
-                                        </p>
-                                        <table class="simple-pages-subtable simple-pages-q1" aria-label="Top traffic channels by month">
-                                            <colgroup>
-                                                <col class="simple-q1-lead">
-                                                <col class="simple-q1-ch"><col class="simple-q1-num">
-                                                <col class="simple-q1-ch"><col class="simple-q1-num">
-                                                <col class="simple-q1-ch"><col class="simple-q1-num">
-                                                <col class="simple-q1-ch"><col class="simple-q1-num">
-                                            </colgroup>
-                                            <thead>
-                                                <tr>
-                                                    <th class="simple-q1-lead-th" aria-hidden="true"></th>
-                                                    <th scope="col">Channel</th>
-                                                    <th scope="col">%</th>
-                                                    <th scope="col">Channel</th>
-                                                    <th scope="col">%</th>
-                                                    <th scope="col">Channel</th>
-                                                    <th scope="col">%</th>
-                                                    <th scope="col">Channel</th>
-                                                    <th scope="col">%</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="simple-sources-q1-tbody">
-                                                <tr>
-                                                    <td colspan="9" class="simple-stats-muted simple-q1-placeholder">Click <strong>Load Jan–Apr</strong> to load data.</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </tbody>
-                            <tbody class="simple-stats-acc-group">
-                                <tr class="simple-stats-section-header">
-                                    <td colspan="5">
-                                        <button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-pages">
-                                            Popular pages
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="simple-stats-embed">
-                                    <td colspan="5">
-                                        <p class="simple-stats-muted simple-embed-intro" style="margin: 0 0 0.65rem 0.15rem; font-size: 0.8125rem;">
-                                            Top pages <small>(up to five per month — each <strong>Page</strong> / <strong>Views</strong> pair matches <strong>January</strong>, <strong>February</strong>, <strong>March</strong>, then <strong>April</strong> in the table header above)</small>
-                                        </p>
-                                        <table class="simple-pages-subtable simple-pages-q1" aria-label="Top pages: page title and views for January through April">
-                                            <colgroup>
-                                                <col class="simple-q1-lead">
-                                                <col class="simple-q1-ch"><col class="simple-q1-num">
-                                                <col class="simple-q1-ch"><col class="simple-q1-num">
-                                                <col class="simple-q1-ch"><col class="simple-q1-num">
-                                                <col class="simple-q1-ch"><col class="simple-q1-num">
-                                            </colgroup>
-                                            <thead>
-                                                <tr>
-                                                    <th class="simple-q1-lead-th" aria-hidden="true"></th>
-                                                    <th scope="col">Page</th>
-                                                    <th scope="col">Views</th>
-                                                    <th scope="col">Page</th>
-                                                    <th scope="col">Views</th>
-                                                    <th scope="col">Page</th>
-                                                    <th scope="col">Views</th>
-                                                    <th scope="col">Page</th>
-                                                    <th scope="col">Views</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="simple-pages-q1-tbody">
-                                                <tr>
-                                                    <td colspan="9" class="simple-stats-muted simple-q1-placeholder">Click <strong>Load Jan–Apr</strong> to load data.</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </tbody>
-                            <tbody class="simple-stats-acc-group">
-                                <tr class="simple-stats-section-header">
-                                    <td colspan="5">
-                                        <button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-geo">
-                                            Geography
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr class="simple-stats-embed">
-                                    <td colspan="5">
-                                        <p class="simple-stats-muted simple-embed-intro" style="margin: 0 0 0.65rem 0.15rem; font-size: 0.8125rem;">
-                                            Australian capitals <small>(visits per month; only cities with visits; busiest month first)</small>
-                                        </p>
-                                        <table class="simple-pages-subtable simple-geo-q1" aria-label="Capital city visits by month">
-                                            <colgroup>
-                                                <col class="simple-geo-label">
-                                                <col class="simple-geo-month">
-                                                <col class="simple-geo-month">
-                                                <col class="simple-geo-month">
-                                                <col class="simple-geo-month">
-                                            </colgroup>
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col">Capital</th>
-                                                    <th scope="col">Jan</th>
-                                                    <th scope="col">Feb</th>
-                                                    <th scope="col">Mar</th>
-                                                    <th scope="col">Apr</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="simple-geo-q1-tbody">
-                                                <tr>
-                                                    <td colspan="5" class="simple-stats-muted simple-q1-placeholder">Click <strong>Load Jan–Apr</strong> to load data.</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <table class="simple-stats-table" id="simple-main-stats-table" aria-label="Web stats by month"></table>
                         </div>
                     </div>
                 </div>
@@ -3256,26 +3238,179 @@
             return Math.round(v).toLocaleString();
         }
 
-        /** Month pills: update labels after load (e.g. Jan 2026) */
-        function simpleUpdateMonthPillLabels(year) {
-            const j = document.getElementById('simple-pill-jan');
-            const f = document.getElementById('simple-pill-feb');
-            const m = document.getElementById('simple-pill-mar');
-            const a = document.getElementById('simple-pill-apr');
-            if (j) j.textContent = 'Jan ' + year;
-            if (f) f.textContent = 'Feb ' + year;
-            if (m) m.textContent = 'Mar ' + year;
-            if (a) a.textContent = 'Apr ' + year;
+        const SIMPLE_STATS_MONTH_SHORT = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const SIMPLE_STATS_MONTH_LONG = ['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const SIMPLE_STATS_AU_CAPITALS = ['Sydney', 'Melbourne', 'Brisbane', 'Adelaide', 'Perth', 'Hobart', 'Canberra', 'Darwin'];
+
+        function getSimpleStatsSelectedMonths() {
+            const root = document.getElementById('simple-month-picker');
+            if (!root) return [1, 2, 3, 4];
+            const sel = [];
+            root.querySelectorAll('input[type="checkbox"][data-simple-month]').forEach(function (cb) {
+                if (cb.checked) {
+                    const m = parseInt(cb.getAttribute('data-simple-month'), 10);
+                    if (m >= 1 && m <= 12) sel.push(m);
+                }
+            });
+            return sel.sort(function (a, b) { return a - b; });
         }
 
-        /** Print/PDF header (monthly report style): year + timestamp */
+        function simpleApplyMonthPreset(preset) {
+            const picker = document.getElementById('simple-month-picker');
+            if (!picker) return;
+            const boxes = picker.querySelectorAll('input[data-simple-month]');
+            const setRange = function (from, to) {
+                boxes.forEach(function (cb) {
+                    const m = parseInt(cb.getAttribute('data-simple-month'), 10);
+                    cb.checked = m >= from && m <= to;
+                });
+            };
+            if (preset === 'clear') {
+                boxes.forEach(function (cb) { cb.checked = false; });
+                return;
+            }
+            if (preset === '1-4') { setRange(1, 4); return; }
+            if (preset === '1-6') { setRange(1, 6); return; }
+            if (preset === '7-12') { setRange(7, 12); return; }
+            if (preset === '1-12') { setRange(1, 12); return; }
+        }
+
+        function simpleSummarizeMonthSelection(months) {
+            if (!months || !months.length) return '';
+            if (months.length === 12) return 'Jan–Dec';
+            let consecutive = true;
+            for (let i = 1; i < months.length; i++) {
+                if (months[i] !== months[i - 1] + 1) {
+                    consecutive = false;
+                    break;
+                }
+            }
+            if (consecutive && months.length > 1) {
+                return SIMPLE_STATS_MONTH_SHORT[months[0]] + '–' + SIMPLE_STATS_MONTH_SHORT[months[months.length - 1]];
+            }
+            return months.map(function (m) { return SIMPLE_STATS_MONTH_SHORT[m]; }).join(', ');
+        }
+
+        /** Rebuild main + nested tables for N month columns (accordion triggers re-bound in initSimpleStatsAccordions). */
+        function simpleRebuildStatsTableShell(monthIndices) {
+            const table = document.getElementById('simple-main-stats-table');
+            const sec = document.getElementById('simple-section');
+            if (!table) return;
+            window.__simpleStatsLastPayload = null;
+            const months = (monthIndices && monthIndices.length) ? monthIndices.slice() : [];
+            if (!months.length) {
+                if (sec) sec.style.setProperty('--simple-month-count', '1');
+                table.innerHTML = '<tbody><tr><td class="simple-stats-muted" style="padding:1rem;">Select one or more months, then click <strong>Load stats</strong>.</td></tr></tbody>';
+                return;
+            }
+            const N = months.length;
+            if (sec) sec.style.setProperty('--simple-month-count', String(N));
+            const subColspan = 1 + N * 2;
+            const mainColspan = 1 + N;
+            let cols = '<col class="simple-col-label">';
+            for (let i = 0; i < N; i++) cols += '<col class="simple-col-month">';
+            let headCells = '<th scope="col">What we’re measuring</th>';
+            for (let i = 0; i < N; i++) {
+                headCells += '<th scope="col">' + SIMPLE_STATS_MONTH_LONG[months[i]] + '</th>';
+            }
+            function metricRow(label, suffix) {
+                let row = '<tr><td class="simple-stats-row-label">' + label + '</td>';
+                for (let c = 0; c < N; c++) {
+                    row += '<td id="simple-c' + c + '-' + suffix + '"></td>';
+                }
+                return row + '</tr>';
+            }
+            let srcCols = '<col class="simple-q1-lead">';
+            let srcHead = '<th class="simple-q1-lead-th" aria-hidden="true"></th>';
+            for (let i = 0; i < N; i++) {
+                srcCols += '<col class="simple-q1-ch"><col class="simple-q1-num">';
+                srcHead += '<th scope="col">Channel</th><th scope="col">%</th>';
+            }
+            let pageCols = '<col class="simple-q1-lead">';
+            let pageHead = '<th class="simple-q1-lead-th" aria-hidden="true"></th>';
+            for (let i = 0; i < N; i++) {
+                pageCols += '<col class="simple-q1-ch"><col class="simple-q1-num">';
+                pageHead += '<th scope="col">Page</th><th scope="col">Views</th>';
+            }
+            let geoCols = '<col class="simple-geo-label">';
+            let geoHead = '<th scope="col">Capital</th>';
+            for (let i = 0; i < N; i++) {
+                geoCols += '<col class="simple-geo-month">';
+                geoHead += '<th scope="col">' + SIMPLE_STATS_MONTH_SHORT[months[i]] + '</th>';
+            }
+            const ph = 'Click <strong>Load stats</strong> to load data.';
+            table.innerHTML =
+                '<colgroup>' + cols + '</colgroup>' +
+                '<thead><tr>' + headCells + '</tr></thead>' +
+                '<tbody class="simple-stats-acc-group">' +
+                '<tr class="simple-stats-section-header"><td colspan="' + mainColspan + '">' +
+                '<button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-glance">At a glance</button>' +
+                '</td></tr>' +
+                metricRow('Visits', 'sessions') +
+                metricRow('People (approx.)', 'users') +
+                metricRow('How involved visitors were', 'engagement') +
+                metricRow('Buy online clicks', 'buy-online') +
+                metricRow('On a Roll — this month’s story', 'oar-feature') +
+                '</tbody>' +
+                '<tbody class="simple-stats-acc-group">' +
+                '<tr class="simple-stats-section-header"><td colspan="' + mainColspan + '">' +
+                '<button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-sources">Where visits came from</button>' +
+                '</td></tr>' +
+                '<tr class="simple-stats-embed"><td colspan="' + mainColspan + '">' +
+                '<p class="simple-stats-muted simple-embed-intro" style="margin: 0 0 0.65rem 0.15rem; font-size: 0.8125rem;">' +
+                'Top channels <small>(up to three per month, share of that month’s visits)</small></p>' +
+                '<table class="simple-pages-subtable simple-pages-q1" aria-label="Top traffic channels by month">' +
+                '<colgroup>' + srcCols + '</colgroup><thead><tr>' + srcHead + '</tr></thead>' +
+                '<tbody id="simple-sources-q1-tbody"><tr><td colspan="' + subColspan + '" class="simple-stats-muted simple-q1-placeholder">' + ph + '</td></tr></tbody>' +
+                '</table></td></tr></tbody>' +
+                '<tbody class="simple-stats-acc-group">' +
+                '<tr class="simple-stats-section-header"><td colspan="' + mainColspan + '">' +
+                '<button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-pages">Popular pages</button>' +
+                '</td></tr>' +
+                '<tr class="simple-stats-embed"><td colspan="' + mainColspan + '">' +
+                '<p class="simple-stats-muted simple-embed-intro" style="margin: 0 0 0.65rem 0.15rem; font-size: 0.8125rem;">' +
+                'Top pages <small>(up to five per month — each <strong>Page</strong> / <strong>Views</strong> pair lines up with the month columns in the table header above)</small></p>' +
+                '<table class="simple-pages-subtable simple-pages-q1" aria-label="Top pages by month">' +
+                '<colgroup>' + pageCols + '</colgroup><thead><tr>' + pageHead + '</tr></thead>' +
+                '<tbody id="simple-pages-q1-tbody"><tr><td colspan="' + subColspan + '" class="simple-stats-muted simple-q1-placeholder">' + ph + '</td></tr></tbody>' +
+                '</table></td></tr></tbody>' +
+                '<tbody class="simple-stats-acc-group">' +
+                '<tr class="simple-stats-section-header"><td colspan="' + mainColspan + '">' +
+                '<button type="button" class="simple-stats-acc-trigger" aria-expanded="true" id="simple-acc-geo">Geography</button>' +
+                '</td></tr>' +
+                '<tr class="simple-stats-embed"><td colspan="' + mainColspan + '">' +
+                '<p class="simple-stats-muted simple-embed-intro" style="margin: 0 0 0.65rem 0.15rem; font-size: 0.8125rem;">' +
+                'Australian capitals <small>(visits per month; only cities with visits; busiest month first)</small></p>' +
+                '<table class="simple-pages-subtable simple-geo-q1" aria-label="Capital city visits by month">' +
+                '<colgroup>' + geoCols + '</colgroup><thead><tr>' + geoHead + '</tr></thead>' +
+                '<tbody id="simple-geo-q1-tbody"><tr><td colspan="' + mainColspan + '" class="simple-stats-muted simple-q1-placeholder">' + ph + '</td></tr></tbody>' +
+                '</table></td></tr></tbody>';
+        }
+
+        /** Toolbar: “Months in {year}” next to presets */
+        function simpleUpdateMonthPickerYearLabel() {
+            const yIn = document.getElementById('simple-stats-year');
+            const lab = document.getElementById('simple-month-picker-year-label');
+            let y = yIn && parseInt(yIn.value, 10);
+            if (!y || y < 2020 || y > 2035) y = new Date().getFullYear();
+            if (lab) lab.textContent = String(y);
+        }
+
+        /** Print/PDF header: year, selected month names, timestamp */
         function simpleUpdatePrintHeaderMeta() {
             const yearEl = document.getElementById('simple-print-header-year');
             const dateEl = document.getElementById('simple-print-header-date');
+            const monthsEl = document.getElementById('simple-print-header-months');
             const yIn = document.getElementById('simple-stats-year');
             let y = yIn && parseInt(yIn.value, 10);
             if (!y || y < 2020 || y > 2035) y = new Date().getFullYear();
             if (yearEl) yearEl.textContent = String(y);
+            if (monthsEl) {
+                const sel = getSimpleStatsSelectedMonths();
+                monthsEl.textContent = sel.length
+                    ? sel.map(function (m) { return SIMPLE_STATS_MONTH_LONG[m] || ''; }).join(' · ')
+                    : '—';
+            }
             if (dateEl) {
                 try {
                     dateEl.textContent = new Date().toLocaleString(undefined, { dateStyle: 'long', timeStyle: 'short' });
@@ -3306,17 +3441,18 @@
         }
         window.simpleToggleMonthPill = simpleToggleMonthPill;
 
-        /** Jan–Apr table: accordion sections (same panel look as Popular pages) */
+        /** Web stats table: accordion sections — delegated so rebuilds do not stack listeners */
         function initSimpleStatsAccordions() {
             const root = document.getElementById('simple-content');
-            if (!root) return;
-            root.querySelectorAll('.simple-stats-acc-trigger').forEach(function (btn) {
-                btn.addEventListener('click', function () {
-                    const tb = btn.closest('tbody.simple-stats-acc-group');
-                    if (!tb) return;
-                    const nowCollapsed = tb.classList.toggle('is-collapsed');
-                    btn.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
-                });
+            if (!root || root.dataset.simpleAccDelegation === '1') return;
+            root.dataset.simpleAccDelegation = '1';
+            root.addEventListener('click', function (ev) {
+                const btn = ev.target.closest('.simple-stats-acc-trigger');
+                if (!btn || !root.contains(btn)) return;
+                const tb = btn.closest('tbody.simple-stats-acc-group');
+                if (!tb) return;
+                const nowCollapsed = tb.classList.toggle('is-collapsed');
+                btn.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
             });
         }
         window.initSimpleStatsAccordions = initSimpleStatsAccordions;
@@ -3338,18 +3474,6 @@
             });
         })();
 
-        /** Calendar months (1–12) loaded in the Web stats grid — length drives fetches & CSS --simple-month-count. */
-        const SIMPLE_STATS_MONTH_INDICES = [1, 2, 3, 4];
-
-        const SIMPLE_STATS_MONTH_SHORT = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-        function simpleSyncSimpleSectionMonthCount() {
-            const sec = document.getElementById('simple-section');
-            if (sec) {
-                sec.style.setProperty('--simple-month-count', String(SIMPLE_STATS_MONTH_INDICES.length));
-            }
-        }
-
         function simpleMonthRange(year, month1to12) {
             const m = String(month1to12).padStart(2, '0');
             const lastDay = new Date(year, month1to12, 0).getDate();
@@ -3365,21 +3489,52 @@
             return [...rows].sort((a, b) => (parseFloat(b.sessions) || 0) - (parseFloat(a.sessions) || 0));
         }
 
-        function simpleSourcesMonthPairHtml(sourcesJson, rankIndex, esc) {
+        function simpleSourceSharePctAtRank(sourcesJson, rankIndex) {
             const sorted = simpleSortedSourcesList(sourcesJson);
-            const total = sorted.reduce((a, r) => a + (parseFloat(r.sessions) || 0), 0);
             const row = sorted[rankIndex];
-            if (!row) {
-                return '<td class="simple-q1-page-cell"><span class="simple-stats-muted">—</span></td>' +
-                    '<td class="simple-page-amount"><span class="simple-stats-muted">—</span></td>';
-            }
-            const label = esc(row.sessionSourceMedium || 'Unknown');
-            const pct = total > 0 ? ((parseFloat(row.sessions) / total) * 100).toFixed(1) : '0';
-            return '<td class="simple-q1-page-cell"><div class="simple-page-title">' + label + '</div></td>' +
-                '<td class="simple-page-amount">' + pct + '%</td>';
+            if (!row) return null;
+            const total = sorted.reduce(function (a, r) { return a + (parseFloat(r.sessions) || 0); }, 0);
+            if (total <= 0) return null;
+            return (parseFloat(row.sessions) / total) * 100;
         }
 
-        function simpleRenderSourcesQ1Tbody(bundles, esc) {
+        function simpleSourcesMonthPairHtml(sourcesJson, rankIndex, esc, momMeta) {
+            const sorted = simpleSortedSourcesList(sourcesJson);
+            const total = sorted.reduce(function (a, r) { return a + (parseFloat(r.sessions) || 0); }, 0);
+            const row = sorted[rankIndex];
+            const momOn = momMeta && simpleIsMomCompareEnabled();
+            const mIdx = momOn ? momMeta.monthIndex : -1;
+            const prevShort = (momOn && mIdx > 0) ? SIMPLE_STATS_MONTH_SHORT[momMeta.monthIndices[mIdx - 1]] : '';
+
+            const emptyCh = '<td class="simple-q1-page-cell"><span class="simple-stats-muted">—</span></td>';
+            if (!row) {
+                if (!momOn) {
+                    return emptyCh + '<td class="simple-page-amount"><span class="simple-stats-muted">—</span></td>';
+                }
+                const pctStack = mIdx === 0
+                    ? '<td class="simple-page-amount"><div class="simple-cell-stack"><div class="simple-cell-main"><span class="simple-stats-muted">—</span></div></div></td>'
+                    : '<td class="simple-page-amount"><div class="simple-cell-stack"><div class="simple-cell-main"><span class="simple-stats-muted">—</span></div>' +
+                        simpleMomDeltaLineHtml(null, prevShort, true) + '</div></td>';
+                return emptyCh + pctStack;
+            }
+            const label = esc(row.sessionSourceMedium || 'Unknown');
+            const pctNum = total > 0 ? ((parseFloat(row.sessions) / total) * 100) : 0;
+            const pctStr = pctNum.toFixed(1) + '%';
+            const channelTd = '<td class="simple-q1-page-cell"><div class="simple-page-title">' + label + '</div></td>';
+
+            if (!momOn) {
+                return channelTd + '<td class="simple-page-amount">' + pctStr + '</td>';
+            }
+            if (mIdx === 0) {
+                return channelTd + '<td class="simple-page-amount"><div class="simple-cell-stack"><div class="simple-cell-main">' + pctStr + '</div></div></td>';
+            }
+            const prevPct = simpleSourceSharePctAtRank(momMeta.bundles[mIdx - 1].sources, rankIndex);
+            const pts = (prevPct != null) ? (pctNum - prevPct) : null;
+            return channelTd + '<td class="simple-page-amount"><div class="simple-cell-stack"><div class="simple-cell-main">' + pctStr + '</div>' +
+                simpleMomDeltaLineHtml(pts, prevShort, true) + '</div></td>';
+        }
+
+        function simpleRenderSourcesQ1Tbody(monthIndices, bundles, esc) {
             const tb = document.getElementById('simple-sources-q1-tbody');
             if (!tb) return;
             const src = bundles.map(function (b) { return b.sources; });
@@ -3392,11 +3547,12 @@
                 return;
             }
             const lead = '<td class="simple-q1-lead-cell" aria-hidden="true"></td>';
+            const momMetaBase = { monthIndices: monthIndices, bundles: bundles };
             const rows = [];
             for (let rank = 0; rank < 3; rank++) {
                 let rowHtml = '<tr>' + lead;
                 for (let m = 0; m < src.length; m++) {
-                    rowHtml += simpleSourcesMonthPairHtml(src[m], rank, esc);
+                    rowHtml += simpleSourcesMonthPairHtml(src[m], rank, esc, Object.assign({ monthIndex: m }, momMetaBase));
                 }
                 rowHtml += '</tr>';
                 rows.push(rowHtml);
@@ -3461,6 +3617,299 @@
             };
         }
 
+        function simpleIsMomCompareEnabled() {
+            const el = document.getElementById('simple-compare-prev-month');
+            return !!(el && el.checked);
+        }
+
+        function simpleRelPctChangeNum(cur, prev) {
+            const c = parseFloat(cur);
+            const p = parseFloat(prev);
+            if (isNaN(c) || isNaN(p) || p <= 0) return null;
+            return ((c - p) / p) * 100;
+        }
+
+        function simpleEngagementPtsDiffNum(curEr, prevEr) {
+            const c = parseFloat(curEr);
+            const p = parseFloat(prevEr);
+            if (isNaN(c) || isNaN(p)) return null;
+            return (c - p) * 100;
+        }
+
+        function simpleOarViewsFromBundle(b) {
+            if (!b || !b.oarFeaturedSlug || !b.pathFeature || !b.pathFeature.success || !b.pathFeature.data) return 0;
+            const v = b.pathFeature.data.screenPageViews;
+            if (v == null) return 0;
+            return parseInt(v, 10) || 0;
+        }
+
+        function simpleBuyOnlineFromBundle(b) {
+            if (!b.events || !b.events.success || !b.events.data) return 0;
+            const row = b.events.data.find(e => (e.eventName || '') === 'click_buy_online');
+            return row ? (parseInt(row.eventCount, 10) || 0) : 0;
+        }
+
+        function simpleMomDeltaLineHtml(pct, prevMonthShort, isPoints) {
+            if (pct === null || pct === undefined || (typeof pct === 'number' && isNaN(pct))) {
+                return '<div class="simple-mom-line simple-mom-na"><span class="simple-stats-muted">vs ' + prevMonthShort + ' —</span></div>';
+            }
+            const up = pct > 0.049;
+            const down = pct < -0.049;
+            let arrow;
+            if (up) {
+                arrow = '<i class="fas fa-arrow-up simple-mom-up" aria-hidden="true"></i>';
+            } else if (down) {
+                arrow = '<i class="fas fa-arrow-down simple-mom-down" aria-hidden="true"></i>';
+            } else {
+                arrow = '<span class="simple-mom-flat" title="Little change">→</span>';
+            }
+            const val = Math.abs(pct).toFixed(1);
+            const suffix = isPoints ? ' pts' : '%';
+            return '<div class="simple-mom-line">' + arrow + ' <span class="simple-mom-val">' + val + suffix + '</span> <span class="simple-mom-vs">vs ' + prevMonthShort + '</span></div>';
+        }
+
+        function simpleFillWebStatsMetricCells(monthIndices, bundles, esc, escAttr) {
+            if (!monthIndices || !bundles || monthIndices.length !== bundles.length) return;
+            const mom = simpleIsMomCompareEnabled();
+            for (let i = 0; i < bundles.length; i++) {
+                const b = bundles[i];
+                const o = b.overview;
+                const monthNum = monthIndices[i];
+                const prevShort = i > 0 ? SIMPLE_STATS_MONTH_SHORT[monthIndices[i - 1]] : '';
+
+                const sessEl = document.getElementById('simple-c' + i + '-sessions');
+                if (sessEl) {
+                    const main = simpleFmtNum(o.sessions);
+                    if (!mom) {
+                        sessEl.textContent = main;
+                    } else if (i === 0) {
+                        sessEl.innerHTML = '<div class="simple-cell-stack"><div class="simple-cell-main">' + main + '</div></div>';
+                    } else {
+                        const pct = simpleRelPctChangeNum(o.sessions, bundles[i - 1].overview.sessions);
+                        sessEl.innerHTML = '<div class="simple-cell-stack"><div class="simple-cell-main">' + main + '</div>' +
+                            simpleMomDeltaLineHtml(pct, prevShort, false) + '</div>';
+                    }
+                }
+
+                const usersEl = document.getElementById('simple-c' + i + '-users');
+                if (usersEl) {
+                    const main = simpleFmtNum(o.totalUsers);
+                    if (!mom) {
+                        usersEl.textContent = main;
+                    } else if (i === 0) {
+                        usersEl.innerHTML = '<div class="simple-cell-stack"><div class="simple-cell-main">' + main + '</div></div>';
+                    } else {
+                        const pct = simpleRelPctChangeNum(o.totalUsers, bundles[i - 1].overview.totalUsers);
+                        usersEl.innerHTML = '<div class="simple-cell-stack"><div class="simple-cell-main">' + main + '</div>' +
+                            simpleMomDeltaLineHtml(pct, prevShort, false) + '</div>';
+                    }
+                }
+
+                const er = o.engagementRate;
+                const engEl = document.getElementById('simple-c' + i + '-engagement');
+                if (engEl) {
+                    const mainEng = (er != null && er !== '')
+                        ? (parseFloat(er) * 100).toFixed(1) + '% <span class="simple-stats-muted" style="font-weight:400">of visits</span>'
+                        : '—';
+                    if (!mom) {
+                        if (er != null && er !== '') {
+                            engEl.innerHTML = mainEng;
+                        } else {
+                            engEl.textContent = '—';
+                        }
+                    } else if (i === 0) {
+                        engEl.innerHTML = '<div class="simple-cell-stack"><div class="simple-cell-main">' + mainEng + '</div></div>';
+                    } else {
+                        const prevEr = bundles[i - 1].overview.engagementRate;
+                        const pts = (er != null && er !== '' && prevEr != null && prevEr !== '')
+                            ? simpleEngagementPtsDiffNum(er, prevEr)
+                            : null;
+                        engEl.innerHTML = '<div class="simple-cell-stack"><div class="simple-cell-main">' + mainEng + '</div>' +
+                            simpleMomDeltaLineHtml(pts, prevShort, true) + '</div>';
+                    }
+                }
+
+                let featViews = simpleOarViewsFromBundle(b);
+                const featEl = document.getElementById('simple-c' + i + '-oar-feature');
+                if (featEl) {
+                    if (!b.oarFeaturedSlug) {
+                        featEl.textContent = '—';
+                    } else {
+                        const slug = String(b.oarFeaturedSlug).replace(/^\/+|\/+$/g, '');
+                        const articleUrl = 'https://www.tenacioustapes.com.au/' + encodeURIComponent(slug).replace(/%2F/g, '/') + '/';
+                        const linkLabel = (b.oarFeaturedTitle && String(b.oarFeaturedTitle).trim()) || slug;
+                        const monthTag = (monthNum >= 1 && monthNum <= 12) ? SIMPLE_STATS_MONTH_SHORT[monthNum] : '';
+                        const ariaLabel = linkLabel + ' — ' + featViews.toLocaleString() + ' views';
+                        const stackInner =
+                            '<div class="simple-oar-stack">' +
+                            '<span class="simple-oar-month-tag">' + esc(monthTag) + '</span>' +
+                            '<a class="simple-oar-story-link" href="' + esc(articleUrl) + '" target="_blank" rel="noopener" aria-label="' + escAttr(ariaLabel) + '">' + esc(linkLabel) + '</a>' +
+                            '<span class="simple-oar-views-line">' + featViews.toLocaleString() + ' views</span>' +
+                            '</div>';
+                        if (!mom || i === 0) {
+                            featEl.innerHTML = mom
+                                ? '<div class="simple-cell-stack">' + stackInner + '</div>'
+                                : stackInner;
+                        } else {
+                            const prevV = simpleOarViewsFromBundle(bundles[i - 1]);
+                            const pct = simpleRelPctChangeNum(featViews, prevV);
+                            featEl.innerHTML = '<div class="simple-cell-stack">' + stackInner +
+                                simpleMomDeltaLineHtml(pct, prevShort, false) + '</div>';
+                        }
+                    }
+                }
+
+                const buy = simpleBuyOnlineFromBundle(b);
+                const buyEl = document.getElementById('simple-c' + i + '-buy-online');
+                if (buyEl) {
+                    const main = buy.toLocaleString();
+                    if (!mom) {
+                        buyEl.textContent = main;
+                    } else if (i === 0) {
+                        buyEl.innerHTML = '<div class="simple-cell-stack"><div class="simple-cell-main">' + main + '</div></div>';
+                    } else {
+                        const prevBuy = simpleBuyOnlineFromBundle(bundles[i - 1]);
+                        const pct = simpleRelPctChangeNum(buy, prevBuy);
+                        buyEl.innerHTML = '<div class="simple-cell-stack"><div class="simple-cell-main">' + main + '</div>' +
+                            simpleMomDeltaLineHtml(pct, prevShort, false) + '</div>';
+                    }
+                }
+            }
+        }
+
+        function simpleSortedPagesByViewsForSimple(pagesJson) {
+            const list = (pagesJson.success && pagesJson.data) ? [...pagesJson.data] : [];
+            list.sort(function (a, b) {
+                return (parseInt(b.screenPageViews, 10) || 0) - (parseInt(a.screenPageViews, 10) || 0);
+            });
+            return list;
+        }
+
+        function simpleTopPageTitleCellHtml(p, escFn) {
+            if (!p) {
+                return '<td class="simple-q1-page-cell"><span class="simple-stats-muted">—</span></td>';
+            }
+            const titleRaw = (p.pageTitle || '').trim();
+            const pathRaw = (p.pagePath || '').trim();
+            const title = escFn((titleRaw || pathRaw || 'Page').slice(0, 88));
+            let pathHtml = '';
+            if (pathRaw && titleRaw && pathRaw !== titleRaw) {
+                pathHtml = '<div class="simple-page-path">' + escFn(pathRaw.slice(0, 96)) + '</div>';
+            }
+            return '<td class="simple-q1-page-cell"><div class="simple-page-title">' + title + '</div>' + pathHtml + '</td>';
+        }
+
+        function simpleTopPageViewsTdHtml(p, prevP, prevShort, monthIndex) {
+            const mom = simpleIsMomCompareEnabled();
+            if (!p) {
+                if (!mom) return '<td class="simple-page-amount">—</td>';
+                if (monthIndex === 0) {
+                    return '<td class="simple-page-amount"><div class="simple-cell-stack"><div class="simple-cell-main"><span class="simple-stats-muted">—</span></div></div></td>';
+                }
+                return '<td class="simple-page-amount"><div class="simple-cell-stack"><div class="simple-cell-main"><span class="simple-stats-muted">—</span></div>' +
+                    simpleMomDeltaLineHtml(null, prevShort, false) + '</div></td>';
+            }
+            const v = parseInt(p.screenPageViews, 10) || 0;
+            const main = simpleViewsCell(v);
+            if (!mom) return '<td class="simple-page-amount">' + main + '</td>';
+            if (monthIndex === 0) {
+                return '<td class="simple-page-amount"><div class="simple-cell-stack"><div class="simple-cell-main">' + main + '</div></div></td>';
+            }
+            const pv = prevP ? (parseInt(prevP.screenPageViews, 10) || 0) : 0;
+            const pct = simpleRelPctChangeNum(v, pv);
+            return '<td class="simple-page-amount"><div class="simple-cell-stack"><div class="simple-cell-main">' + main + '</div>' +
+                simpleMomDeltaLineHtml(pct, prevShort, false) + '</div></td>';
+        }
+
+        function simpleRenderPagesQ1Tbody(monthIndices, bundles, esc) {
+            const SIMPLE_TOP_PAGES_PER_MONTH = 5;
+            const pagesTbody = document.getElementById('simple-pages-q1-tbody');
+            if (!pagesTbody) return;
+            const pagesByMonth = bundles.map(function (b) {
+                return simpleSortedPagesByViewsForSimple(b.pagesMerge);
+            });
+            const pagesColspan = 1 + bundles.length * 2;
+            const anyData = pagesByMonth.some(function (list) { return list.length > 0; });
+            if (!anyData) {
+                pagesTbody.innerHTML = '<tr><td colspan="' + pagesColspan + '" class="simple-stats-muted simple-q1-placeholder">—</td></tr>';
+                return;
+            }
+            pagesTbody.innerHTML = '';
+            const leadTd = '<td class="simple-q1-lead-cell" aria-hidden="true"></td>';
+            for (let i = 0; i < SIMPLE_TOP_PAGES_PER_MONTH; i++) {
+                const tr = document.createElement('tr');
+                let rowHtml = leadTd;
+                for (let m = 0; m < pagesByMonth.length; m++) {
+                    const p = pagesByMonth[m][i];
+                    const prevP = m > 0 ? pagesByMonth[m - 1][i] : null;
+                    const prevShort = m > 0 ? SIMPLE_STATS_MONTH_SHORT[monthIndices[m - 1]] : '';
+                    rowHtml += simpleTopPageTitleCellHtml(p, esc) + simpleTopPageViewsTdHtml(p, prevP, prevShort, m);
+                }
+                tr.innerHTML = rowHtml;
+                pagesTbody.appendChild(tr);
+            }
+        }
+
+        function simpleGeoSessionTdHtml(s, prevS, prevShort, monthIndex) {
+            const mom = simpleIsMomCompareEnabled();
+            const main = s > 0 ? simpleFmtNum(s) : '—';
+            if (!mom) return '<td class="simple-page-amount">' + main + '</td>';
+            if (monthIndex === 0) {
+                return '<td class="simple-page-amount"><div class="simple-cell-stack"><div class="simple-cell-main">' + main + '</div></div></td>';
+            }
+            const pct = simpleRelPctChangeNum(s, prevS);
+            return '<td class="simple-page-amount"><div class="simple-cell-stack"><div class="simple-cell-main">' + main + '</div>' +
+                simpleMomDeltaLineHtml(pct, prevShort, false) + '</div></td>';
+        }
+
+        function simpleRenderGeoQ1Tbody(monthIndices, bundles) {
+            const geoTbody = document.getElementById('simple-geo-q1-tbody');
+            if (!geoTbody) return;
+            geoTbody.innerHTML = '';
+            const geoRows = SIMPLE_STATS_AU_CAPITALS.map(function (capital) {
+                const sess = bundles.map(function (b) {
+                    return simpleFindCitySessions(b.cities, capital);
+                });
+                const peak = Math.max.apply(null, sess);
+                const total = sess.reduce(function (a, v) { return a + v; }, 0);
+                return { capital: capital, sess: sess, peak: peak, total: total };
+            }).filter(function (r) { return r.total > 0; });
+            geoRows.sort(function (a, b) { return b.peak - a.peak; });
+            if (geoRows.length === 0) {
+                geoTbody.innerHTML = '<tr><td colspan="' + (1 + bundles.length) + '" class="simple-stats-muted simple-q1-placeholder">No visits from capital cities in this period.</td></tr>';
+                return;
+            }
+            geoRows.forEach(function (row) {
+                const capital = row.capital;
+                const sess = row.sess;
+                const tr = document.createElement('tr');
+                let cells = '';
+                for (let m = 0; m < sess.length; m++) {
+                    const prevS = m > 0 ? sess[m - 1] : 0;
+                    const prevShort = m > 0 ? SIMPLE_STATS_MONTH_SHORT[monthIndices[m - 1]] : '';
+                    cells += simpleGeoSessionTdHtml(sess[m], prevS, prevShort, m);
+                }
+                tr.innerHTML = '<td class="simple-stats-row-label simple-geo-capital-cell" style="white-space: nowrap;">' + capital + '</td>' + cells;
+                geoTbody.appendChild(tr);
+            });
+        }
+
+        function simpleRefreshWebStatsMomDisplay() {
+            const pay = window.__simpleStatsLastPayload;
+            if (!pay || !pay.bundles || !pay.monthIndices) return;
+            const cur = getSimpleStatsSelectedMonths();
+            if (JSON.stringify(cur) !== JSON.stringify(pay.monthIndices)) return;
+            const escFn = function (s) { return String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+            const escAttrFn = function (s) {
+                return String(s || '')
+                    .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            };
+            simpleFillWebStatsMetricCells(pay.monthIndices, pay.bundles, escFn, escAttrFn);
+            simpleRenderSourcesQ1Tbody(pay.monthIndices, pay.bundles, escFn);
+            simpleRenderPagesQ1Tbody(pay.monthIndices, pay.bundles, escFn);
+            simpleRenderGeoQ1Tbody(pay.monthIndices, pay.bundles);
+        }
+
         async function loadSimpleJanMarStats() {
             const yearInput = document.getElementById('simple-stats-year');
             const statusEl = document.getElementById('simple-stats-status');
@@ -3472,15 +3921,22 @@
                 statusEl.textContent = msg;
                 statusEl.classList.add('error');
             };
+            const monthIndices = getSimpleStatsSelectedMonths();
+            simpleRebuildStatsTableShell(monthIndices);
+            if (!monthIndices.length) {
+                statusEl.classList.remove('error');
+                statusEl.textContent = 'Select at least one month.';
+                return;
+            }
+
             statusEl.classList.remove('error');
-            statusEl.textContent = 'Loading Jan–Apr…';
+            statusEl.textContent = 'Loading…';
             if (btn) btn.disabled = true;
             simpleToggleMonthPill(''); /* clear column highlight while reloading */
 
             const esc = (s) => String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             const escAttr = (s) => String(s || '')
                 .replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-            const AU_CAPITALS = ['Sydney', 'Melbourne', 'Brisbane', 'Adelaide', 'Perth', 'Hobart', 'Canberra', 'Darwin'];
 
             try {
                 let oarConfig = { featuredPathContains: {}, featuredTitles: {}, useRss: true };
@@ -3532,145 +3988,23 @@
                 }
 
                 const bundles = await Promise.all(
-                    SIMPLE_STATS_MONTH_INDICES.map(function (monthNum) {
+                    monthIndices.map(function (monthNum) {
                         return fetchSimpleMonthBundle(year, monthNum, oarConfig);
                     })
                 );
 
-                for (let i = 0; i < bundles.length; i++) {
-                    const b = bundles[i];
-                    const mi = i + 1;
-                    const o = b.overview;
-                    document.getElementById(`simple-m${mi}-sessions`).textContent = simpleFmtNum(o.sessions);
-                    document.getElementById(`simple-m${mi}-users`).textContent = simpleFmtNum(o.totalUsers);
-                    const er = o.engagementRate;
-                    const engEl = document.getElementById(`simple-m${mi}-engagement`);
-                    if (er != null && er !== '') {
-                        engEl.innerHTML = `${(parseFloat(er) * 100).toFixed(1)}% <span class="simple-stats-muted" style="font-weight:400">of visits</span>`;
-                    } else {
-                        engEl.textContent = '—';
-                    }
-                    let featViews = 0;
-                    const pf = b.pathFeature;
-                    if (b.oarFeaturedSlug && pf && pf.success && pf.data && pf.data.screenPageViews != null) {
-                        featViews = parseInt(pf.data.screenPageViews, 10) || 0;
-                    }
-                    const featEl = document.getElementById(`simple-m${mi}-oar-feature`);
-                    if (featEl) {
-                        if (b.oarFeaturedSlug) {
-                            const slug = String(b.oarFeaturedSlug).replace(/^\/+|\/+$/g, '');
-                            const articleUrl = 'https://www.tenacioustapes.com.au/' + encodeURIComponent(slug).replace(/%2F/g, '/') + '/';
-                            const linkLabel = (b.oarFeaturedTitle && String(b.oarFeaturedTitle).trim()) || slug;
-                            const monthNum = SIMPLE_STATS_MONTH_INDICES[i];
-                            const monthTag = (monthNum >= 1 && monthNum <= 12)
-                                ? SIMPLE_STATS_MONTH_SHORT[monthNum]
-                                : '';
-                            const ariaLabel = linkLabel + ' — ' + featViews.toLocaleString() + ' views';
-                            featEl.innerHTML =
-                                '<div class="simple-oar-stack">' +
-                                '<span class="simple-oar-month-tag">' + esc(monthTag) + '</span>' +
-                                '<a class="simple-oar-story-link" href="' + esc(articleUrl) + '" target="_blank" rel="noopener" aria-label="' + escAttr(ariaLabel) + '">' + esc(linkLabel) + '</a>' +
-                                '<span class="simple-oar-views-line">' + featViews.toLocaleString() + ' views</span>' +
-                                '</div>';
-                        } else {
-                            featEl.textContent = '—';
-                        }
-                    }
+                simpleFillWebStatsMetricCells(monthIndices, bundles, esc, escAttr);
 
-                    let buy = 0;
-                    if (b.events.success && b.events.data) {
-                        const row = b.events.data.find(e => (e.eventName || '') === 'click_buy_online');
-                        if (row) buy = parseInt(row.eventCount, 10) || 0;
-                    }
-                    document.getElementById(`simple-m${mi}-buy-online`).textContent = buy.toLocaleString();
-                }
+                simpleRenderSourcesQ1Tbody(monthIndices, bundles, esc);
+                simpleRenderPagesQ1Tbody(monthIndices, bundles, esc);
+                simpleRenderGeoQ1Tbody(monthIndices, bundles);
 
-                simpleRenderSourcesQ1Tbody(bundles, esc);
-
-                const SIMPLE_TOP_PAGES_PER_MONTH = 5;
-
-                function simpleSortedPagesByViews(pagesJson) {
-                    const list = (pagesJson.success && pagesJson.data) ? [...pagesJson.data] : [];
-                    list.sort((a, b) => (parseInt(b.screenPageViews, 10) || 0) - (parseInt(a.screenPageViews, 10) || 0));
-                    return list;
-                }
-
-                function simpleTopPageCellHtml(p, escFn) {
-                    if (!p) {
-                        return '<td class="simple-q1-page-cell"><span class="simple-stats-muted">—</span></td>';
-                    }
-                    const titleRaw = (p.pageTitle || '').trim();
-                    const pathRaw = (p.pagePath || '').trim();
-                    const title = escFn((titleRaw || pathRaw || 'Page').slice(0, 88));
-                    let pathHtml = '';
-                    if (pathRaw && titleRaw && pathRaw !== titleRaw) {
-                        pathHtml = `<div class="simple-page-path">${escFn(pathRaw.slice(0, 96))}</div>`;
-                    }
-                    return `<td class="simple-q1-page-cell"><div class="simple-page-title">${title}</div>${pathHtml}</td>`;
-                }
-
-                function simpleTopPageViewsCell(p) {
-                    if (!p) return '<td class="simple-page-amount">—</td>';
-                    const v = parseInt(p.screenPageViews, 10) || 0;
-                    return `<td class="simple-page-amount">${simpleViewsCell(v)}</td>`;
-                }
-
-                const pagesByMonth = bundles.map(function (b) {
-                    return simpleSortedPagesByViews(b.pagesMerge);
-                });
-                const pagesColspan = 1 + bundles.length * 2;
-
-                const pagesTbody = document.getElementById('simple-pages-q1-tbody');
-                if (pagesTbody) {
-                    pagesTbody.innerHTML = '';
-                    const anyData = pagesByMonth.some(function (list) { return list.length > 0; });
-                    if (!anyData) {
-                        pagesTbody.innerHTML = '<tr><td colspan="' + pagesColspan + '" class="simple-stats-muted simple-q1-placeholder">—</td></tr>';
-                    } else {
-                        const leadTd = '<td class="simple-q1-lead-cell" aria-hidden="true"></td>';
-                        for (let i = 0; i < SIMPLE_TOP_PAGES_PER_MONTH; i++) {
-                            const tr = document.createElement('tr');
-                            let rowHtml = leadTd;
-                            for (let m = 0; m < pagesByMonth.length; m++) {
-                                const p = pagesByMonth[m][i];
-                                rowHtml += simpleTopPageCellHtml(p, esc) + simpleTopPageViewsCell(p);
-                            }
-                            tr.innerHTML = rowHtml;
-                            pagesTbody.appendChild(tr);
-                        }
-                    }
-                }
-
-                const geoTbody = document.getElementById('simple-geo-q1-tbody');
-                if (geoTbody) {
-                    geoTbody.innerHTML = '';
-                    const geoRows = AU_CAPITALS.map((capital) => {
-                        const sess = bundles.map(function (b) {
-                            return simpleFindCitySessions(b.cities, capital);
-                        });
-                        const peak = Math.max.apply(null, sess);
-                        const total = sess.reduce(function (a, v) { return a + v; }, 0);
-                        return { capital, sess, peak, total };
-                    }).filter((r) => r.total > 0);
-                    geoRows.sort((a, b) => b.peak - a.peak);
-                    if (geoRows.length === 0) {
-                        geoTbody.innerHTML = '<tr><td colspan="' + (1 + bundles.length) + '" class="simple-stats-muted simple-q1-placeholder">No visits from capital cities in this period.</td></tr>';
-                    } else {
-                        geoRows.forEach(({ capital, sess }) => {
-                            const tr = document.createElement('tr');
-                            const cells = sess.map(function (s) {
-                                return `<td class="simple-page-amount">${s > 0 ? simpleFmtNum(s) : '—'}</td>`;
-                            }).join('');
-                            tr.innerHTML = `<td class="simple-stats-row-label simple-geo-capital-cell" style="white-space: nowrap;">${capital}</td>` + cells;
-                            geoTbody.appendChild(tr);
-                        });
-                    }
-                }
-
-                statusEl.textContent = `Loaded January–April ${year}`;
-                simpleUpdateMonthPillLabels(year);
+                window.__simpleStatsLastPayload = { monthIndices: monthIndices.slice(), bundles: bundles };
+                statusEl.textContent = 'Loaded ' + simpleSummarizeMonthSelection(monthIndices) + ' · ' + year;
+                simpleUpdateMonthPickerYearLabel();
                 simpleUpdatePrintHeaderMeta();
             } catch (e) {
+                window.__simpleStatsLastPayload = null;
                 setErr(e.message || String(e));
             } finally {
                 if (btn) btn.disabled = false;
@@ -3680,12 +4014,41 @@
         window.loadSimpleJanuaryStats = loadSimpleJanMarStats;
 
         (function initSimpleStatsYear() {
-            simpleSyncSimpleSectionMonthCount();
             const y = document.getElementById('simple-stats-year');
             if (y && !y.value) y.value = String(new Date().getFullYear());
-            const yr = y && parseInt(y.value, 10);
-            if (yr && yr >= 2020 && yr <= 2035) simpleUpdateMonthPillLabels(yr);
+            simpleRebuildStatsTableShell(getSimpleStatsSelectedMonths());
+            initSimpleStatsAccordions();
+            simpleUpdateMonthPickerYearLabel();
             simpleUpdatePrintHeaderMeta();
+            const toolbar = document.querySelector('#simple-section .simple-stats-toolbar');
+            if (toolbar) {
+                toolbar.addEventListener('click', function (ev) {
+                    const presetBtn = ev.target.closest('[data-simple-month-preset]');
+                    if (!presetBtn) return;
+                    simpleApplyMonthPreset(presetBtn.getAttribute('data-simple-month-preset'));
+                    simpleRebuildStatsTableShell(getSimpleStatsSelectedMonths());
+                    simpleUpdatePrintHeaderMeta();
+                });
+            }
+            const picker = document.getElementById('simple-month-picker');
+            if (picker) {
+                picker.addEventListener('change', function () {
+                    simpleRebuildStatsTableShell(getSimpleStatsSelectedMonths());
+                    simpleUpdatePrintHeaderMeta();
+                });
+            }
+            if (y) {
+                y.addEventListener('change', function () {
+                    simpleUpdateMonthPickerYearLabel();
+                    simpleUpdatePrintHeaderMeta();
+                });
+            }
+            const momCb = document.getElementById('simple-compare-prev-month');
+            if (momCb) {
+                momCb.addEventListener('change', function () {
+                    simpleRefreshWebStatsMomDisplay();
+                });
+            }
         })();
 
         async function loadData() {
