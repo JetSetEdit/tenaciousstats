@@ -935,6 +935,27 @@
             background: #636e72 !important;
         }
 
+        #simple-section .simple-stats-toolbar .simple-stats-charts-pdf-btn {
+            background: #4a90e2 !important;
+            color: white !important;
+            border: none !important;
+            padding: 0.5rem 1.1rem !important;
+            border-radius: 6px !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            font-size: 0.875rem !important;
+            font-family: inherit !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.4rem !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+            transition: background 0.2s ease;
+        }
+
+        #simple-section .simple-stats-toolbar .simple-stats-charts-pdf-btn:hover {
+            background: #3a7bc8 !important;
+        }
+
         #simple-section .simple-stats-status {
             font-size: 0.8125rem;
             color: #7f8c8d;
@@ -2386,7 +2407,7 @@
                     onclick="showNavSection('dashboard', event); return false;">Dashboard</button>
                 <button class="nav-item" onclick="showNavSection('glossary', event); return false;">Word list</button>
                 <button class="nav-item" onclick="showNavSection('compare', event); return false;">Compare</button>
-                <button class="nav-item" onclick="showNavSection('simple', event); return false;">Jan–Apr</button>
+                <button class="nav-item" onclick="showNavSection('simple', event); return false;">Sales Stats</button>
             </div>
         </nav>
 
@@ -2416,6 +2437,9 @@
                             <label><input type="checkbox" value="Events"> Clicks and actions</label>
                             <label><input type="checkbox" value="Business Profile" checked> Google Business Profile</label>
                             <label><input type="checkbox" value="Email Campaigns"> Email campaigns</label>
+                        </div>
+                        <div class="form-group" style="margin-top: 0.75rem;">
+                            <label style="font-size: 0.9rem;" title="When on, Google Analytics requests only include sessions GA4 attributes to Australia (country dimension). Does not affect Google Business Profile or email sections."><input type="checkbox" class="au-only-analytics-cb"> <b>Australia only</b> (website analytics)</label>
                         </div>
                         <button onclick="loadData()">Refresh Data</button>
                         <button onclick="generateReport()" style="margin-top: 0.5rem; background-color: #4a90e2;">📄
@@ -2987,6 +3011,11 @@
                         </div>
                     </div>
 
+                    <label style="display: block; margin-bottom: 1rem; font-size: 0.95rem; color: #374151;">
+                        <input type="checkbox" class="au-only-analytics-cb" title="Same as Dashboard: GA4 metrics limited to Australia">
+                        Australia only (website analytics)
+                    </label>
+
                     <button onclick="loadComparisonData()"
                         style="background: #ff5800; color: white; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer;">
                         🔄 Compare Periods
@@ -3002,18 +3031,18 @@
                 </div>
             </div>
 
-            <!-- Jan–Apr tab: web stats — year + any combination of calendar months (built in JS). -->
+            <!-- Sales Stats tab: web stats — year + any combination of calendar months (built in JS). -->
             <div id="simple-section" class="nav-content-section">
                 <div class="simple-stats-wrap simple-stats-panel">
                     <div class="simple-stats-print-header" aria-hidden="true">
                         <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png"
                             alt="Tenacious Tapes" class="simple-stats-print-logo">
-                        <h1 class="simple-stats-print-title" id="simple-print-header-title">Website stats</h1>
+                        <h1 class="simple-stats-print-title" id="simple-print-header-title">Sales stats</h1>
                         <p class="simple-stats-print-meta"><strong id="simple-print-header-months">—</strong></p>
                         <p class="simple-stats-print-meta">Calendar year: <span id="simple-print-header-year">—</span></p>
                         <p class="simple-stats-print-generated">Prepared <span id="simple-print-header-date">—</span></p>
                     </div>
-                    <h2 class="simple-stats-title">Web stats</h2>
+                    <h2 class="simple-stats-title">Sales stats</h2>
                     <div class="simple-stats-toolbar">
                         <label for="simple-stats-year">Year</label>
                         <input type="number" id="simple-stats-year" min="2020" max="2035" step="1" title="Calendar year for selected months">
@@ -3023,12 +3052,22 @@
                         <button type="button" id="simple-stats-print-btn" class="simple-stats-print-btn"
                             onclick="window.print(); return false;"
                             title="Open print dialog — choose Save as PDF to keep a copy"
-                            aria-label="Print or save web stats as PDF">
+                            aria-label="Print or save sales stats as PDF">
                             <i class="fas fa-print" aria-hidden="true"></i> Print / PDF
+                        </button>
+                        <button type="button" id="simple-stats-charts-pdf-btn" class="simple-stats-charts-pdf-btn"
+                            onclick="downloadSalesStatsChartsPdf(); return false;"
+                            title="Download a PDF with bar charts and a source mix chart (ReportLab, server-generated)"
+                            aria-label="Download sales stats charts as PDF">
+                            <i class="fas fa-chart-bar" aria-hidden="true"></i> Charts PDF
                         </button>
                         <label class="simple-compare-mom-label" title="Show change vs the previous month column in: At a glance, Where visits came from (% share), Popular pages (views), and Geography (visits)">
                             <input type="checkbox" id="simple-compare-prev-month">
                             Compare to previous month
+                        </label>
+                        <label class="simple-compare-mom-label" title="GA4: sessions attributed to Australia only (same as main Dashboard toggle)">
+                            <input type="checkbox" class="au-only-analytics-cb">
+                            Australia only
                         </label>
                         <span id="simple-stats-status" class="simple-stats-status"></span>
                         <div class="simple-month-picker-wrap">
@@ -3058,7 +3097,7 @@
                     </div>
                     <div id="simple-content" class="simple-stats-card">
                         <div class="simple-stats-table-scroll">
-                        <table class="simple-stats-table" id="simple-main-stats-table" aria-label="Web stats by month"></table>
+                        <table class="simple-stats-table" id="simple-main-stats-table" aria-label="Sales stats by month"></table>
                         </div>
                     </div>
                 </div>
@@ -3087,6 +3126,12 @@
         const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
             || !window.location.hostname
             || window.location.protocol === 'file:';
+
+        // When opened via http://localhost:* from run_vercel_local.py, use that origin (8000, 8001, etc.).
+        // file:// or odd hosts still assume default local API port.
+        const LOCAL_BACKEND_ORIGIN = (window.location.protocol === 'file:' || !window.location.hostname)
+            ? 'http://localhost:8000'
+            : window.location.origin;
 
         // Check if already authenticated
         function checkAuth() {
@@ -3171,6 +3216,12 @@
                     }
                 });
             }
+            syncAuOnlyCheckboxesFromStorage();
+            document.querySelectorAll('.au-only-analytics-cb').forEach(function (cb) {
+                cb.addEventListener('change', function () {
+                    setAuOnlyAll(!!this.checked);
+                });
+            });
         });
 
         // Original script continues...
@@ -3183,11 +3234,11 @@
         document.getElementById('endDate').valueAsDate = today;
 
         // Get API base URL (use local backend in dev, Vercel in production)
-        // In local dev the backend MUST be running: python run_vercel_local.py (serves on port 8000)
-        const API_BASE = isLocalDev ? 'http://localhost:8000/api' : (window.location.origin + '/api');
+        // In local dev run: npm run dev (default port 8000, or PORT=8001 etc.)
+        const API_BASE = isLocalDev ? (LOCAL_BACKEND_ORIGIN + '/api') : (window.location.origin + '/api');
 
-        // Load and display version (use full URL in local dev so file:// or other ports work)
-        fetch(isLocalDev ? 'http://localhost:8000/version.txt' : '/version.txt')
+        // Load and display version (full URL in local dev for file://; same origin when served from localhost)
+        fetch(isLocalDev ? (LOCAL_BACKEND_ORIGIN + '/version.txt') : '/version.txt')
             .then(response => response.text())
             .then(version => {
                 const versionDisplay = document.getElementById('versionDisplay');
@@ -3229,6 +3280,37 @@
                 urlObj.searchParams.set('x-vercel-set-bypass-cookie', 'true');
             }
             return fetch(urlObj.toString(), { ...options, headers });
+        }
+
+        const AU_ONLY_STORAGE_KEY = 'tenacious_stats_au_only';
+
+        function isAuOnlyAnalytics() {
+            try {
+                return window.localStorage.getItem(AU_ONLY_STORAGE_KEY) === '1';
+            } catch (e) {
+                return false;
+            }
+        }
+
+        /** Query params appended to GA4-backed API calls when Australia-only is enabled. */
+        function getAuOnlyQueryParams() {
+            return isAuOnlyAnalytics() ? { au_only: 'true' } : {};
+        }
+
+        function setAuOnlyAll(checked) {
+            try {
+                window.localStorage.setItem(AU_ONLY_STORAGE_KEY, checked ? '1' : '0');
+            } catch (e) { /* ignore */ }
+            document.querySelectorAll('.au-only-analytics-cb').forEach(function (el) {
+                el.checked = checked;
+            });
+        }
+
+        function syncAuOnlyCheckboxesFromStorage() {
+            const on = isAuOnlyAnalytics();
+            document.querySelectorAll('.au-only-analytics-cb').forEach(function (el) {
+                el.checked = on;
+            });
         }
 
         function simpleFmtNum(n) {
@@ -3483,6 +3565,66 @@
             };
         }
 
+        async function downloadSalesStatsChartsPdf() {
+            const yEl = document.getElementById('simple-stats-year');
+            const year = parseInt(yEl && yEl.value, 10);
+            const months = getSimpleStatsSelectedMonths();
+            if (!months.length) {
+                alert('Select one or more months, then download the charts PDF.');
+                return;
+            }
+            if (!Number.isFinite(year) || year < 2000 || year > 2100) {
+                alert('Enter a valid year.');
+                return;
+            }
+            const url = getApiUrl('/report/sales-stats-charts', {
+                year: String(year),
+                months: months.join(','),
+                ...getAuOnlyQueryParams()
+            });
+            const btn = document.getElementById('simple-stats-charts-pdf-btn');
+            const prevHtml = btn ? btn.innerHTML : '';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin" aria-hidden="true"></i> …';
+            }
+            try {
+                const resp = await fetchWithBypass(url);
+                if (!resp.ok) {
+                    let msg = 'HTTP ' + resp.status;
+                    try {
+                        const j = await resp.json();
+                        if (j && j.detail) {
+                            msg = typeof j.detail === 'string' ? j.detail : JSON.stringify(j.detail);
+                        }
+                    } catch (e) { /* ignore */ }
+                    alert(msg);
+                    return;
+                }
+                const blob = await resp.blob();
+                const cd = resp.headers.get('Content-Disposition') || '';
+                let fname = 'tenacious_sales_stats_charts_' + year + '.pdf';
+                const m = cd.match(/filename="([^"]+)"/i);
+                if (m) fname = m[1];
+                const objUrl = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = objUrl;
+                a.download = fname;
+                a.rel = 'noopener';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(function () { URL.revokeObjectURL(objUrl); }, 60000);
+            } catch (err) {
+                alert('Could not download charts PDF: ' + (err && err.message ? err.message : String(err)));
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = prevHtml;
+                }
+            }
+        }
+
         function simpleSortedSourcesList(sourcesJson) {
             if (!sourcesJson || !sourcesJson.success || !sourcesJson.data || !sourcesJson.data.length) return [];
             const rows = sourcesJson.data;
@@ -3577,14 +3719,57 @@
             });
         }
 
+        /** Previous calendar month (for walking back On a Roll RSS keys). */
+        function simplePrevCalendarYearMonth(y, month1to12) {
+            let yr = y;
+            let m = month1to12 - 1;
+            if (m < 1) {
+                m = 12;
+                yr -= 1;
+            }
+            return { y: yr, m: m };
+        }
+
+        /**
+         * On a Roll slug/title for a column month; if RSS has no post for that month,
+         * use the newest prior month that has one (e.g. April → March’s story).
+         */
+        function simpleResolveOarFromConfig(year, monthNum, oarConfig, maxLookback) {
+            const limit = (maxLookback != null && maxLookback > 0) ? maxLookback : 24;
+            const paths = oarConfig && oarConfig.featuredPathContains;
+            const titles = oarConfig && oarConfig.featuredTitles;
+            let y = year;
+            let m = monthNum;
+            for (let i = 0; i < limit; i++) {
+                const key = `${y}-${String(m).padStart(2, '0')}`;
+                const slug = (paths && paths[key]) || '';
+                const slugTrim = String(slug).trim();
+                if (slugTrim) {
+                    const titleTrim = String((titles && titles[key]) || '').trim();
+                    return {
+                        slug: slugTrim,
+                        title: titleTrim,
+                        sourceMonthNum: m,
+                        usedPriorMonth: i > 0
+                    };
+                }
+                const prev = simplePrevCalendarYearMonth(y, m);
+                y = prev.y;
+                m = prev.m;
+            }
+            return { slug: '', title: '', sourceMonthNum: null, usedPriorMonth: false };
+        }
+
         async function fetchSimpleMonthBundle(year, monthNum, oarConfig) {
             const { start_date, end_date } = simpleMonthRange(year, monthNum);
-            const params = { start_date, end_date };
+            const params = { start_date, end_date, ...getAuOnlyQueryParams() };
             const ymKey = `${year}-${String(monthNum).padStart(2, '0')}`;
-            const featSlug = (oarConfig && oarConfig.featuredPathContains && oarConfig.featuredPathContains[ymKey]) || '';
-            const featSlugTrim = String(featSlug).trim();
-            const featTitleRaw = (oarConfig && oarConfig.featuredTitles && oarConfig.featuredTitles[ymKey]) || '';
-            const featTitleTrim = String(featTitleRaw).trim();
+            const oarResolved = simpleResolveOarFromConfig(year, monthNum, oarConfig);
+            const featSlugTrim = oarResolved.slug;
+            const featTitleTrim = oarResolved.title;
+            const oarStoryMonthShort = (oarResolved.sourceMonthNum >= 1 && oarResolved.sourceMonthNum <= 12)
+                ? SIMPLE_STATS_MONTH_SHORT[oarResolved.sourceMonthNum]
+                : '';
 
             const [ovRes, srcRes, pagesMergeRes, pathFeatRes, citiesRes, evRes] = await Promise.all([
                 fetchWithBypass(getApiUrl('/analytics/overview', params)),
@@ -3608,6 +3793,8 @@
                 ymKey,
                 oarFeaturedSlug: featSlugTrim || null,
                 oarFeaturedTitle: featTitleTrim || null,
+                oarStoryMonthShort: oarStoryMonthShort,
+                oarUsedPriorMonthStory: oarResolved.usedPriorMonth,
                 overview: overview.data || {},
                 sources: await srcRes.json(),
                 pagesMerge: await pagesMergeRes.json(),
@@ -3738,7 +3925,9 @@
                         const slug = String(b.oarFeaturedSlug).replace(/^\/+|\/+$/g, '');
                         const articleUrl = 'https://www.tenacioustapes.com.au/' + encodeURIComponent(slug).replace(/%2F/g, '/') + '/';
                         const linkLabel = (b.oarFeaturedTitle && String(b.oarFeaturedTitle).trim()) || slug;
-                        const monthTag = (monthNum >= 1 && monthNum <= 12) ? SIMPLE_STATS_MONTH_SHORT[monthNum] : '';
+                        const monthTag = (b.oarStoryMonthShort && String(b.oarStoryMonthShort).trim())
+                            ? String(b.oarStoryMonthShort).trim()
+                            : ((monthNum >= 1 && monthNum <= 12) ? SIMPLE_STATS_MONTH_SHORT[monthNum] : '');
                         const ariaLabel = linkLabel + ' — ' + featViews.toLocaleString() + ' views';
                         const stackInner =
                             '<div class="simple-oar-stack">' +
@@ -3944,7 +4133,7 @@
                 let jTitleOverrides = {};
                 let oj = null;
                 try {
-                    const oarUrl = (isLocalDev ? 'http://localhost:8000' : '') + '/data/on_a_roll.json?t=' + Date.now();
+                    const oarUrl = (isLocalDev ? LOCAL_BACKEND_ORIGIN : '') + '/data/on_a_roll.json?t=' + Date.now();
                     const oarRes = await fetch(oarUrl);
                     if (oarRes.ok) {
                         oj = await oarRes.json();
@@ -4090,6 +4279,8 @@
                 compParams.compare_end_date = compEndDate.toISOString().split('T')[0];
             }
 
+            const ga4Filter = getAuOnlyQueryParams();
+
             const labelCurr = getShortDateLabel(startDate, endDate);
             const labelPrev = isComparing ? getShortDateLabel(compParams.compare_start_date, compParams.compare_end_date) : '';
 
@@ -4101,7 +4292,8 @@
                     const url = getApiUrl('/analytics/overview', {
                         start_date: startDate,
                         end_date: endDate,
-                        ...compParams
+                        ...compParams,
+                        ...ga4Filter
                     });
                     const response = await fetchWithBypass(url);
                     if (!response.ok) {
@@ -4181,7 +4373,8 @@
                         end_date: endDate,
                         limit: 10,
                         _t: timestamp,
-                        ...compParams
+                        ...compParams,
+                        ...ga4Filter
                     });
                     const response = await fetchWithBypass(url);
                     if (!response.ok) {
@@ -4261,7 +4454,8 @@
                         end_date: endDate,
                         limit: 20,
                         _t: timestamp,
-                        ...compParams
+                        ...compParams,
+                        ...ga4Filter
                     });
                     const response = await fetchWithBypass(url);
                     if (!response.ok) {
@@ -4320,7 +4514,8 @@
                         start_date: startDate,
                         end_date: endDate,
                         _t: timestamp,
-                        ...compParams
+                        ...compParams,
+                        ...ga4Filter
                     });
                     const response = await fetchWithBypass(url);
                     const result = await response.json();
@@ -4384,7 +4579,8 @@
                         end_date: endDate,
                         limit: 10,
                         _t: timestamp,
-                        ...compParams
+                        ...compParams,
+                        ...ga4Filter
                     });
                     const citiesResponse = await fetchWithBypass(citiesUrl);
                     const citiesResult = await citiesResponse.json();
@@ -4394,7 +4590,8 @@
                         start_date: startDate,
                         end_date: endDate,
                         _t: timestamp,
-                        ...compParams
+                        ...compParams,
+                        ...ga4Filter
                     });
                     const countriesResponse = await fetchWithBypass(countriesUrl);
                     const countriesResult = await countriesResponse.json();
@@ -4494,7 +4691,8 @@
                     const url = getApiUrl('/analytics/devices', {
                         start_date: startDate,
                         end_date: endDate,
-                        ...compParams
+                        ...compParams,
+                        ...ga4Filter
                     });
                     const response = await fetchWithBypass(url);
                     const result = await response.json();
@@ -4557,7 +4755,8 @@
                         end_date: endDate,
                         limit: 20,
                         _t: timestamp,
-                        ...compParams
+                        ...compParams,
+                        ...ga4Filter
                     });
                     const response = await fetchWithBypass(url);
                     const result = await response.json();
@@ -5066,7 +5265,7 @@
         };
 
         // Load additional tooltips from keyterms.json and merge
-        fetch(isLocalDev ? 'http://localhost:8000/keyterms.json' : '/keyterms.json')
+        fetch(isLocalDev ? (LOCAL_BACKEND_ORIGIN + '/keyterms.json') : '/keyterms.json')
             .then(response => response.json())
             .then(data => {
                 // Convert keyterms.json format to tooltips object and merge
@@ -5153,6 +5352,8 @@
                 };
             }
 
+            const ga4Filter = getAuOnlyQueryParams();
+
             const content = document.getElementById('content');
             content.innerHTML = '<div class="loading">Generating report...</div>';
 
@@ -5167,6 +5368,7 @@
                     start_date: startDate,
                     end_date: endDate,
                     ...compParams,
+                    ...ga4Filter,
                     _t: timestamp
                 })));
                 fetchKeys.push('overview');
@@ -5176,6 +5378,7 @@
                         start_date: startDate,
                         end_date: endDate,
                         ...compParams,
+                        ...ga4Filter,
                         limit: 10,
                         _t: timestamp
                     })));
@@ -5190,6 +5393,7 @@
                         start_date: startDate,
                         end_date: endDate,
                         ...compParams,
+                        ...ga4Filter,
                         limit: 20,
                         _t: timestamp
                     })));
@@ -5204,6 +5408,7 @@
                         start_date: startDate,
                         end_date: endDate,
                         ...compParams,
+                        ...ga4Filter,
                         _t: timestamp
                     })));
                     fetchKeys.push('retention');
@@ -5217,6 +5422,7 @@
                         start_date: startDate,
                         end_date: endDate,
                         ...compParams,
+                        ...ga4Filter,
                         limit: 10,
                         _t: timestamp
                     })));
@@ -5225,6 +5431,7 @@
                         start_date: startDate,
                         end_date: endDate,
                         ...compParams,
+                        ...ga4Filter,
                         _t: timestamp
                     })));
                     fetchKeys.push('countries');
@@ -5240,6 +5447,7 @@
                         start_date: startDate,
                         end_date: endDate,
                         ...compParams,
+                        ...ga4Filter,
                         _t: timestamp
                     })));
                     fetchKeys.push('devices');
@@ -5253,6 +5461,7 @@
                         start_date: startDate,
                         end_date: endDate,
                         ...compParams,
+                        ...ga4Filter,
                         limit: 20,
                         _t: timestamp
                     })));
@@ -6698,15 +6907,16 @@
 
             try {
                 // Fetch ALL data points in parallel
+                const _g = getAuOnlyQueryParams();
                 const [overviewA, overviewB, gbpA, gbpB, pagesA, pagesB, devicesA, devicesB] = await Promise.all([
-                    fetchWithBypass(getApiUrl('/analytics/overview', { start_date: startA, end_date: endA })).then(r => r.json()),
-                    fetchWithBypass(getApiUrl('/analytics/overview', { start_date: startB, end_date: endB })).then(r => r.json()),
+                    fetchWithBypass(getApiUrl('/analytics/overview', { start_date: startA, end_date: endA, ..._g })).then(r => r.json()),
+                    fetchWithBypass(getApiUrl('/analytics/overview', { start_date: startB, end_date: endB, ..._g })).then(r => r.json()),
                     fetchWithBypass(getApiUrl('/gbp/insights', { start_date: startA, end_date: endA })).then(r => r.json()).catch(() => ({ success: false })),
                     fetchWithBypass(getApiUrl('/gbp/insights', { start_date: startB, end_date: endB })).then(r => r.json()).catch(() => ({ success: false })),
-                    fetchWithBypass(getApiUrl('/analytics/pages', { start_date: startA, end_date: endA, limit: 5 })).then(r => r.json()).catch(() => ({ success: false })),
-                    fetchWithBypass(getApiUrl('/analytics/pages', { start_date: startB, end_date: endB, limit: 5 })).then(r => r.json()).catch(() => ({ success: false })),
-                    fetchWithBypass(getApiUrl('/analytics/devices', { start_date: startA, end_date: endA })).then(r => r.json()).catch(() => ({ success: false })),
-                    fetchWithBypass(getApiUrl('/analytics/devices', { start_date: startB, end_date: endB })).then(r => r.json()).catch(() => ({ success: false }))
+                    fetchWithBypass(getApiUrl('/analytics/pages', { start_date: startA, end_date: endA, limit: 5, ..._g })).then(r => r.json()).catch(() => ({ success: false })),
+                    fetchWithBypass(getApiUrl('/analytics/pages', { start_date: startB, end_date: endB, limit: 5, ..._g })).then(r => r.json()).catch(() => ({ success: false })),
+                    fetchWithBypass(getApiUrl('/analytics/devices', { start_date: startA, end_date: endA, ..._g })).then(r => r.json()).catch(() => ({ success: false })),
+                    fetchWithBypass(getApiUrl('/analytics/devices', { start_date: startB, end_date: endB, ..._g })).then(r => r.json()).catch(() => ({ success: false }))
                 ]);
 
                 let html = '<div id="report-content" style="background: transparent;">'; // Wrapper for screenshot

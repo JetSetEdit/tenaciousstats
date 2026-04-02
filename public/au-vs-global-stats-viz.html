@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tenacious Stats — AU vs global (GA4)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --card: #1a222c;
+      --text: #e8eaed;
+      --muted: #9aa0a6;
+      --all: #5c9ded;
+      --au: #3dd6c3;
+      --direct: #c9a227;
+      --organic: #7c6cf0;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "DM Sans", system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.5;
+      padding: 2rem 1.25rem 3rem;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    h1 {
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .sub {
+      color: var(--muted);
+      max-width: 42rem;
+      margin-bottom: 2rem;
+    }
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+    @media (min-width: 720px) {
+      .grid { grid-template-columns: 1fr 1fr; }
+      .grid .full { grid-column: 1 / -1; }
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.35rem;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .card h2 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 0 0 1rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+    .legend span { display: inline-flex; align-items: center; gap: 0.4rem; }
+    .dot { width: 10px; height: 10px; border-radius: 2px; }
+    .callout {
+      margin-top: 2rem;
+      padding: 1rem 1.25rem;
+      background: rgba(61, 214, 195, 0.08);
+      border-left: 3px solid var(--au);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      font-size: 0.92rem;
+    }
+    .callout strong { color: var(--au); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Website stats: all locations vs Australia only</h1>
+    <p class="sub">
+      Same date ranges as your dashboard dumps — <strong>January–March 2026</strong>, Google Analytics 4.
+      <strong style="color:var(--all)">Blue</strong> = all countries (no filter).
+      <strong style="color:var(--au)">Teal</strong> = Australia only (<code>au_only</code>).
+    </p>
+
+    <div class="grid">
+      <div class="card full">
+        <h2>Sessions by month</h2>
+        <canvas id="chartSessions" height="120"></canvas>
+        <div class="legend">
+          <span><i class="dot" style="background:var(--all)"></i> All locations</span>
+          <span><i class="dot" style="background:var(--au)"></i> Australia only</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Engagement rate (%)</h2>
+        <canvas id="chartEngagement" height="200"></canvas>
+      </div>
+      <div class="card">
+        <h2>Top channel mix — January</h2>
+        <p style="margin:0 0 0.75rem;font-size:0.88rem;color:var(--muted);">Share of sessions in the top-15 channel breakdown (Google organic vs direct).</p>
+        <canvas id="chartChannels" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Read the shapes:</strong> Sessions drop ~25–27% for AU — a large block of traffic is attributed outside Australia.
+      Engagement rate <em>rises</em> for AU in these months. January’s channel story shifts from <strong>direct-first</strong> (global) to <strong>Google organic–first</strong> (AU), which often matches cleaner, more normal browsing than bulk automated traffic.
+    </div>
+  </div>
+
+  <script>
+    Chart.defaults.color = '#9aa0a6';
+    Chart.defaults.borderColor = 'rgba(255,255,255,0.08)';
+    Chart.defaults.font.family = '"DM Sans", system-ui, sans-serif';
+
+    const months = ['January', 'February', 'March'];
+    const sessionsAll = [2116, 2752, 2938];
+    const sessionsAu = [1553, 2049, 2155];
+    const engAll = [45.6, 39.8, 40.6];
+    const engAu = [48.8, 44.6, 44.0];
+
+    new Chart(document.getElementById('chartSessions'), {
+      type: 'bar',
+      data: {
+        labels: months,
+        datasets: [
+          { label: 'All locations', data: sessionsAll, backgroundColor: '#5c9dedcc', borderRadius: 6 },
+          { label: 'Australia only', data: sessionsAu, backgroundColor: '#3dd6c3cc', borderRadius: 6 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.06)' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('chartEngagement'), {
+      type: 'bar',
+      data: {
+        labels: months,
+        datasets: [
+          { label: 'All', data: engAll, backgroundColor: '#5c9dedcc', borderRadius: 6 },
+          { label: 'AU', data: engAu, backgroundColor: '#3dd6c3cc', borderRadius: 6 }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+        scales: {
+          y: { min: 30, max: 55, grid: { color: 'rgba(255,255,255,0.06)' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+
+    new Chart(document.getElementById('chartChannels'), {
+      type: 'bar',
+      data: {
+        labels: ['All locations', 'Australia only'],
+        datasets: [
+          { label: 'Google / organic', data: [43.9, 50.0], backgroundColor: '#7c6cf0cc', borderRadius: 6 },
+          { label: '(direct) / (none)', data: [47.0, 39.6], backgroundColor: '#c9a227cc', borderRadius: 6 }
+        ]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
+        scales: {
+          x: { max: 60, ticks: { callback: v => v + '%' }, grid: { color: 'rgba(255,255,255,0.06)' } },
+          y: { grid: { display: false } }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

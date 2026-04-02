@@ -5,15 +5,36 @@ and post title (RSS <title>, same text as the page H1 on typical WordPress theme
 
 from __future__ import annotations
 
+import calendar
 import html as html_module
 import xml.etree.ElementTree as ET
 from collections import defaultdict
-from datetime import datetime
+from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
+from zoneinfo import ZoneInfo
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 DEFAULT_ON_A_ROLL_FEED = "https://www.tenacioustapes.com.au/category/on-a-roll/feed/"
+# Match website / business calendar: RSS pubDate → month bucket in Sydney, not UTC (Vercel default).
+_ON_A_ROLL_TZ = ZoneInfo("Australia/Sydney")
+
+
+def _rss_pub_ym_bucket(dt_local: datetime) -> str:
+    """
+    Map RSS pubDate (already in Sydney) to dashboard YYYY-MM.
+
+    Posts on the **last calendar day** of a month are treated as the **next**
+    month's On a Roll (typical WordPress: "April" story filed late on 31 Mar).
+    """
+    y, m, d = dt_local.year, dt_local.month, dt_local.day
+    _, last_day = calendar.monthrange(y, m)
+    if d == last_day:
+        if m == 12:
+            y, m = y + 1, 1
+        else:
+            m = m + 1
+    return f"{y}-{m:02d}"
 
 
 def _slug_from_item_link(link: str) -> str:
@@ -42,6 +63,10 @@ def fetch_on_a_roll_meta_by_month(
     - titles from <title> (decoded; matches on-page H1 for standard WP RSS)
 
     If several posts share the same calendar month, the **newest** pubDate wins.
+
+    Month keys use **Australia/Sydney**. Posts dated on the **last day** of a
+    month roll into the **following** month so late-month drops match the
+    labelled month (e.g. 31 Mar → April bucket).
     """
     url = (feed_url or DEFAULT_ON_A_ROLL_FEED).strip() or DEFAULT_ON_A_ROLL_FEED
     req = Request(url, headers={"User-Agent": "TenaciousStats/1.0 (internal; analytics dashboard)"})
@@ -73,12 +98,13 @@ def fetch_on_a_roll_meta_by_month(
             continue
         try:
             dt = parsedate_to_datetime(pub_raw)
-            if dt.tzinfo is not None:
-                dt = dt.astimezone().replace(tzinfo=None)
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            dt_local = dt.astimezone(_ON_A_ROLL_TZ)
         except (TypeError, ValueError):
             continue
-        ym = f"{dt.year}-{dt.month:02d}"
-        buckets[ym].append((dt, slug, title))
+        ym = _rss_pub_ym_bucket(dt_local)
+        buckets[ym].append((dt_local, slug, title))
 
     slugs: dict[str, str] = {}
     titles: dict[str, str] = {}

@@ -5,7 +5,7 @@ Handles both GA4 Analytics and Google Business Profile requests
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 from typing import List, Optional
 import os
@@ -47,6 +47,15 @@ except ImportError:
     OAR_RSS_AVAILABLE = False
     DEFAULT_ON_A_ROLL_FEED = "https://www.tenacioustapes.com.au/category/on-a-roll/feed/"
 
+SALES_STATS_PDF_IMPORT_ERROR: Optional[str] = None
+try:
+    from utils.sales_stats_pdf import build_sales_stats_charts_pdf
+    SALES_STATS_PDF_AVAILABLE = True
+except Exception as _pdf_imp_err:
+    SALES_STATS_PDF_AVAILABLE = False
+    build_sales_stats_charts_pdf = None  # type: ignore
+    SALES_STATS_PDF_IMPORT_ERROR = str(_pdf_imp_err)
+
 # FastAPI app
 app = FastAPI(title="Tenacious Stats API", version="1.0.0")
 
@@ -77,7 +86,12 @@ def root():
         "message": "Tenacious Stats API",
         "version": "1.0.0",
         "ga4_available": GA4_AVAILABLE,
-        "gbp_available": GBP_AVAILABLE
+        "gbp_available": GBP_AVAILABLE,
+        "sales_stats_charts_pdf": SALES_STATS_PDF_AVAILABLE,
+        "sales_stats_charts_pdf_paths": [
+            "/api/report/sales-stats-charts",
+            "/report/sales-stats-charts",
+        ],
     }
 
 # Health check
@@ -87,7 +101,8 @@ def health_check():
         "status": "healthy",
         "property_id": PROPERTY_ID,
         "ga4_available": GA4_AVAILABLE,
-        "gbp_available": GBP_AVAILABLE
+        "gbp_available": GBP_AVAILABLE,
+        "sales_stats_charts_pdf": SALES_STATS_PDF_AVAILABLE,
     }
 
 
@@ -122,37 +137,85 @@ def on_a_roll_slugs(feed_url: Optional[str] = None):
         }
 
 
+def _get_sales_stats_charts_pdf_impl(year: int, months: str, au_only: bool = False):
+    """
+    ReportLab PDF: bar charts (sessions, users, engagement by calendar month) and
+    pie chart of top session source/medium for the combined range.
+    Query: months=comma-separated 1–12, e.g. months=1,2,3,4
+    """
+    if not GA4_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="GA4 is not available (credentials / import failed on this deployment).",
+        )
+    if not SALES_STATS_PDF_AVAILABLE:
+        hint = SALES_STATS_PDF_IMPORT_ERROR or "unknown import error"
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Charts PDF is unavailable (import failed). "
+                "Ensure api/requirements.txt includes reportlab and redeploy. "
+                f"Import error: {hint}"
+            ),
+        )
+    try:
+        parts = [int(x.strip()) for x in months.split(",") if x.strip()]
+    except ValueError:
+        raise HTTPException(
+            status_code=400, detail="months must be comma-separated integers (1–12)"
+        )
+    try:
+        pdf_bytes = build_sales_stats_charts_pdf(year, parts, au_only=au_only)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    fname = f"tenacious_sales_stats_charts_{year}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{fname}"'},
+    )
+
+
+# Register both paths: Vercel rewrites /api/* here; some setups forward the path without the /api prefix.
+@app.get("/api/report/sales-stats-charts")
+@app.get("/report/sales-stats-charts")
+def get_sales_stats_charts_pdf(year: int, months: str, au_only: bool = False):
+    return _get_sales_stats_charts_pdf_impl(year, months, au_only=au_only)
+
+
 # GA4 Analytics Endpoints
 if GA4_AVAILABLE:
     @app.get("/api/analytics/overview")
-    def get_overview(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
+    def get_overview(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None, au_only: bool = False):
         """Get overview metrics."""
         try:
             dimensions = []
             metrics = ['sessions', 'totalUsers', 'screenPageViews', 'bounceRate', 'averageSessionDuration', 'engagementRate']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date, au_only=au_only)
             return {"success": True, "data": data[0] if data else {}}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/sources")
-    def get_sources(start_date: str, end_date: str, limit: int = 10, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
+    def get_sources(start_date: str, end_date: str, limit: int = 10, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None, au_only: bool = False):
         """Get traffic sources."""
         try:
             dimensions = ['sessionSourceMedium']
             metrics = ['sessions']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date, au_only=au_only)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/pages")
-    def get_pages(start_date: str, end_date: str, limit: int = 15, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
+    def get_pages(start_date: str, end_date: str, limit: int = 15, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None, au_only: bool = False):
         """Get top pages."""
         try:
             dimensions = ['pagePath', 'pageTitle']
             metrics = ['screenPageViews', 'activeUsers']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date, au_only=au_only)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -162,6 +225,7 @@ if GA4_AVAILABLE:
         start_date: str,
         end_date: str,
         path_contains: str = "blog",
+        au_only: bool = False,
     ):
         """
         Total screenPageViews for URLs whose pagePath contains path_contains (case-insensitive).
@@ -169,7 +233,7 @@ if GA4_AVAILABLE:
         """
         try:
             total = fetch_blog_screen_page_views_total(
-                start_date, end_date, path_contains=path_contains
+                start_date, end_date, path_contains=path_contains, au_only=au_only
             )
             return {
                 "success": True,
@@ -187,6 +251,7 @@ if GA4_AVAILABLE:
         end_date: str,
         path: str,
         match: str = "contains",
+        au_only: bool = False,
     ):
         """
         Total screenPageViews for pagePath.
@@ -198,7 +263,7 @@ if GA4_AVAILABLE:
             if m not in ("contains", "exact"):
                 m = "contains"
             total = fetch_path_screen_page_views_total(
-                start_date, end_date, path, match_type=m
+                start_date, end_date, path, match_type=m, au_only=au_only
             )
             return {
                 "success": True,
@@ -212,56 +277,56 @@ if GA4_AVAILABLE:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/cities")
-    def get_cities(start_date: str, end_date: str, limit: int = 10, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
+    def get_cities(start_date: str, end_date: str, limit: int = 10, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None, au_only: bool = False):
         """Get top cities."""
         try:
             dimensions = ['city']
             metrics = ['sessions']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date, au_only=au_only)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/retention")
-    def get_retention(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
+    def get_retention(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None, au_only: bool = False):
         """Get new vs returning users."""
         try:
             dimensions = ['newVsReturning']
             metrics = ['sessions']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date, au_only=au_only)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/countries")
-    def get_countries(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
+    def get_countries(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None, au_only: bool = False):
         """Get sessions by country."""
         try:
             dimensions = ['country']
             metrics = ['sessions']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date, au_only=au_only)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/devices")
-    def get_devices(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
+    def get_devices(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None, au_only: bool = False):
         """Get sessions by device category."""
         try:
             dimensions = ['deviceCategory']
             metrics = ['sessions']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, compare_start_date=compare_start_date, compare_end_date=compare_end_date, au_only=au_only)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.get("/api/analytics/events")
-    def get_events(start_date: str, end_date: str, limit: int = 20, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
+    def get_events(start_date: str, end_date: str, limit: int = 20, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None, au_only: bool = False):
         """Get top events."""
         try:
             dimensions = ['eventName']
             metrics = ['eventCount']
-            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date)
+            data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date, au_only=au_only)
             return {"success": True, "data": data}
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
@@ -270,43 +335,43 @@ else:
     _GA4_UNAVAILABLE = {"success": False, "data": None, "error": "GA4 not available. Check credentials.json and utils path."}
 
     @app.get("/api/analytics/overview")
-    def get_overview_unavailable(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None):
+    def get_overview_unavailable(start_date: str, end_date: str, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None, au_only: bool = False):
         return {**_GA4_UNAVAILABLE, "data": {}}
 
     @app.get("/api/analytics/sources")
-    def get_sources_unavailable(start_date: str, end_date: str, limit: int = 10):
+    def get_sources_unavailable(start_date: str, end_date: str, limit: int = 10, au_only: bool = False):
         return {**_GA4_UNAVAILABLE, "data": []}
 
     @app.get("/api/analytics/pages")
-    def get_pages_unavailable(start_date: str, end_date: str, limit: int = 15):
+    def get_pages_unavailable(start_date: str, end_date: str, limit: int = 15, au_only: bool = False):
         return {**_GA4_UNAVAILABLE, "data": []}
 
     @app.get("/api/analytics/blog-path-views")
-    def get_blog_path_views_unavailable(start_date: str, end_date: str, path_contains: str = "blog"):
+    def get_blog_path_views_unavailable(start_date: str, end_date: str, path_contains: str = "blog", au_only: bool = False):
         return {**_GA4_UNAVAILABLE, "data": {"screenPageViews": 0, "pathContains": path_contains}}
 
     @app.get("/api/analytics/path-views-total")
-    def get_path_views_total_unavailable(start_date: str, end_date: str, path: str, match: str = "contains"):
+    def get_path_views_total_unavailable(start_date: str, end_date: str, path: str, match: str = "contains", au_only: bool = False):
         return {**_GA4_UNAVAILABLE, "data": {"screenPageViews": 0, "path": path, "match": match}}
 
     @app.get("/api/analytics/cities")
-    def get_cities_unavailable(start_date: str, end_date: str, limit: int = 10):
+    def get_cities_unavailable(start_date: str, end_date: str, limit: int = 10, au_only: bool = False):
         return {**_GA4_UNAVAILABLE, "data": []}
 
     @app.get("/api/analytics/retention")
-    def get_retention_unavailable(start_date: str, end_date: str):
+    def get_retention_unavailable(start_date: str, end_date: str, au_only: bool = False):
         return {**_GA4_UNAVAILABLE, "data": []}
 
     @app.get("/api/analytics/countries")
-    def get_countries_unavailable(start_date: str, end_date: str):
+    def get_countries_unavailable(start_date: str, end_date: str, au_only: bool = False):
         return {**_GA4_UNAVAILABLE, "data": []}
 
     @app.get("/api/analytics/devices")
-    def get_devices_unavailable(start_date: str, end_date: str):
+    def get_devices_unavailable(start_date: str, end_date: str, au_only: bool = False):
         return {**_GA4_UNAVAILABLE, "data": []}
 
     @app.get("/api/analytics/events")
-    def get_events_unavailable(start_date: str, end_date: str, limit: int = 20):
+    def get_events_unavailable(start_date: str, end_date: str, limit: int = 20, au_only: bool = False):
         return {**_GA4_UNAVAILABLE, "data": []}
 
 # Google Business Profile Endpoints

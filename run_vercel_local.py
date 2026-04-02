@@ -48,15 +48,23 @@ if os.path.exists(public_path):
 else:
     print(f"Warning: 'public' directory not found at {public_path}")
 
-def _open_browser():
+def _open_browser(port: int):
     time.sleep(1.5)
-    webbrowser.open("http://localhost:8000")
+    webbrowser.open(f"http://localhost:{port}")
 
 
 if __name__ == "__main__":
-    print("Starting Vercel-like local server on http://localhost:8000")
-    print("Dashboard: http://localhost:8000/   API: http://localhost:8000/api")
+    port = int(os.environ.get("PORT", "8000"))
+    base = f"http://localhost:{port}"
+    print(f"Starting Vercel-like local server on {base}")
+    print(f"Dashboard: {base}/   API: {base}/api")
     if not os.environ.get("DOCKER"):
         print("Serves the full dashboard (styled UI, glossary, API). Opening browser...")
-        threading.Thread(target=_open_browser, daemon=True).start()
-    uvicorn.run("run_vercel_local:app", host="0.0.0.0", port=8000, reload=True)
+        threading.Thread(target=_open_browser, args=(port,), daemon=True).start()
+    uvicorn.run(
+        "run_vercel_local:app",
+        host="0.0.0.0",
+        port=port,
+        reload=True,
+        reload_dirs=[_project_root],
+    )

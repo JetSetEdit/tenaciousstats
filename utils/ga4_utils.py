@@ -4,15 +4,21 @@ Save this as utils/ga4_utils.py
 """
 
 import os
+from typing import Optional
+
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
     DateRange,
     Dimension,
     Filter,
     FilterExpression,
+    FilterExpressionList,
     Metric,
     RunReportRequest,
 )
+
+# GA4 `country` dimension uses English names (e.g. "Australia").
+GA4_COUNTRY_NAME_AUSTRALIA = "Australia"
 
 # Configuration
 PROPERTY_ID = os.environ.get('PROPERTY_ID', '368035934')
@@ -59,7 +65,42 @@ def get_ga4_client():
     return BetaAnalyticsDataClient()
 
 
-def fetch_ga4_data(start_date: str, end_date: str, dimensions: list, metrics: list, limit: int = 10000, compare_start_date: str = None, compare_end_date: str = None):
+def australia_country_filter_expression() -> FilterExpression:
+    """Restrict rows to sessions attributed to Australia (GA4 country dimension)."""
+    return FilterExpression(
+        filter=Filter(
+            field_name="country",
+            string_filter=Filter.StringFilter(
+                match_type=Filter.StringFilter.MatchType.EXACT,
+                value=GA4_COUNTRY_NAME_AUSTRALIA,
+                case_sensitive=False,
+            ),
+        ),
+    )
+
+
+def and_dimension_filters(*parts: Optional[FilterExpression]) -> Optional[FilterExpression]:
+    """Combine filters with AND; skips None entries."""
+    expressions = [p for p in parts if p is not None]
+    if not expressions:
+        return None
+    if len(expressions) == 1:
+        return expressions[0]
+    return FilterExpression(
+        and_group=FilterExpressionList(expressions=expressions),
+    )
+
+
+def fetch_ga4_data(
+    start_date: str,
+    end_date: str,
+    dimensions: list,
+    metrics: list,
+    limit: int = 10000,
+    compare_start_date: str = None,
+    compare_end_date: str = None,
+    dimension_filter: Optional[FilterExpression] = None,
+):
     """Fetches data from GA4 API and returns a list of dicts (no pandas needed)."""
     client = get_ga4_client()
     
@@ -72,7 +113,8 @@ def fetch_ga4_data(start_date: str, end_date: str, dimensions: list, metrics: li
         dimensions=[Dimension(name=dim) for dim in dimensions],
         metrics=[Metric(name=met) for met in metrics],
         date_ranges=date_ranges,
-        limit=limit
+        limit=limit,
+        dimension_filter=dimension_filter,
     )
     
     response = client.run_report(request=request)
@@ -125,6 +167,7 @@ def fetch_path_screen_page_views_total(
     end_date: str,
     path_value: str,
     match_type: str = "contains",
+    au_only: bool = False,
 ) -> int:
     """
     Total screenPageViews for pagePath filtered by path_value.
@@ -145,7 +188,7 @@ def fetch_path_screen_page_views_total(
         case_sensitive = False
 
     client = get_ga4_client()
-    dim_filter = FilterExpression(
+    path_expr = FilterExpression(
         filter=Filter(
             field_name="pagePath",
             string_filter=Filter.StringFilter(
@@ -154,6 +197,10 @@ def fetch_path_screen_page_views_total(
                 case_sensitive=case_sensitive,
             ),
         )
+    )
+    dim_filter = and_dimension_filters(
+        path_expr,
+        australia_country_filter_expression() if au_only else None,
     )
     request = RunReportRequest(
         property=f"properties/{PROPERTY_ID}",
@@ -173,11 +220,11 @@ def fetch_path_screen_page_views_total(
 
 
 def fetch_blog_screen_page_views_total(
-    start_date: str, end_date: str, path_contains: str = "blog"
+    start_date: str, end_date: str, path_contains: str = "blog", au_only: bool = False
 ) -> int:
     """Blog / editorial URLs: path contains substring (case-insensitive)."""
     return fetch_path_screen_page_views_total(
-        start_date, end_date, path_contains, match_type="contains"
+        start_date, end_date, path_contains, match_type="contains", au_only=au_only
     )
 
 
@@ -198,6 +245,25 @@ def format_metric(value):
 get_client = get_ga4_client
 
 
-def fetch_analytics_data(start_date: str, end_date: str, dimensions: list, metrics: list, limit: int = 10000, compare_start_date: str = None, compare_end_date: str = None):
+def fetch_analytics_data(
+    start_date: str,
+    end_date: str,
+    dimensions: list,
+    metrics: list,
+    limit: int = 10000,
+    compare_start_date: str = None,
+    compare_end_date: str = None,
+    au_only: bool = False,
+):
     """Returns list of dicts for API (same signature as fetch_ga4_data)."""
-    return fetch_ga4_data(start_date, end_date, dimensions, metrics, limit, compare_start_date, compare_end_date)
+    dim_filt = australia_country_filter_expression() if au_only else None
+    return fetch_ga4_data(
+        start_date,
+        end_date,
+        dimensions,
+        metrics,
+        limit,
+        compare_start_date,
+        compare_end_date,
+        dimension_filter=dim_filt,
+    )
