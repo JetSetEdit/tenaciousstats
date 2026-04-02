@@ -91,6 +91,23 @@ def and_dimension_filters(*parts: Optional[FilterExpression]) -> Optional[Filter
     )
 
 
+def event_name_filter_expression(event_name: str) -> FilterExpression:
+    """Restrict rows to a single GA4 event name (exact, case-insensitive)."""
+    name = (event_name or "").strip()
+    if not name:
+        raise ValueError("event_name is required")
+    return FilterExpression(
+        filter=Filter(
+            field_name="eventName",
+            string_filter=Filter.StringFilter(
+                match_type=Filter.StringFilter.MatchType.EXACT,
+                value=name,
+                case_sensitive=False,
+            ),
+        ),
+    )
+
+
 def fetch_ga4_data(
     start_date: str,
     end_date: str,
@@ -267,3 +284,46 @@ def fetch_analytics_data(
         compare_end_date,
         dimension_filter=dim_filt,
     )
+
+
+# GA4 event-scoped custom dimension for gtag param `form_context` (register in GA4 Admin if missing).
+_DIM_FORM_CONTEXT = "customEvent:form_context"
+
+
+def fetch_generate_lead_by_form_context(
+    start_date: str,
+    end_date: str,
+    limit: int = 25,
+    compare_start_date: str = None,
+    compare_end_date: str = None,
+    au_only: bool = False,
+):
+    """
+    Counts of generate_lead broken down by customEvent:form_context
+    (e.g. contact vs product_enquire from Contact Form 7 mail-sent tracking).
+    """
+    dim_filt = and_dimension_filters(
+        australia_country_filter_expression() if au_only else None,
+        event_name_filter_expression("generate_lead"),
+    )
+    raw = fetch_ga4_data(
+        start_date,
+        end_date,
+        [_DIM_FORM_CONTEXT],
+        ["eventCount"],
+        limit,
+        compare_start_date,
+        compare_end_date,
+        dimension_filter=dim_filt,
+    )
+    rows = []
+    for r in raw:
+        fc_raw = r.get(_DIM_FORM_CONTEXT) or ""
+        label = fc_raw.strip() if isinstance(fc_raw, str) else str(fc_raw)
+        if not label:
+            label = "(not set)"
+        row = {"form_context": label, "eventCount": r.get("eventCount", 0)}
+        if "eventCount_compare" in r:
+            row["eventCount_compare"] = r.get("eventCount_compare", 0)
+        rows.append(row)
+    return rows

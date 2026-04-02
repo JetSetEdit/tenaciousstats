@@ -20,6 +20,7 @@ try:
         get_client,
         fetch_analytics_data,
         fetch_blog_screen_page_views_total,
+        fetch_generate_lead_by_form_context,
         fetch_path_screen_page_views_total,
     )
     GA4_AVAILABLE = True
@@ -322,12 +323,29 @@ if GA4_AVAILABLE:
 
     @app.get("/api/analytics/events")
     def get_events(start_date: str, end_date: str, limit: int = 20, compare_start_date: Optional[str] = None, compare_end_date: Optional[str] = None, au_only: bool = False):
-        """Get top events."""
+        """Get top events plus generate_lead breakdown by form_context (CF7)."""
         try:
             dimensions = ['eventName']
             metrics = ['eventCount']
             data = fetch_analytics_data(start_date, end_date, dimensions, metrics, limit, compare_start_date=compare_start_date, compare_end_date=compare_end_date, au_only=au_only)
-            return {"success": True, "data": data}
+            payload = {
+                "success": True,
+                "data": data,
+                "generate_lead_by_context": None,
+                "generate_lead_breakdown_error": None,
+            }
+            try:
+                payload["generate_lead_by_context"] = fetch_generate_lead_by_form_context(
+                    start_date,
+                    end_date,
+                    limit=25,
+                    compare_start_date=compare_start_date,
+                    compare_end_date=compare_end_date,
+                    au_only=au_only,
+                )
+            except Exception as lead_err:
+                payload["generate_lead_breakdown_error"] = str(lead_err)
+            return payload
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 else:
@@ -372,7 +390,12 @@ else:
 
     @app.get("/api/analytics/events")
     def get_events_unavailable(start_date: str, end_date: str, limit: int = 20, au_only: bool = False):
-        return {**_GA4_UNAVAILABLE, "data": []}
+        return {
+            **_GA4_UNAVAILABLE,
+            "data": [],
+            "generate_lead_by_context": None,
+            "generate_lead_breakdown_error": None,
+        }
 
 # Google Business Profile Endpoints
 if GBP_AVAILABLE:

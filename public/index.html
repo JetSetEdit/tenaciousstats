@@ -2835,8 +2835,15 @@
                                     form_start / form_submit</td>
                                 <td
                                     style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
-                                    form_start: when someone begins filling out a form. form_submit: when they
-                                    successfully send it.</td>
+                                    form_start: when someone begins filling out a form. form_submit: when Analytics records a form submission (can include search, WooCommerce, reviews, and CF7 — a wide net).</td>
+                            </tr>
+                            <tr>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; font-weight: 700; color: #2c3e50;">
+                                    generate_lead</td>
+                                <td
+                                    style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; color: #555;">
+                                    Fired only after Contact Form 7 successfully sends email (not on validation errors). The dashboard splits this by <strong>form_context</strong>: contact page vs product enquire.</td>
                             </tr>
                             <tr>
                                 <td
@@ -4760,10 +4767,16 @@
                     });
                     const response = await fetchWithBypass(url);
                     const result = await response.json();
-                    if (result.success && result.data && result.data.length > 0) {
-                        sectionsData['Events'] = `
-                            <div class="section">
-                                <h2>Tracked actions</h2>
+                    const hasTopEvents = result.success && result.data && result.data.length > 0;
+                    const leadRows = (result.generate_lead_by_context && result.generate_lead_by_context.length > 0)
+                        ? result.generate_lead_by_context
+                        : [];
+                    const hasLeadBreakdown = leadRows.length > 0;
+                    if (result.success && (hasTopEvents || hasLeadBreakdown)) {
+                        const leadErrNote = result.generate_lead_breakdown_error
+                            ? `<p style="color:#856404;background:#fff3cd;border:1px solid #ffc107;padding:0.75rem;border-radius:6px;font-size:0.9rem;">Lead breakdown unavailable: ${String(result.generate_lead_breakdown_error).replace(/</g, '&lt;')} — register event parameter <code>form_context</code> as a custom dimension in GA4 (event scope) if you have not already.</p>`
+                            : '';
+                        const topEventsBlock = hasTopEvents ? `
                                 <div id="eventsChart"></div>
                                 <table style="margin-top: 2rem;">
                                     <thead>
@@ -4776,7 +4789,7 @@
                                     <tbody>
                                         ${result.data.map(event => `
                                             <tr>
-                                                <td>${event.eventName || 'N/A'}</td>
+                                                <td>${createTooltip(event.eventName || 'N/A', tooltips[event.eventName] || '')}</td>
                                                 <td>${formatNumber(event.eventCount || 0)}</td>
                                                 ${isComparing ? `
                                                     <td>${formatNumber(event.eventCount_compare || 0)}</td>
@@ -4786,22 +4799,69 @@
                                         `).join('')}
                                     </tbody>
                                 </table>
+                        ` : '';
+                        const leadBlock = hasLeadBreakdown ? `
+                                <h3 style="margin-top:2rem;color:#2c3e50;">Confirmed form leads (<code>generate_lead</code>)</h3>
+                                <p style="color:#555;font-size:0.95rem;max-width:52rem;">Successful Contact Form 7 sends only, split by <strong>form_context</strong> (e.g. contact page vs product enquire). This is narrower than <code>form_submit</code>.</p>
+                                <div id="leadsByContextChart" style="margin-top:1rem;"></div>
+                                <table style="margin-top: 1rem;">
+                                    <thead>
+                                        <tr>
+                                            <th>${createTooltip('Lead type', tooltips['form_context'])}</th>
+                                            <th>${createTooltip('Count (' + labelCurr + ')', tooltips['Event Count'] || tooltips['Count'])}</th>
+                                            ${isComparing ? `<th>Count (${labelPrev})</th><th>Trend</th>` : ''}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${leadRows.map(row => `
+                                            <tr>
+                                                <td>${formatFormContextLabel(row.form_context)}</td>
+                                                <td>${formatNumber(row.eventCount || 0)}</td>
+                                                ${isComparing ? `
+                                                    <td>${formatNumber(row.eventCount_compare || 0)}</td>
+                                                    <td>${formatPercentChange(row.eventCount, row.eventCount_compare)}</td>
+                                                ` : ''}
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                        ` : '';
+                        sectionsData['Events'] = `
+                            <div class="section">
+                                <h2>Tracked actions</h2>
+                                ${leadErrNote}
+                                ${topEventsBlock}
+                                ${leadBlock}
                             </div>
                         `;
-                        // Store chart renderer
                         chartRenderers.push(() => {
-                            const topEvents = result.data.slice(0, 10);
-                            Plotly.newPlot('eventsChart', [{
-                                x: topEvents.map(e => e.eventName),
-                                y: topEvents.map(e => parseInt(e.eventCount)),
-                                type: 'bar',
-                                marker: { color: '#ff5800' }
-                            }], {
-                                title: 'Common actions (top 10)',
-                                xaxis: { title: 'Event Name', tickangle: -45 },
-                                yaxis: { title: 'Event Count' },
-                                font: { family: 'Roboto' }
-                            });
+                            if (hasTopEvents) {
+                                const topEvents = result.data.slice(0, 10);
+                                Plotly.newPlot('eventsChart', [{
+                                    x: topEvents.map(e => e.eventName),
+                                    y: topEvents.map(e => parseInt(e.eventCount, 10)),
+                                    type: 'bar',
+                                    marker: { color: '#ff5800' }
+                                }], {
+                                    title: 'Common actions (top 10)',
+                                    xaxis: { title: 'Event Name', tickangle: -45 },
+                                    yaxis: { title: 'Event Count' },
+                                    font: { family: 'Roboto' }
+                                });
+                            }
+                            if (hasLeadBreakdown) {
+                                Plotly.newPlot('leadsByContextChart', [{
+                                    x: leadRows.map(r => formatFormContextLabel(r.form_context)),
+                                    y: leadRows.map(r => parseInt(r.eventCount, 10)),
+                                    type: 'bar',
+                                    marker: { color: '#4a90e2' }
+                                }], {
+                                    title: 'Confirmed leads by type',
+                                    xaxis: { title: 'Lead type (form_context)' },
+                                    yaxis: { title: 'Count' },
+                                    font: { family: 'Roboto' }
+                                });
+                            }
                         });
                     }
                 } catch (error) {
@@ -5254,7 +5314,9 @@
             'first_visit': 'Recorded the first time a device or browser ever visits the site.',
             'scroll': 'Recorded when a visitor scrolls far enough down a page to show they viewed more than just the top.',
             'form_start': 'Recorded when someone begins filling out a tracked form.',
-            'form_submit': 'Recorded when someone successfully submits a tracked form.',
+            'form_submit': 'Recorded when someone successfully submits a tracked form (search, cart, reviews, CF7, etc.). Broader than generate_lead.',
+            'generate_lead': 'Fired only after Contact Form 7 successfully sends mail, for configured forms. Uses form_context to separate contact page vs product enquire.',
+            'form_context': 'On generate_lead: contact = main contact form; product_enquire = product page enquiry; (not set) = older hits or missing GA4 custom dimension.',
             'click': 'Recorded when a tracked button or link is clicked.',
             'file_download': 'Recorded when a visitor downloads a tracked file, such as a PDF or brochure.',
             'click_buy_online': 'Recorded when a visitor clicks a tracked "buy online" or similar outbound purchase link.',
@@ -5294,6 +5356,17 @@
             if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
             if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
             return n.toLocaleString();
+        }
+
+        /** GA4 form_context on generate_lead (contact vs product enquire, etc.) */
+        function formatFormContextLabel(fc) {
+            const key = String(fc || '').trim();
+            const map = {
+                'contact': 'Contact page',
+                'product_enquire': 'Product enquire',
+                '(not set)': 'Not set'
+            };
+            return map[key] || key.replace(/_/g, ' ');
         }
 
         function getShortDateLabel(startStr, endStr) {
@@ -5553,7 +5626,7 @@
                 const totalSourceSessions = sources.data.reduce((sum, s) => sum + parseFloat(s.sessions || 0), 0);
 
                 // Find search events
-                const searchEvents = events.data.filter(e =>
+                const searchEvents = (events.data || []).filter(e =>
                     e.eventName && (e.eventName.toLowerCase().includes('search') || e.eventName.toLowerCase().includes('query'))
                 );
 
@@ -5959,12 +6032,28 @@
                     `;
                 }
 
-                // 7. Top Events (only if checked)
-                if (sections.includes('Events') && events.data && events.data.length > 0) {
+                // 7. Top Events & confirmed leads (only if checked)
+                const reportHasTopEvents = events.data && events.data.length > 0;
+                const reportLeadRows = (events.generate_lead_by_context && events.generate_lead_by_context.length > 0)
+                    ? events.generate_lead_by_context
+                    : [];
+                const reportHasLeadBreakdown = reportLeadRows.length > 0;
+                if (sections.includes('Events') && (reportHasTopEvents || reportHasLeadBreakdown)) {
+                    const leadErrHtml = events.generate_lead_breakdown_error
+                        ? `<p style="color:#856404;background:#fff3cd;border:1px solid #ffc107;padding:0.75rem;border-radius:6px;font-size:0.85rem;">Lead breakdown unavailable: ${String(events.generate_lead_breakdown_error).replace(/</g, '&lt;')}. Register <code>form_context</code> as an event-scoped custom dimension in GA4 if needed.</p>`
+                        : '';
+                    const topEventsTitle = reportHasTopEvents && reportHasLeadBreakdown
+                        ? 'Top events &amp; confirmed leads'
+                        : (reportHasLeadBreakdown ? 'Confirmed form leads' : 'Top Events');
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
-                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Top Events</h2>
-                            <div id="reportEventsChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box;"></div>
+                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. ${topEventsTitle}</h2>
+                            ${leadErrHtml}
+                    `;
+                    if (reportHasTopEvents) {
+                        reportHtml += `
+                            <h3 style="color: #2c3e50; margin-top: 0.5rem; margin-bottom: 0.75rem; font-size: 1.1rem;">All tracked actions (sample)</h3>
+                            <div id="reportEventsChart" style="width: 100%; height: 400px; margin-bottom: 2rem; padding-bottom: 1rem; box-sizing: border-box;"></div>
                             <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
                                     <col style="width: ${isComparing ? '34%' : '70%'};">
@@ -5982,24 +6071,65 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                    `;
-                    events.data.slice(0, 10).forEach(event => {
-                        reportHtml += `
-                            <tr>
-                                <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; word-wrap: break-word;"><strong>${event.eventName || 'N/A'}</strong></td>
-                                <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(event.eventCount || 0)}</td>
-                                ${isComparing ? `
-                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(event.eventCount_compare || 0)}</td>
-                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(event.eventCount, event.eventCount_compare)}</td>
-                                ` : ''}
-                            </tr>
                         `;
-                    });
-                    reportHtml += `
+                        events.data.slice(0, 10).forEach(event => {
+                            reportHtml += `
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box; word-wrap: break-word;"><strong>${event.eventName || 'N/A'}</strong></td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(event.eventCount || 0)}</td>
+                                    ${isComparing ? `
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatNumber(event.eventCount_compare || 0)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem; box-sizing: border-box;">${formatPercentChange(event.eventCount, event.eventCount_compare)}</td>
+                                    ` : ''}
+                                </tr>
+                            `;
+                        });
+                        reportHtml += `
                                 </tbody>
                             </table>
-                        </div>
-                    `;
+                        `;
+                    }
+                    if (reportHasLeadBreakdown) {
+                        reportHtml += `
+                            <h3 style="color: #2c3e50; margin-top: 1.5rem; margin-bottom: 0.75rem; font-size: 1.1rem;">Confirmed form leads (<code>generate_lead</code>)</h3>
+                            <p style="color:#555;font-size:0.9rem;margin-bottom:0.75rem;">Successful Contact Form 7 sends, by <strong>form_context</strong> (contact page vs product enquire).</p>
+                            <div id="reportLeadsByContextChart" style="width: 100%; height: 360px; margin-bottom: 2rem; box-sizing: border-box;"></div>
+                            <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
+                                <colgroup>
+                                    <col style="width: ${isComparing ? '34%' : '70%'};">
+                                    <col style="width: ${isComparing ? '22%' : '30%'};">
+                                    ${isComparing ? '<col style="width: 22%;"><col style="width: 22%;">' : ''}
+                                </colgroup>
+                                <thead>
+                                    <tr style="background-color: #f8f9fa;">
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold;">Lead type</th>
+                                        <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold;">Count (${labelCurr})</th>
+                                        ${isComparing ? `
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold;">Count (${labelPrev})</th>
+                                            <th style="border: 1px solid #ddd; padding: 0.75rem; text-align: left; font-weight: bold;">Trend</th>
+                                        ` : ''}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+                        reportLeadRows.forEach(row => {
+                            reportHtml += `
+                                <tr>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem; word-wrap: break-word;"><strong>${formatFormContextLabel(row.form_context)}</strong></td>
+                                    <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(row.eventCount || 0)}</td>
+                                    ${isComparing ? `
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatNumber(row.eventCount_compare || 0)}</td>
+                                        <td style="border: 1px solid #ddd; padding: 0.75rem;">${formatPercentChange(row.eventCount, row.eventCount_compare)}</td>
+                                    ` : ''}
+                                </tr>
+                            `;
+                        });
+                        reportHtml += `
+                                </tbody>
+                            </table>
+                        `;
+                    }
+                    reportHtml += `</div>`;
                 }
 
                 // 8. Business Profile (only if checked)
@@ -6419,13 +6549,32 @@
                         const topEvents = events.data.slice(0, 10);
                         await convertChartToImage('reportEventsChart', [{
                             x: topEvents.map(e => e.eventName),
-                            y: topEvents.map(e => parseInt(e.eventCount)),
+                            y: topEvents.map(e => parseInt(e.eventCount, 10)),
                             type: 'bar',
                             marker: { color: '#ff5800' }
                         }], {
                             font: { family: 'Roboto', size: 12 },
+                            title: 'Top events',
                             xaxis: { title: 'Event Name', tickangle: -45 },
                             yaxis: { title: 'Event Count' },
+                            paper_bgcolor: 'rgba(0,0,0,0)',
+                            plot_bgcolor: 'rgba(0,0,0,0)'
+                        }, { staticPlot: true, displayModeBar: false });
+                    }
+
+                    // Confirmed leads by form_context
+                    if (sections.includes('Events') && events.generate_lead_by_context && events.generate_lead_by_context.length > 0) {
+                        const lr = events.generate_lead_by_context;
+                        await convertChartToImage('reportLeadsByContextChart', [{
+                            x: lr.map(r => formatFormContextLabel(r.form_context)),
+                            y: lr.map(r => parseInt(r.eventCount, 10)),
+                            type: 'bar',
+                            marker: { color: '#4a90e2' }
+                        }], {
+                            font: { family: 'Roboto', size: 12 },
+                            title: 'Confirmed leads by type',
+                            xaxis: { title: 'Lead type' },
+                            yaxis: { title: 'Count' },
                             paper_bgcolor: 'rgba(0,0,0,0)',
                             plot_bgcolor: 'rgba(0,0,0,0)'
                         }, { staticPlot: true, displayModeBar: false });
