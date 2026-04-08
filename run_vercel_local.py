@@ -37,6 +37,13 @@ if os.path.exists(public_path):
     def serve_keyterms():
         return FileResponse(os.path.join(public_path, "keyterms.json"))
 
+    @app.get("/dashboard-config.js", response_class=FileResponse)
+    def serve_dashboard_config():
+        return FileResponse(
+            os.path.join(public_path, "dashboard-config.js"),
+            media_type="application/javascript",
+        )
+
     _data_dir = os.path.join(public_path, "data")
     if os.path.exists(_data_dir):
         @app.get("/data/email_campaigns.json", response_class=FileResponse)
@@ -44,7 +51,9 @@ if os.path.exists(public_path):
             return FileResponse(os.path.join(_data_dir, "email_campaigns.json"))
 
     # Do NOT mount StaticFiles at "/" — it would shadow /api/* and cause 404s for analytics.
-    print(f"Serving static files from {public_path} (/, /version.txt, /keyterms.json, /data/email_campaigns.json)")
+    print(
+        f"Serving static files from {public_path} (/, /dashboard-config.js, /version.txt, /keyterms.json, /data/email_campaigns.json)"
+    )
 else:
     print(f"Warning: 'public' directory not found at {public_path}")
 

@@ -13,6 +13,16 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <style id="brand-var-fallbacks">
+        :root {
+            --brand-accent: rgb(255, 88, 0);
+            --brand-accent-hover: rgb(212, 61, 0);
+            --brand-header-bg: #000000;
+            --brand-body-text: #2c3e50;
+            --brand-page-bg: #f8f9fa;
+        }
+    </style>
+    <script src="/dashboard-config.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -24,15 +34,15 @@
 
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #f8f9fa;
-            color: #2c3e50;
+            background-color: var(--brand-page-bg);
+            color: var(--brand-body-text);
         }
 
         .header {
-            background: rgb(0, 0, 0);
+            background: var(--brand-header-bg);
             color: white;
             padding: 2rem;
-            border-left: 4px solid #ff5800;
+            border-left: 4px solid var(--brand-accent);
             margin-bottom: 0;
             display: flex;
             align-items: center;
@@ -294,7 +304,7 @@
         }
 
         button {
-            background-color: #ff5800;
+            background-color: var(--brand-accent);
             color: white;
             border: none;
             padding: 0.75rem 1.5rem;
@@ -306,7 +316,7 @@
         }
 
         button:hover {
-            background-color: #d43d00;
+            background-color: var(--brand-accent-hover);
         }
 
         .metrics-grid {
@@ -330,7 +340,7 @@
         }
 
         .metric-value {
-            color: #ff5800;
+            color: var(--brand-accent);
             font-size: 2rem;
             font-weight: 700;
         }
@@ -381,8 +391,8 @@
         }
 
         .tab-button.active {
-            color: #ff5800;
-            border-bottom-color: #ff5800;
+            color: var(--brand-accent);
+            border-bottom-color: var(--brand-accent);
             background: white;
             font-weight: 700;
         }
@@ -428,7 +438,7 @@
         }
 
         .tooltip-trigger:hover .tooltip-icon {
-            background: #ff5800;
+            background: var(--brand-accent);
         }
 
         .tooltip {
@@ -511,12 +521,12 @@
 
         .nav-item:hover {
             background: #f8f9fa;
-            color: #ff5800;
+            color: var(--brand-accent);
         }
 
         .nav-item.active {
-            color: #ff5800;
-            border-bottom-color: #ff5800;
+            color: var(--brand-accent);
+            border-bottom-color: var(--brand-accent);
             font-weight: 700;
         }
 
@@ -567,7 +577,7 @@
             margin: 0 0 1.25rem;
             color: #2c3e50;
             padding-bottom: 0.5rem;
-            border-bottom: 2px solid #ff5800;
+            border-bottom: 2px solid var(--brand-accent);
         }
 
         /* Inner table area — no second box (panel already is the card) */
@@ -685,8 +695,8 @@
             color: #2c3e50;
             background: #eef1f6;
             border: none;
-            border-bottom: 2px solid #ff5800;
-            border-left: 4px solid #ff5800;
+            border-bottom: 2px solid var(--brand-accent);
+            border-left: 4px solid var(--brand-accent);
             padding: 0.65rem 0.85rem 0.75rem 0.75rem;
             cursor: pointer;
             display: flex;
@@ -701,7 +711,7 @@
         }
 
         #simple-section .simple-stats-acc-trigger:focus {
-            outline: 2px solid #ff5800;
+            outline: 2px solid var(--brand-accent);
             outline-offset: 2px;
         }
 
@@ -710,8 +720,8 @@
             display: inline-block;
             width: 0.4rem;
             height: 0.4rem;
-            border-right: 2px solid #ff5800;
-            border-bottom: 2px solid #ff5800;
+            border-right: 2px solid var(--brand-accent);
+            border-bottom: 2px solid var(--brand-accent);
             transform: rotate(45deg);
             transition: transform 0.2s ease;
             flex-shrink: 0;
@@ -768,7 +778,7 @@
         }
 
         #simple-section .simple-stats-table tbody tr.simple-stats-embed + tr:not(.simple-stats-section-header) > td:first-child {
-            box-shadow: inset 4px 0 0 #ff5800;
+            box-shadow: inset 4px 0 0 var(--brand-accent);
         }
 
         #simple-section .simple-stats-muted {
@@ -784,7 +794,7 @@
             text-align: left;
             font-weight: 700;
             font-size: 1.125rem;
-            color: #ff5800;
+            color: var(--brand-accent);
             font-variant-numeric: tabular-nums;
             background: #fff;
         }
@@ -803,7 +813,7 @@
             font-size: 0.65rem;
             font-weight: 700;
             letter-spacing: 0.08em;
-            color: #ff5800;
+            color: var(--brand-accent);
             text-transform: uppercase;
             background: #fff5f0;
             padding: 0.2rem 0.5rem;
@@ -822,14 +832,14 @@
         }
 
         #simple-section .simple-oar-story-link:hover {
-            color: #ff5800;
-            border-bottom-color: #ff5800;
+            color: var(--brand-accent);
+            border-bottom-color: var(--brand-accent);
         }
 
         #simple-section .simple-oar-views-line {
             font-size: 0.8125rem;
             font-weight: 600;
-            color: #ff5800;
+            color: var(--brand-accent);
             font-variant-numeric: tabular-nums;
         }
 
@@ -897,7 +907,7 @@
         }
 
         #simple-section .simple-stats-toolbar #simple-stats-load-btn {
-            background: #ff5800 !important;
+            background: var(--brand-accent) !important;
             color: white !important;
             border: none !important;
             padding: 0.5rem 1.25rem !important;
@@ -911,7 +921,7 @@
         }
 
         #simple-section .simple-stats-toolbar #simple-stats-load-btn:hover {
-            background: #d43d00 !important;
+            background: var(--brand-accent-hover) !important;
         }
 
         #simple-section .simple-stats-toolbar .simple-stats-print-btn {
@@ -985,7 +995,7 @@
         #simple-section .simple-compare-mom-label input {
             width: 1rem;
             height: 1rem;
-            accent-color: #ff5800;
+            accent-color: var(--brand-accent);
             cursor: pointer;
         }
 
@@ -1072,8 +1082,8 @@
         }
 
         #simple-section .simple-month-picker-actions .simple-month-quick:hover {
-            border-color: #ff5800 !important;
-            color: #ff5800 !important;
+            border-color: var(--brand-accent) !important;
+            color: var(--brand-accent) !important;
         }
 
         #simple-section .simple-month-picker {
@@ -1106,12 +1116,12 @@
         }
 
         #simple-section .simple-month-chip:hover {
-            border-color: #ff5800;
+            border-color: var(--brand-accent);
         }
 
         #simple-section .simple-month-chip input {
             margin: 0;
-            accent-color: #ff5800;
+            accent-color: var(--brand-accent);
         }
 
         /* Nested Q1 grids: lead column lines up with main “label” column; month pairs = main Jan–Apr */
@@ -1195,7 +1205,7 @@
             background: #f8f9fa;
             color: #2c3e50;
             font-weight: 700;
-            border-bottom: 2px solid #ff5800;
+            border-bottom: 2px solid var(--brand-accent);
             border-right: 1px solid #e0e0e0;
             border-top: none;
             border-left: none;
@@ -1341,7 +1351,7 @@
         #simple-section table.simple-pages-subtable td.simple-page-amount {
             text-align: left;
             font-weight: 700;
-            color: #ff5800;
+            color: var(--brand-accent);
             white-space: nowrap;
             font-variant-numeric: tabular-nums;
         }
@@ -1469,7 +1479,7 @@
                 left: 0;
                 right: 0;
                 height: 1.5cm;
-                border-top: 2px solid #ff5800;
+                border-top: 2px solid var(--brand-accent);
                 background: white;
                 z-index: 1000;
                 page-break-inside: avoid;
@@ -1602,7 +1612,7 @@
                 background-color: #f8f9fa;
                 font-weight: 700;
                 color: #2c3e50;
-                border-bottom: 2px solid #ff5800;
+                border-bottom: 2px solid var(--brand-accent);
             }
 
             #glossary-section table tr:last-child td {
@@ -1694,7 +1704,7 @@
                 color: black !important;
                 margin: 0.8cm 0 0.4cm 0 !important;
                 padding-bottom: 0.2cm !important;
-                border-bottom: 1.5pt solid #ff5800 !important;
+                border-bottom: 1.5pt solid var(--brand-accent) !important;
                 page-break-after: avoid !important;
                 page-break-inside: avoid !important;
                 font-weight: bold !important;
@@ -1884,10 +1894,10 @@
             }
 
             /* Orange accents - keep for headers but ensure readability */
-            h2[style*="color: #ff5800"],
+            h2[style*="color: var(--brand-accent)"],
             h2[style*="color: #FE5000"] {
-                color: #ff5800 !important;
-                border-bottom: 2pt solid #ff5800 !important;
+                color: var(--brand-accent) !important;
+                border-bottom: 2pt solid var(--brand-accent) !important;
             }
 
             /* Tooltip triggers and specific styled spans should keep their color if functional */
@@ -1897,10 +1907,10 @@
             }
 
             /* Orange accents - keep for headers but ensure readability */
-            h2[style*="color: #ff5800"],
+            h2[style*="color: var(--brand-accent)"],
             h2[style*="color: #FE5000"] {
                 color: black !important;
-                border-bottom: 2pt solid #ff5800 !important;
+                border-bottom: 2pt solid var(--brand-accent) !important;
             }
 
             /* Report header */
@@ -1908,7 +1918,7 @@
                 text-align: center !important;
                 margin-bottom: 1cm !important;
                 padding-bottom: 0.5cm !important;
-                border-bottom: 2pt solid #ff5800 !important;
+                border-bottom: 2pt solid var(--brand-accent) !important;
             }
 
             /* Monospace text */
@@ -1968,7 +1978,7 @@
                 text-align: left !important;
                 margin: 0 0 0.5cm 0 !important;
                 padding: 0 0 0.4cm 0 !important;
-                border-bottom: 2pt solid #ff5800 !important;
+                border-bottom: 2pt solid var(--brand-accent) !important;
                 page-break-after: avoid !important;
                 page-break-inside: avoid !important;
             }
@@ -2079,7 +2089,7 @@
                 color: black !important;
                 font-weight: bold !important;
                 border: none !important;
-                border-bottom: 2pt solid #ff5800 !important;
+                border-bottom: 2pt solid var(--brand-accent) !important;
                 padding: 0.26cm 0.2cm !important;
                 font-size: 10pt !important;
             }
@@ -2131,7 +2141,7 @@
                 background: #f3f4f6 !important;
                 color: black !important;
                 border: none !important;
-                border-bottom: 1.5pt solid #ff5800 !important;
+                border-bottom: 1.5pt solid var(--brand-accent) !important;
                 font-size: 9pt !important;
                 padding: 0.18cm 0.15cm !important;
             }
@@ -2178,7 +2188,7 @@
                 cursor: default !important;
                 background: transparent !important;
                 border: none !important;
-                border-bottom: 1.5pt solid #ff5800 !important;
+                border-bottom: 1.5pt solid var(--brand-accent) !important;
                 font-size: 12pt !important;
                 font-weight: bold !important;
                 color: black !important;
@@ -2264,13 +2274,13 @@
 
         .password-input-group input:focus {
             outline: none;
-            border-color: #ff5800;
+            border-color: var(--brand-accent);
         }
 
         .password-submit-btn {
             width: 100%;
             padding: 1rem;
-            background-color: #ff5800;
+            background-color: var(--brand-accent);
             color: white;
             border: none;
             border-radius: 8px;
@@ -2281,7 +2291,7 @@
         }
 
         .password-submit-btn:hover {
-            background-color: #d43d00;
+            background-color: var(--brand-accent-hover);
         }
 
         .password-error {
@@ -2374,7 +2384,7 @@
     <div id="password-protection-overlay">
         <div class="password-modal">
             <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png"
-                alt="Tenacious Tapes Logo" style="height: 60px; max-height: 60px; width: auto; max-width: 200px;">
+                alt="" data-brand-logo style="height: 60px; max-height: 60px; width: auto; max-width: 200px;">
             <h2>🔒 Protected Dashboard</h2>
             <p>Please enter the password to open the dashboard</p>
             <form id="password-form" onsubmit="checkPassword(event)">
@@ -2392,10 +2402,10 @@
         <div class="header">
             <div class="container" style="display: flex; align-items: center; gap: 1.5rem;">
                 <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/08/logo-1-scaled.png"
-                    alt="Tenacious Tapes Logo" class="header-logo">
+                    alt="" data-brand-logo-header class="header-logo">
                 <div class="header-content">
-                    <h1>📊 Tenacious Stats Dashboard</h1>
-                    <p>Website stats for Tenacious Tapes — adhesive tapes for every application</p>
+                    <h1 data-brand-dashboard-heading>📊 Tenacious Stats Dashboard</h1>
+                    <p data-brand-header-subtitle>Website stats for Tenacious Tapes — adhesive tapes for every application</p>
                 </div>
             </div>
         </div>
@@ -2459,12 +2469,12 @@
                 <!-- Print Header (only visible when printing) -->
                 <div class="glossary-print-header" style="display: none;">
                     <div
-                        style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid #ff5800;">
+                        style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid var(--brand-accent);">
                         <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png"
-                            alt="Tenacious Tapes Logo"
+                            alt="" data-brand-logo
                             style="height: 60px; max-height: 60px; width: auto; max-width: 200px; margin-bottom: 1rem;">
                         <h1 style="color: #2c3e50; margin-bottom: 0.5rem; font-size: 2rem;">Word list</h1>
-                        <p style="color: #7f8c8d; font-size: 1.1rem;">Tenacious Tapes - Adhesive Tapes for every
+                        <p data-brand-glossary-tagline style="color: #7f8c8d; font-size: 1.1rem;">Tenacious Tapes - Adhesive Tapes for every
                             application</p>
                     </div>
                 </div>
@@ -2472,7 +2482,7 @@
                 <!-- Print Button (outside section) -->
                 <div style="margin-bottom: 1.5rem; text-align: right;">
                     <button onclick="window.print()"
-                        style="background-color: #ff5800; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        style="background-color: var(--brand-accent); color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                         🖨️ Print word list
                     </button>
                 </div>
@@ -2482,7 +2492,7 @@
                     <p style="margin-bottom: 2rem; color: #7f8c8d;">What the numbers and labels on this dashboard mean. On the main screen, hover a label for a short explanation.</p>
 
                     <h3
-                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        style="color: var(--brand-accent); margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid var(--brand-accent); padding-bottom: 0.5rem;">
                         Main numbers (overview)</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
@@ -2553,7 +2563,7 @@
                     </table>
 
                     <h3
-                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        style="color: var(--brand-accent); margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid var(--brand-accent); padding-bottom: 0.5rem;">
                         Where visits came from</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
@@ -2634,7 +2644,7 @@
                     </table>
 
                     <h3
-                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        style="color: var(--brand-accent); margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid var(--brand-accent); padding-bottom: 0.5rem;">
                         Popular pages & product searches</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
@@ -2673,7 +2683,7 @@
                     </table>
 
                     <h3
-                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        style="color: var(--brand-accent); margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid var(--brand-accent); padding-bottom: 0.5rem;">
                         New vs returning</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
@@ -2721,7 +2731,7 @@
                     </table>
 
                     <h3
-                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        style="color: var(--brand-accent); margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid var(--brand-accent); padding-bottom: 0.5rem;">
                         Places & devices</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
@@ -2760,7 +2770,7 @@
                     </table>
 
                     <h3
-                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        style="color: var(--brand-accent); margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid var(--brand-accent); padding-bottom: 0.5rem;">
                         Tracked actions</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
@@ -2874,7 +2884,7 @@
                     </table>
 
                     <h3
-                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        style="color: var(--brand-accent); margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid var(--brand-accent); padding-bottom: 0.5rem;">
                         Understanding Growth & Percentage Change</h3>
                     <div
                         style="background: #fdf2f2; border: 1px solid #f9d5d5; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
@@ -2898,7 +2908,7 @@
                     </div>
 
                     <h3
-                        style="color: #ff5800; margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid #ff5800; padding-bottom: 0.5rem;">
+                        style="color: var(--brand-accent); margin-top: 2rem; margin-bottom: 1rem; border-bottom: 2px solid var(--brand-accent); padding-bottom: 0.5rem;">
                         Google Business Profile</h3>
                     <table class="report-table"
                         style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; margin-bottom: 2rem;">
@@ -2965,8 +2975,8 @@
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem;">
                         <!-- Period A -->
                         <div
-                            style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #ff5800;">
-                            <h3 style="color: #ff5800; margin-bottom: 1rem;">📅 Current Period</h3>
+                            style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid var(--brand-accent);">
+                            <h3 style="color: var(--brand-accent); margin-bottom: 1rem;">📅 Current Period</h3>
                             <div style="margin-bottom: 1rem;">
                                 <select id="monthSelectA" onchange="handleMonthSelect('A')"
                                     style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; background: white;">
@@ -3024,7 +3034,7 @@
                     </label>
 
                     <button onclick="loadComparisonData()"
-                        style="background: #ff5800; color: white; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer;">
+                        style="background: var(--brand-accent); color: white; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-size: 1rem; font-weight: 500; cursor: pointer;">
                         🔄 Compare Periods
                     </button>
                 </div>
@@ -3043,7 +3053,7 @@
                 <div class="simple-stats-wrap simple-stats-panel">
                     <div class="simple-stats-print-header" aria-hidden="true">
                         <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png"
-                            alt="Tenacious Tapes" class="simple-stats-print-logo">
+                            alt="" data-brand-logo class="simple-stats-print-logo">
                         <h1 class="simple-stats-print-title" id="simple-print-header-title">Sales stats</h1>
                         <p class="simple-stats-print-meta"><strong id="simple-print-header-months">—</strong></p>
                         <p class="simple-stats-print-meta">Calendar year: <span id="simple-print-header-year">—</span></p>
@@ -3117,16 +3127,19 @@
         </button>
 
         <div class="footer">
-            <p><strong>Tenacious Tapes</strong> - Adhesive Tapes for every application</p>
-            <p>📞 +61 (0)3 9580 5573 | ✉️ customerservice@tenacioustapes.com.au</p>
+            <div id="brand-footer-lines"></div>
             <p class="footer-version" id="versionDisplay">Build v1.1.0</p>
         </div>
     </div> <!-- End main-content -->
 
     <script>
+        const __dc = window.DASHBOARD_CONFIG || {};
+        const BRAND_ACCENT = (__dc.colors && __dc.colors.accent) || '#ff5800';
+        const BRAND_ACCENT_HOVER = (__dc.colors && __dc.colors.accentHover) || '#d43d00';
+
         // Password Protection - FREE Solution
         // Password: Tenacious2025 (change this to your preferred password)
-        const DASHBOARD_PASSWORD = 'Tenacious2025';
+        const DASHBOARD_PASSWORD = (__dc.password) || 'Tenacious2025';
         const AUTH_KEY = 'dashboard_authenticated';
 
         // Check if we're in local development (skip password protection and use local API)
@@ -3930,7 +3943,7 @@
                         featEl.textContent = '—';
                     } else {
                         const slug = String(b.oarFeaturedSlug).replace(/^\/+|\/+$/g, '');
-                        const articleUrl = 'https://www.tenacioustapes.com.au/' + encodeURIComponent(slug).replace(/%2F/g, '/') + '/';
+                        const articleUrl = (__dc.sitePublicBaseUrl || 'https://www.tenacioustapes.com.au').replace(/\/+$/, '') + '/' + encodeURIComponent(slug).replace(/%2F/g, '/') + '/';
                         const linkLabel = (b.oarFeaturedTitle && String(b.oarFeaturedTitle).trim()) || slug;
                         const monthTag = (b.oarStoryMonthShort && String(b.oarStoryMonthShort).trim())
                             ? String(b.oarStoryMonthShort).trim()
@@ -4403,7 +4416,7 @@
                             // Sort by value to ensure largest slices get most distinct colors
                             const sortedData = [...data].sort((a, b) => b.value - a.value);
                             // Use very distinct colors - orange for brand, blue for second, then varied colors
-                            const colorPalette = ['#ff5800', '#4a90e2', '#50c878', '#f39c12', '#9b59b6', '#e74c3c', '#1abc9c', '#34495e', '#e67e22', '#16a085'];
+                            const colorPalette = [BRAND_ACCENT, '#4a90e2', '#50c878', '#f39c12', '#9b59b6', '#e74c3c', '#1abc9c', '#34495e', '#e67e22', '#16a085'];
                             // Map colors to sorted data, then reorder to original data order
                             const colorMap = new Map();
                             sortedData.forEach((item, idx) => {
@@ -4540,7 +4553,7 @@
                                 values: data.map(d => d.value),
                                 labels: data.map(d => d.name),
                                 type: 'pie',
-                                marker: { colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12'] }
+                                marker: { colors: [BRAND_ACCENT, '#4a90e2', '#50c878', '#f39c12'] }
                             }], {
                                 title: 'New vs returning people',
                                 font: { family: 'Roboto' }
@@ -4649,7 +4662,7 @@
                                     x: topCountries.map(c => c.country),
                                     y: topCountries.map(c => parseInt(c.sessions)),
                                     type: 'bar',
-                                    marker: { color: '#ff5800' }
+                                    marker: { color: BRAND_ACCENT }
                                 }], {
                                     title: 'Visits by country (top 10)',
                                     xaxis: { title: 'Country' },
@@ -4717,7 +4730,7 @@
                                 values: data.map(d => d.value),
                                 labels: data.map(d => d.name),
                                 type: 'pie',
-                                marker: { colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12'] }
+                                marker: { colors: [BRAND_ACCENT, '#4a90e2', '#50c878', '#f39c12'] }
                             }], {
                                 title: 'Visits by device type',
                                 font: { family: 'Roboto' }
@@ -4841,7 +4854,7 @@
                                     x: topEvents.map(e => e.eventName),
                                     y: topEvents.map(e => parseInt(e.eventCount, 10)),
                                     type: 'bar',
-                                    marker: { color: '#ff5800' }
+                                    marker: { color: BRAND_ACCENT }
                                 }], {
                                     title: 'Common actions (top 10)',
                                     xaxis: { title: 'Event Name', tickangle: -45 },
@@ -5148,7 +5161,7 @@
                                     y: values1,
                                     name: camp1.emailname,
                                     type: 'bar',
-                                    marker: { color: '#ff5800' }
+                                    marker: { color: BRAND_ACCENT }
                                 },
                                 {
                                     x: metrics,
@@ -5639,8 +5652,8 @@
                 // For web display, we'll use ~794px width (A4 width at 96 DPI)
                 let reportHtml = `
                     <div class="section" style="max-width: 794px; width: 794px; margin: 0 auto; background: white; padding: 20px; box-sizing: border-box;" id="reportContainer">
-                        <div style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid #ff5800;">
-                            <img src="https://www.tenacioustapes.com.au/wp-content/uploads/2025/12/tenacious-tapes-logo-scaled.png" alt="Tenacious Tapes Logo" class="report-logo" style="height: 60px; max-height: 60px; width: auto; max-width: 200px; margin-bottom: 1rem;">
+                        <div style="text-align: center; margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 2px solid ${BRAND_ACCENT};">
+                            <img src="${__dc.logoUrl}" alt="" class="report-logo" style="height: 60px; max-height: 60px; width: auto; max-width: 200px; margin-bottom: 1rem;">
                             <h1 style="color: #2c3e50; margin-bottom: 0.5rem;">Monthly Website Analytics Report</h1>
                             <p style="color: #7f8c8d; font-size: 1.1rem;"><strong>${monthName}</strong></p>
                             <p style="color: #7f8c8d; margin-bottom: 0.25rem;">Period: ${formattedStartDate} to ${formattedEndDate}</p>
@@ -5648,7 +5661,7 @@
                         </div>
                         
                         <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px solid #e0e0e0; box-sizing: border-box;">
-                            <h2 style="color: #ff5800; margin-bottom: 1rem; font-size: 1.5rem;">Executive Summary</h2>
+                            <h2 style="color: ${BRAND_ACCENT}; margin-bottom: 1rem; font-size: 1.5rem;">Executive Summary</h2>
                              <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <tr>
                                     <td style="padding: 0.75rem; border: 1px solid #ddd; width: 50%; box-sizing: border-box;"><strong>Total Sessions:</strong></td>
@@ -5703,7 +5716,7 @@
                 if (sections.includes('Traffic Sources')) {
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section" data-is-first-section="true">
-                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Traffic Sources</h2>
+                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${BRAND_ACCENT};" class="report-section-title">${sectionNum++}. Traffic Sources</h2>
                             <div id="reportSourcesChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box; overflow: visible;"></div>
                              <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
@@ -5756,7 +5769,7 @@
                 if (sections.includes('Top Pages')) {
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
-                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Top Pages</h2>
+                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${BRAND_ACCENT};" class="report-section-title">${sectionNum++}. Top Pages</h2>
                              <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
                                     <col style="width: ${isComparing ? '22%' : '35%'};">
@@ -5814,7 +5827,7 @@
                 if (sections.includes('Top Pages') && productPages.length > 0) {
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
-                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Most Searched Products</h2>
+                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${BRAND_ACCENT};" class="report-section-title">${sectionNum++}. Most Searched Products</h2>
                     `;
 
                     if (productPages.length > 0) {
@@ -5876,7 +5889,7 @@
                     const returnSessions = returningUsers ? parseFloat(returningUsers.sessions) : 0;
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
-                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. User Retention</h2>
+                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${BRAND_ACCENT};" class="report-section-title">${sectionNum++}. User Retention</h2>
                             <div id="reportRetentionChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box;"></div>
                             <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
@@ -5925,7 +5938,7 @@
                 if (sections.includes('Geographics') && (cities.data && cities.data.length > 0 || countries.data && countries.data.length > 0)) {
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
-                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Geographic Distribution</h2>
+                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${BRAND_ACCENT};" class="report-section-title">${sectionNum++}. Geographic Distribution</h2>
                     `;
 
                     // Countries Chart (Top 10)
@@ -5989,7 +6002,7 @@
                 if (sections.includes('Tech/Devices') && devices.data && devices.data.length > 0) {
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
-                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Device Categories</h2>
+                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${BRAND_ACCENT};" class="report-section-title">${sectionNum++}. Device Categories</h2>
                             <div id="reportDevicesChart" style="width: 100%; height: 400px; margin-bottom: 3rem; padding-bottom: 2rem; box-sizing: border-box;"></div>
                             <table class="report-table" style="width: 100%; border-collapse: collapse; border: 1px solid #ddd; box-sizing: border-box; table-layout: fixed;">
                                 <colgroup>
@@ -6047,7 +6060,7 @@
                         : (reportHasLeadBreakdown ? 'Confirmed form leads' : 'Top Events');
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
-                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. ${topEventsTitle}</h2>
+                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${BRAND_ACCENT};" class="report-section-title">${sectionNum++}. ${topEventsTitle}</h2>
                             ${leadErrHtml}
                     `;
                     if (reportHasTopEvents) {
@@ -6141,7 +6154,7 @@
                     if (hasInsights) {
                         reportHtml += `
                             <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
-                                <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Google Business Profile</h2>
+                                <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${BRAND_ACCENT};" class="report-section-title">${sectionNum++}. Google Business Profile</h2>
                         `;
 
                         if (hasInsights) {
@@ -6215,7 +6228,7 @@
                     };
                     reportHtml += `
                         <div style="margin-bottom: 2rem; page-break-inside: avoid; page-break-before: always; width: 100%; box-sizing: border-box; overflow: visible;" class="report-section">
-                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #ff5800;" class="report-section-title">${sectionNum++}. Email Campaigns Comparison</h2>
+                            <h2 style="color: #2c3e50; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid ${BRAND_ACCENT};" class="report-section-title">${sectionNum++}. Email Campaigns Comparison</h2>
                             <p style="color: #64748b; margin-bottom: 0.5rem;">Comparing: <strong>${camp1.emailname}</strong> vs <strong>${camp2.emailname}</strong></p>
                             <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 0.5rem;"><strong>Trend guide:</strong> For <strong>Opens</strong> and <strong>Clicks</strong>, ▲ up is good. For <strong>Bounces</strong>, <strong>Unopened</strong>, and <strong>Unsubscribes</strong>, ▼ down is good.</p>
                             <p style="font-size: 0.85rem; color: #94a3b8; font-style: italic; margin-bottom: 1rem;">${emailNoteReport}${updatedNoteReport}</p>
@@ -6273,7 +6286,7 @@
                             <button onclick="window.print()" style="background-color: #7f8c8d; color: white; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem;">
                                 🖨️ Print Report
                             </button>
-                            <button onclick="generatePDF()" style="background-color: #ff5800; color: white; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem;">
+                            <button onclick="generatePDF()" style="background-color: ${BRAND_ACCENT}; color: white; border: none; padding: 0.75rem 2rem; border-radius: 6px; font-weight: 500; cursor: pointer; font-size: 1rem;">
                                 📄 Download PDF
                             </button>
                         </div>
@@ -6465,7 +6478,7 @@
                     if (sections.includes('Traffic Sources') && sources.data && sources.data.length > 0) {
                         const chartData = sources.data.map(d => ({ name: d.sessionSourceMedium, value: parseInt(d.sessions) }));
                         const sortedData = [...chartData].sort((a, b) => b.value - a.value);
-                        const colorPalette = ['#ff5800', '#4a90e2', '#50c878', '#f39c12', '#9b59b6', '#e74c3c', '#1abc9c', '#34495e', '#e67e22', '#16a085'];
+                        const colorPalette = [BRAND_ACCENT, '#4a90e2', '#50c878', '#f39c12', '#9b59b6', '#e74c3c', '#1abc9c', '#34495e', '#e67e22', '#16a085'];
                         const colorMap = new Map();
                         sortedData.forEach((item, idx) => {
                             colorMap.set(item.name, colorPalette[idx % colorPalette.length]);
@@ -6495,7 +6508,7 @@
                             values: retentionData.map(d => d.value),
                             labels: retentionData.map(d => d.name),
                             type: 'pie',
-                            marker: { colors: ['#ff5800', '#4a90e2'] },
+                            marker: { colors: [BRAND_ACCENT, '#4a90e2'] },
                             textinfo: 'label+percent',
                             textposition: 'outside',
                             domain: { x: [0.1, 0.9], y: [0.1, 0.9] }
@@ -6515,7 +6528,7 @@
                             x: topCountries.map(c => c.country || 'N/A'),
                             y: topCountries.map(c => parseInt(c.sessions || 0)),
                             type: 'bar',
-                            marker: { color: '#ff5800' }
+                            marker: { color: BRAND_ACCENT }
                         }], {
                             font: { family: 'Roboto', size: 12 },
                             title: 'Sessions by Country (Top 10)',
@@ -6533,7 +6546,7 @@
                             values: deviceData.map(d => d.value),
                             labels: deviceData.map(d => d.name),
                             type: 'pie',
-                            marker: { colors: ['#ff5800', '#4a90e2', '#50c878', '#f39c12'] },
+                            marker: { colors: [BRAND_ACCENT, '#4a90e2', '#50c878', '#f39c12'] },
                             textinfo: 'label+percent',
                             textposition: 'outside'
                         }], {
@@ -6551,7 +6564,7 @@
                             x: topEvents.map(e => e.eventName),
                             y: topEvents.map(e => parseInt(e.eventCount, 10)),
                             type: 'bar',
-                            marker: { color: '#ff5800' }
+                            marker: { color: BRAND_ACCENT }
                         }], {
                             font: { family: 'Roboto', size: 12 },
                             title: 'Top events',
@@ -6594,7 +6607,7 @@
                                 y: values1,
                                 name: camp1.emailname,
                                 type: 'bar',
-                                marker: { color: '#ff5800' }
+                                marker: { color: BRAND_ACCENT }
                             },
                             {
                                 x: metrics,
@@ -6667,7 +6680,7 @@
             // Configure PDF options for A4 paper (210mm x 297mm = 8.27" x 11.69")
             const opt = {
                 margin: [0.4, 0.4, 0.4, 0.4], // Smaller margins for more content
-                filename: `Tenacious_Stats_Report_${new Date().toISOString().split('T')[0]}.pdf`,
+                filename: `${(__dc.filenames && __dc.filenames.pdfReportPrefix) || 'Tenacious_Stats_Report'}_${new Date().toISOString().split('T')[0]}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: {
                     scale: 2,
@@ -6836,7 +6849,7 @@
                 // Create download link
                 const dateStr = new Date().toISOString().split('T')[0];
                 const link = document.createElement('a');
-                link.download = `Tenacious_Stats_Report_${dateStr}.png`;
+                link.download = `${(__dc.filenames && __dc.filenames.pngReportPrefix) || 'Tenacious_Stats_Report'}_${dateStr}.png`;
                 link.href = imgData;
 
                 // Trigger download
@@ -7184,7 +7197,7 @@
             if (winner.val < 5) return ''; // Don't show if growth is small
 
             return `
-                <div class="shiny-card mb-6 p-6 border-l-4 border-brand-orange" style="border-left-color: #ff5800;">
+                <div class="shiny-card mb-6 p-6 border-l-4 border-brand-orange" style="border-left-color: ${BRAND_ACCENT};">
                     <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div class="max-w-2xl">
                           <div class="inline-flex items-center gap-2 rounded-full bg-slate-900 px-3 py-1 text-xs font-semibold text-white mb-3" style="background-color: #0f172a; color: white; width: fit-content;">
@@ -7353,13 +7366,13 @@
                     <div class="flex-between mb-2 text-sm">
                         <span class="font-bold text-slate-900">${label}</span>
                         <div class="text-xs font-bold" style="display: flex; gap: 1rem;">
-                            <span style="color: #ff5800;"><i class="fas fa-desktop"></i> Desktop ${stats.d}%</span>
+                            <span style="color: ${BRAND_ACCENT};"><i class="fas fa-desktop"></i> Desktop ${stats.d}%</span>
                             <span style="color: #4a90e2;"><i class="fas fa-mobile-alt"></i> Mobile ${stats.m}%</span>
                             ${showTablet ? `<span style="color: #9cb0c4;">Tablet ${stats.t}%</span>` : ''}
                         </div>
                     </div>
                     <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden flex shadow-inner" style="background-color: #e5e7eb;">
-                        <div class="h-full flex-center text-xs text-white" style="width: ${stats.d}%; background-color: #ff5800;" title="Desktop: ${stats.d}%"></div>
+                        <div class="h-full flex-center text-xs text-white" style="width: ${stats.d}%; background-color: ${BRAND_ACCENT};" title="Desktop: ${stats.d}%"></div>
                         <div class="h-full flex-center text-xs text-white" style="width: ${stats.m}%; background-color: #4a90e2;" title="Mobile: ${stats.m}%"></div>
                         ${showTablet ? `<div class="h-full flex-center text-xs text-white" style="width: ${stats.t}%; background-color: #9cb0c4;" title="Tablet: ${stats.t}%"></div>` : ''}
                     </div>
@@ -7401,7 +7414,7 @@
                 useCORS: true
             }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Tenacious-Stats-Comparison.png';
+                link.download = (__dc.filenames && __dc.filenames.comparisonPng) ? `${__dc.filenames.comparisonPng}.png` : 'Tenacious-Stats-Comparison.png';
                 link.href = canvas.toDataURL('image/png');
                 link.click();
                 button.innerHTML = '<i class="fas fa-download"></i> Download Report';
