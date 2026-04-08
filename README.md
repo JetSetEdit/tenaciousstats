@@ -1,12 +1,6 @@
-# Sealrite WSM Stats
+# Tenacious Stats
 
-Welcome — this repo is the **Sealrite WSM** analytics hub: a single-page dashboard backed by a small Python API. Use it to review **Google Analytics 4** traffic, optional **Google Business Profile** metrics, and static **email campaign** data in one place.
-
-**Customize branding** (logo, colours, titles, footer, client password) in [`public/dashboard-config.js`](public/dashboard-config.js). **Wire up data** with `PROPERTY_ID` and Google credentials (see [SETUP.md](SETUP.md)); nothing secret lives in that JS file except the lightweight dashboard gate.
-
-This project was split out from the Tenacious Stats stack so Sealrite can evolve and deploy on its own while keeping the same architecture.
-
----
+GA4 analytics dashboard + API. One HTML dashboard and a FastAPI backend; runs locally or on Vercel/Docker.
 
 ## Quick start
 
@@ -25,7 +19,7 @@ Open **http://localhost:8000** (dashboard and API).
 
 | Path | Purpose |
 |------|--------|
-| `public/` | Dashboard (`index.html`, `dashboard-config.js` branding, `keyterms.json`, `version.txt`) |
+| `public/` | Dashboard (index.html, keyterms.json, version.txt) |
 | `api/` | FastAPI app: GA4 analytics + optional GBP (index.py, gbp.py) |
 | `utils/` | GA4 helpers (ga4_utils.py) |
 | `run_vercel_local.py` | Serves dashboard + API on port 8000 |
